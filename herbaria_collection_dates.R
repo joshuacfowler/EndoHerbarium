@@ -371,15 +371,16 @@ leaflet() %>%
 
 # make a table of mean month by species
 all_county1<- allspp %>%
-  group_by(stateProvince, county, specificEpithet) %>% 
+  group_by(stateProvince, specificEpithet) %>% 
   summarize(mean_month = mean(month, na.rm = TRUE),
             samplesize = n())
-table(all_county1$mean_month, all_county1$specificEpithet)
+table(all_county1$stateProvince, all_county1$specificEpithet,  all_county1$mean_month)
 
-
+View(all_county1)
 all_county2<- allspp %>%
   group_by(specificEpithet) %>% 
   summarize(mean_month = mean(month, na.rm = TRUE),
             samplesize = n())
 table(all_county2$mean_month, all_county2$specificEpithet)
 unique(all_county2$specificEpithet)
+View(all_county2)
