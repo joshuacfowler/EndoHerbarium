@@ -36,9 +36,15 @@ forcollections <- allspp %>%
          genus, specificEpithet,
          eventDate, year, month, day, verbatimEventDate, occurrenceRemarks,
          habitat, reproductiveCondition, country, stateProvince, county,
-         municipality, locationRemarks, decimalLatitude, decimalLongitude, 
+         municipality,locality, locationRemarks, decimalLatitude, decimalLongitude, 
          coordinateUncertaintyInMeters, verbatimCoordinates, maximumElevationInMeters,
          verbatimElevation, collId, recordId, references)
+nagadoches <- forcollections %>% 
+  filter(stateProvince == "Texas" | stateProvince == "TEXAS" | stateProvince == "Louisiana") %>% 
+  filter(genus != "Elymus")
+
+write_csv(nagadoches, path = "TX_LA_records.csv")
+
 
 # View(forcollections)
 # write_csv(forcollections, path = "collections1980_2019.csv")
