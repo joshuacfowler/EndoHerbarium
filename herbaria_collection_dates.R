@@ -12,12 +12,38 @@ library(viridis)
 library(raster)
 library(maps)
 # Load in our downloaded data
-POAU <- read.csv("SymbOutput_2019-04-09_073934_DwC-A_POAU/occurrences.csv")
-SPNI <- read.csv("SymbOutput_2019-04-09_074053_DwC-A_SPNI/occurrences.csv")
-AGPE <- read.csv("SymbOutput_2019-04-09_074419_DwC-A_AGPE/occurrences.csv")
-AGHY <- read.csv("SymbOutput_2019-04-09_074328_DwC-A_AGHY/occurrences.csv")
-ELCA <- read.csv("SymbOutput_2019-04-09_074622_DwC-A_ELCA/occurrences.csv")
-ELVI <- read.csv("SymbOutput_2019-04-09_074502_DwC-A_ELVI/occurrences.csv")
+POAU <- as.data.frame(read_csv("SymbOutput_2019-04-24_150949_DwC-A_POAU1980/occurrences.csv"))
+SPNI <- as.data.frame(read_csv("SymbOutput_2019-04-24_152243_DwC-A_SPNI1980/occurrences.csv"))
+AGPE <- as.data.frame(read_csv("SymbOutput_2019-04-24_151423_DwC-A_AGPE1980/occurrences.csv"))
+AGHY <- as.data.frame(read_csv("SymbOutput_2019-04-24_151226_DwC-A_AGHY1980/occurrences.csv"))
+ELCA <- as.data.frame(read_csv("SymbOutput_2019-04-24_151355_DwC-A_ELCA1980/occurrences.csv"))
+ELVI <- as.data.frame(read_csv("SymbOutput_2019-04-24_151312_DwC-A_ELVI1980/occurrences.csv"))
+FEPA <- as.data.frame(read_csv("SymbOutput_2019-04-24_151635_DwC-A_FEPA1980/occurrences.csv"))
+
+# merge all the species into one
+allspp <- POAU %>% 
+  rbind(SPNI) %>% 
+  rbind(AGHY) %>% 
+  rbind(AGPE) %>% 
+  rbind(ELVI) %>% 
+  rbind(ELCA) %>% 
+  rbind(FEPA) 
+# View(allspp)
+
+
+forcollections <- allspp %>% 
+  dplyr::select(id, institutionCode, family, scientificName, taxonID,
+         genus, specificEpithet,
+         eventDate, year, month, day, verbatimEventDate, occurrenceRemarks,
+         habitat, reproductiveCondition, country, stateProvince, county,
+         municipality, locationRemarks, decimalLatitude, decimalLongitude, 
+         coordinateUncertaintyInMeters, verbatimCoordinates, maximumElevationInMeters,
+         verbatimElevation, collId, recordId, references)
+
+# View(forcollections)
+# write_csv(forcollections, path = "collections1980_2019.csv")
+
+
 
 # now I'm going to group the data by location
 # POAU
@@ -332,15 +358,65 @@ leaflet() %>%
             title = "Mean Month",
             opacity = 1)
 
+# now I'm going to group the data by location
+# FEPA
+FEPA_loc <- FEPA %>% 
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>% 
+  mutate(bin = cut(decimalLongitude, breaks = 20)) %>% 
+  group_by(bin) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            mean_long = mean(decimalLongitude, na.rm = TRUE),
+            samplesize = n())
+FEPA_loc
+
+FEPA_dates <- ggplot(data = FEPA_loc)+
+  geom_point(aes(x = mean_long, y = mean_month, size = samplesize))+
+  geom_smooth(aes(x = mean_long, y = mean_month), method = "glm")
+FEPA_dates
+
+FEPA_state <- FEPA %>%
+  group_by(stateProvince) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            samplesize = n())
+level_order <- c("New Mexico", "Texas", "TEXAS", "Oklahoma", "Arkansas", "Louisiana", "Mississippi","Tennessee", "Kentucky", "Ohio", "Alabama", "Georgia", "Florida", "North Carolina", "South Carolina", "Virginia", "Maryland")
+
+FEPA_dates_states <- ggplot(data = FEPA_state)+
+  geom_point(aes(x = factor(stateProvince, levels = level_order), y = mean_month, size = samplesize))
+FEPA_dates_states
+
+
+# I'm gonna try to make an interactive county map
+
+FEPA_county<- FEPA %>%
+  group_by(stateProvince, county) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            samplesize = n())
+
+USA <- getData("GADM", country = "usa", level = 2)
+temp <- merge(USA, FEPA_county,
+              by.x = c("NAME_1", "NAME_2"), by.y = c("stateProvince", "county"),
+              all.x = TRUE)
+# create a color palette
+mypal <- colorNumeric(palette = "viridis", domain = temp$mean_month, na.color = "grey")
+
+leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  setView(lat = 39.8283, lng = -98.5795, zoom = 4) %>% 
+  addPolygons(data = temp, stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.8,
+              fillColor = ~mypal(temp$mean_month),
+              popup = paste("Region: ", temp$NAME_2, "<br>",
+                            "Mean Month: ", temp$mean_month, "<br>",
+                            "Samples: ", temp$samplesize, "<br>")) %>%
+  addLegend(position = "bottomleft", pal = mypal, values = temp$mean_month,
+            title = "Mean Month",
+            opacity = 1)
+
+
+
 
 # Now I'm gonna make a map with all the species together
 
-allspp <- POAU %>% 
-  rbind(SPNI) %>% 
-  rbind(AGHY) %>% 
-  rbind(AGPE) %>% 
-  rbind(ELVI) %>% 
-  rbind(ELCA)
+
 
 all_county<- allspp %>%
   group_by(stateProvince, county) %>% 
@@ -376,11 +452,11 @@ all_county1<- allspp %>%
             samplesize = n())
 table(all_county1$stateProvince, all_county1$specificEpithet,  all_county1$mean_month)
 
-View(all_county1)
+# View(all_county1)
 all_county2<- allspp %>%
   group_by(specificEpithet) %>% 
   summarize(mean_month = mean(month, na.rm = TRUE),
             samplesize = n())
-table(all_county2$mean_month, all_county2$specificEpithet)
+table( all_county2$mean_month,  all_county2$specificEpithet)
 unique(all_county2$specificEpithet)
-View(all_county2)
+# View(all_county2)
