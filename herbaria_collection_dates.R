@@ -21,6 +21,9 @@ ELVI <- as.data.frame(read_csv("SymbOutput_2019-04-24_151312_DwC-A_ELVI1980/occu
 FEPA <- as.data.frame(read_csv("SymbOutput_2019-04-24_151635_DwC-A_FEPA1980/occurrences.csv"))
 FESU <- as.data.frame(read_csv("SymbOutput_2019-05-06_074841_DwC-A_FESU1980/occurrences.csv"))
 POSY<- as.data.frame(read_csv("SymbOutput_2019-05-06_074906_DwC-A_POSY1980/occurrences.csv"))
+BUDA <- as.data.frame(read_csv("/Users/joshuacfowler/Downloads/BUDAoccurrences.csv"))
+POAR <- as.data.frame(read_csv("/Users/joshuacfowler/Downloads/POARoccurrences.csv"))
+POFE <- as.data.frame(read_csv("/Users/joshuacfowler/Downloads/POFEoccurrences.csv"))
 
 # merge all the species into one
 allspp <- POAU %>% 
@@ -47,23 +50,34 @@ nagadoches <- forcollections %>%
   filter(stateProvince == "Texas" | stateProvince == "TEXAS" | stateProvince == "Louisiana") %>% 
   filter(genus != "Elymus")
 
-write_csv(nagadoches, path = "TX_LA_records.csv")
+# write_csv(nagadoches, path = "TX_LA_records.csv")
 
 for_may6 <- forcollections %>% 
   filter(stateProvince == "Texas" | stateProvince == "TEXAS" | stateProvince == "Louisiana" |stateProvince == "Mississippi"|stateProvince == "Alabama"| stateProvince == "Arkansas"| stateProvince == "Tennessee")
 
-write_csv(for_may6, path = "may6_records.csv")
+# write_csv(for_may6, path = "may6_records.csv")
 
 for_tom_may11 <- forcollections %>% 
   filter(county == "Evangeline" | county == "Landry" | county == "Calcasieu" | county == "Beauregard" | county == "Allen" | county == "Jefferson Davis" | county == "Acadia" | county == "Vernon" | county == "Avoyelles"| county == "Rapides" | county == "Newton" | county == "Jasper" | county == "Tyler" | county == "Polk" | county == "Hardin" | county == "Orange" | county == "Jefferson" | county == "Liberty") %>% 
   filter(stateProvince == "Texas" | stateProvince == "Louisiana") %>% 
   filter(scientificName != "Elymus virginicus")
-write_csv(for_tom_may11, path = "for_tom_may11th.csv")
+# write_csv(for_tom_may11, path = "for_tom_may11th.csv")
 
 
 for_may14 <- forcollections %>% 
   filter(stateProvince == "Texas" | stateProvince == "TEXAS" | stateProvince == "Louisiana" | stateProvince == "Arkansas"| stateProvince == "Oklahoma")
-write_csv(for_may14, path = "for_may14_records.csv")
+# write_csv(for_may14, path = "for_may14_records.csv")
+
+for_tom_MS <- forcollections %>% 
+  filter( stateProvince == "Mississippi") %>% 
+  filter(scientificName == "Elymus virginicus")
+# write_csv(for_tom_MS, path = "for_tom_MS.csv")
+for_tom_LA <- forcollections %>% 
+  filter( stateProvince == "Louisiana") %>% 
+  filter(scientificName == "Elymus virginicus")
+# write_csv(for_tom_LA, path = "for_tom_LA.csv")
+
+
 
 # View(forcollections)
 # write_csv(forcollections, path = "collections1980_2019.csv")
@@ -115,7 +129,7 @@ leaflet() %>%
   addProviderTiles("OpenStreetMap.Mapnik") %>%
   setView(lat = 39.8283, lng = -98.5795, zoom = 4) %>% 
   addPolygons(data = temp, stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.8,
-              fillColor = ~mypal(temp$mean_month),
+              fillColor = ~mypal(temp$samplesize),
               popup = paste("Region: ", temp$NAME_2, "<br>",
                             "Mean Month: ", temp$mean_month, "<br>",
                             "Samples: ", temp$samplesize, "<br>")) %>%
@@ -548,6 +562,83 @@ leaflet() %>%
             title = "Mean Month",
             opacity = 1)
 
+
+
+# I'm gonna try to make an interactive county map
+# Tingfa's species
+BUDA_county<- BUDA %>%
+  group_by(stateProvince, county) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            samplesize = n())
+
+USA <- getData("GADM", country = "usa", level = 2)
+temp <- merge(USA, BUDA_county,
+              by.x = c("NAME_1", "NAME_2"), by.y = c("stateProvince", "county"),
+              all.x = TRUE)
+# create a color palette
+mypal <- colorNumeric(palette = "viridis", domain = temp$samplesize, na.color = "grey")
+
+leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  setView(lat = 39.8283, lng = -98.5795, zoom = 4) %>% 
+  addPolygons(data = temp, stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.8,
+              fillColor = ~mypal(temp$samplesize),
+              popup = paste("Region: ", temp$NAME_2, "<br>",
+                            "Mean Month: ", temp$mean_month, "<br>",
+                            "Samples: ", temp$samplesize, "<br>")) %>%
+  addLegend(position = "bottomleft", pal = mypal, values = temp$mean_month,
+            title = "SampleSize",
+            opacity = 1)
+
+
+POAR_county<- POAR %>%
+  group_by(stateProvince, county) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            samplesize = n())
+
+USA <- getData("GADM", country = "usa", level = 2)
+temp <- merge(USA, POAR_county,
+              by.x = c("NAME_1", "NAME_2"), by.y = c("stateProvince", "county"),
+              all.x = TRUE)
+# create a color palette
+mypal <- colorNumeric(palette = "viridis", domain = temp$samplesize, na.color = "grey")
+
+leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  setView(lat = 39.8283, lng = -98.5795, zoom = 4) %>% 
+  addPolygons(data = temp, stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.8,
+              fillColor = ~mypal(temp$samplesize),
+              popup = paste("Region: ", temp$NAME_2, "<br>",
+                            "Mean Month: ", temp$mean_month, "<br>",
+                            "Samples: ", temp$samplesize, "<br>")) %>%
+  addLegend(position = "bottomleft", pal = mypal, values = temp$mean_month,
+            title = "SampleSize",
+            opacity = 1)
+
+
+POFE_county<- POFE %>%
+  group_by(stateProvince, county) %>% 
+  summarize(mean_month = mean(month, na.rm = TRUE),
+            samplesize = n())
+
+USA <- getData("GADM", country = "usa", level = 2)
+temp <- merge(USA, POFE_county,
+              by.x = c("NAME_1", "NAME_2"), by.y = c("stateProvince", "county"),
+              all.x = TRUE)
+# create a color palette
+mypal <- colorNumeric(palette = "viridis", domain = temp$samplesize, na.color = "grey")
+
+leaflet() %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  setView(lat = 39.8283, lng = -98.5795, zoom = 4) %>% 
+  addPolygons(data = temp, stroke = FALSE, smoothFactor = 0.2, fillOpacity = 0.8,
+              fillColor = ~mypal(temp$samplesize),
+              popup = paste("Region: ", temp$NAME_2, "<br>",
+                            "Mean Month: ", temp$mean_month, "<br>",
+                            "Samples: ", temp$samplesize, "<br>")) %>%
+  addLegend(position = "bottomleft", pal = mypal, values = temp$mean_month,
+            title = "SampleSize",
+            opacity = 1)
 
 # Now I'm gonna make a map with all the species together
 
