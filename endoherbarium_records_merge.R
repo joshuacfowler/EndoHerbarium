@@ -32,16 +32,41 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   separate(Date_collected, into = c("month", "day", "year"),sep = "/") %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day))%>% 
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
-                            !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id))
+                            !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
+  filter(!is.na(Specimen_id))
   
-sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>% 
-  filter(!is.na(Endo_status_liberal))
+sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
+  filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>% 
+  mutate(Specimen_id_temp = Specimen_id) %>% 
+  separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
+
+
+
+data <- specimen_info %>% 
+  merge(sample_info, by = c("Specimen_id" = "Specimen_id"))
+
+
+
+
+# These are the matches from BRIT for transcription, Mar 25th, 2020
+BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_catalogNumberMatches/fowler_matches_Mar25.csv") %>% 
+  select("catalogNumber") %>% 
+  mutate(transcibed = NA)
+
+
+data_matches <- data %>%
+  filter(Herbarium_id == "BRIT") %>% 
+  rename( catalogNumber = Institution_specimen_id)
+
+matches <- BRIT_matches %>% 
+  merge(data_matches, by = "catalogNumber")
+write_csv(matches, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_catalogNumberMatches/scored_BRIT_matches_Mar25.csv")
+
 
 
 # we can see what id's aren't found in both datasets
 intersect(AGHY_UTAustin$new_id, specimen_info$new_id)
 setdiff(AGHY_UTAustin$new_id, specimen_info$new_id)
-
 
 # I'm gonna filter for just AGHY to be able to merge this with the digitized records for AGHY
 # This is still a little bit messy, but it has both datasets merged together. 
@@ -69,6 +94,12 @@ AGHY_specimen_info <- specimen_info %>%
   dplyr::select(Specimen_id, Institution_specimen_id, catalogNumber, new_id, SPP_CODE, COUNTRY, STATE, COUNTY, MUNICIPALITY, LOCALITY, YEAR, MONTH, DAY ) %>% 
   filter(SPP_CODE == "AGHY")
   
+
+data <- specimen_info %>% 
+  full_join(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
+  filter(Specimen_id == contains("BRIT"))
+  group_by(newSPP)
+  summarise(n())
 
 # now we can merge in the specimen and the sample info based on the Specimen id
 AGHY_data <- AGHY_specimen_info %>% 
