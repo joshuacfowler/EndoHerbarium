@@ -163,8 +163,16 @@ endo_herbarium3 <- endo_herbarium2 %>%
 
 endo_herbarium_georef <-endo_herbarium3 %>% 
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>% 
+  filter(Endo_status_liberal <= 1) %>% 
   mutate_geocode(location_string)
-write_csv(endo_herbarium_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herbarium_georef.csv")
+# write_csv(endo_herbarium_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herbarium_georef.csv")
+
+long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = endo_herbarium_georef, family = binomial)
+
+plot(endo_herbarium_georef$lon, endo_herbarium_georef$Endo_status_liberal)
+x_seq <- seq(-120, -60, 1)
+y_pred <- predict(long_date_mod, list(lon = x_seq, year = z_seq ),type="response")
+
 
 
 
@@ -174,7 +182,6 @@ write_csv(endo_herbarium_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbar
 lani_endo <- read_csv(file = "~/Downloads/endonew.csv") %>% 
   filter(`01liberal` <=1)
 plot(lani_endo$decimalLongitude, lani_endo$`01liberal`)
-
 long_date_mod <- glm(`01liberal` == 1 ~ decimalLongitude*Date, data = lani_endo, family = binomial)
 
 
