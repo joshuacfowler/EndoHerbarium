@@ -156,49 +156,16 @@ endo_herbarium3 <- endo_herbarium2 %>%
 
 
 # Now I am going to link these county/locality records to a gps point with ggmap
-endo_herbarium_georeferenced <- mutate_geocode(endo_herbarium3, county)
+# This requires and API key which you can set up through google, look at ?register_google. 
+# There are restrictions to the total number of queries that you can do per day and month, and if you go over, it costs money, so we will save the output. I believe we have a free trial for year.
+# One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
+# I have found software that could do this, but would require a human to double check the output.
 
+endo_herbarium_georef <-endo_herbarium3 %>% 
+  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>% 
+  mutate_geocode(location_string)
+write_csv(endo_herbarium_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herbarium_georef.csv")
 
-
-
-# I'm gonna filter for just AGHY to be able to merge this with the digitized records for AGHY
-# This is still a little bit messy, but it has both datasets merged together. 
-# The next step would be to actually ccombine some of the columns in each dataset that are the same. Sometimes this cause issues if there are conflicting values in one or the other.
-# You can either add them to the merge and if they are distinct, they will fit together nicely, or if you can create new columns by combining the two existing columns.
-AGHY_specimen_info <- specimen_info %>% 
-  left_join(AGHY_UTAustin, by = c("new_id" = "new_id")) %>% 
-  mutate(SPP_CODE = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-                              !is.na(Spp_code.x) ~ Spp_code.x),
-         COUNTRY = case_when(is.na(Country) ~ country,
-                            !is.na(Country) ~ Country),
-         STATE = case_when(is.na(State) ~ stateProvince,
-                           !is.na(State) ~ State),
-         COUNTY = case_when(is.na(county) ~ County,
-                            !is.na(county) ~ county),
-         MUNICIPALITY = Municipality,
-         LOCALITY = case_when(is.na(Locality_info) ~ locality,
-                                  !is.na(Locality_info) ~ Locality_info),
-         YEAR = case_when(is.na(year.x) ~ year.y,
-                          !is.na(year.x) ~ year.x),
-         MONTH = case_when(is.na(month.x) ~ month.y,
-                          !is.na(month.x) ~ month.x),
-         DAY = case_when(is.na(day.x) ~ day.y,
-                          !is.na(day.x) ~ day.x)) %>% 
-  dplyr::select(Specimen_id, Institution_specimen_id, catalogNumber, new_id, SPP_CODE, COUNTRY, STATE, COUNTY, MUNICIPALITY, LOCALITY, YEAR, MONTH, DAY ) %>% 
-  filter(SPP_CODE == "AGHY")
-  
-
-data <- specimen_info %>% 
-  full_join(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
-  filter(Specimen_id == contains("BRIT"))
-  group_by(newSPP)
-  summarise(n())
-
-
-
-
-
-model <-  glm(Endo_status_liberal ~ YEAR, data = AGHY_data, family = "binomial")
 
 
 
