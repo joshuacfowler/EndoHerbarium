@@ -10,7 +10,7 @@ library(ggmap)
 library(lubridate)
 
 # Read in digitized herbarium records
-# UTAustin
+# UT Austin downloaded from TORCH
 AGHY_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGHYrecords/occurrences.csv") %>% 
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
@@ -19,13 +19,32 @@ ELVI_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Dig
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
+  
+UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin)
 
-# Texas A&M digitized records
-AM_records <- read_xlsx(path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.xlsx")
+# Texas A&M digitized records (Includes both AGHY and ELVI)
+AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
+  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>% 
+  select(-contains("X"))
+
+
+# BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
+# This was downloaded on Apr 5, and we can get more specimens transcribed and download again.
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-04-05_162933_DwC-A/occurrences.csv") %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>%
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGHY")
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-04-05_163112_DwC-A/occurrences.csv") %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "ELVI")
+
+
+BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT)
 
 
 
-# Read in our transcribed datasheet
+# Read in our transcribed datasheet from google sheets
 # I am reading these in as csv files that I saved from the excel file because excel does weird things with the date entries.
 specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_specimen.csv") %>% 
   mutate(eventDate = Date_collected) %>% 
@@ -34,7 +53,8 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
                             !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
   filter(!is.na(Specimen_id))
-  
+
+# This is the sample info and we will filter for only those that we have scored so far.
 sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
   filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
@@ -42,31 +62,50 @@ sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_He
 
 
 
-data <- specimen_info %>% 
-  merge(sample_info, by = c("Specimen_id" = "Specimen_id"))
+endo_herbarium <- specimen_info %>% 
+  merge(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
+  select(-contains("X1"),-contains("X2"))
 
 
 
 
-# These are the matches from BRIT for transcription, Mar 25th, 2020
-BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_catalogNumberMatches/fowler_matches_Mar25.csv") %>% 
+# These are the matches from BRIT for transcription using the file that Jason Best shared of their database, Mar 25th, 2020
+BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/fowler_matches_Mar25.csv") %>% 
   select("catalogNumber") %>% 
   mutate(transcibed = NA)
 
 
-data_matches <- data %>%
+data_matches <- endo_herbarium %>%
   filter(Herbarium_id == "BRIT") %>% 
   rename( catalogNumber = Institution_specimen_id)
 
 matches <- BRIT_matches %>% 
   merge(data_matches, by = "catalogNumber")
-write_csv(matches, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_catalogNumberMatches/scored_BRIT_matches_Mar25.csv")
+# write_csv(matches, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/scored_BRIT_matches_Mar25.csv")
 
 
+# Now we merge all of our records together with the endo_herbarium database
 
-# we can see what id's aren't found in both datasets
-intersect(AGHY_UTAustin$new_id, specimen_info$new_id)
-setdiff(AGHY_UTAustin$new_id, specimen_info$new_id)
+endo_herbarium1 <- endo_herbarium %>% 
+  left_join(AM_records, by = "Institution_specimen_id") %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                               is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ state,
+                               is.na(state) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country.x) ~ Country.y,
+                               is.na(Country.y) ~ Country.x)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ Municpality,
+                                      is.na(Municpality) ~ Municipality)) %>% 
+  mutate(Locality_new = case_when(is.na(Locality_info) ~ Locality,
+                                  is.na(Locality) ~ Locality_info)) %>% 
+  mutate(DateCollected= case_when(is.na(eventDate) ~ DateCollected,
+                                       is.na(DateCollected) ~ eventDate)) %>% 
+  select(Sample_id, Institution_specimen_id, Country, County, Municipality, Locality, DateCollected, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+
+
+endo_herbarium2 <- endo_herbarium1 %>% 
+  left_join(BRIT_torch, by = c("Institution_specimen_id" = "catalogNumber"))
+
 
 # I'm gonna filter for just AGHY to be able to merge this with the digitized records for AGHY
 # This is still a little bit messy, but it has both datasets merged together. 
