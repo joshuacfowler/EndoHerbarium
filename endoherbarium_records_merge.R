@@ -12,11 +12,13 @@ library(lubridate)
 # Read in digitized herbarium records
 # UT Austin downloaded from TORCH
 AGHY_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGHYrecords/occurrences.csv") %>% 
-  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
+  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%   #creates a new id that we will use to merge with the 
+  mutate(municipality = as.character(municipality)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGHY")
 ELVI_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinELVIrecords/occurrences.csv") %>% 
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
+  mutate(municipality = as.character(municipality)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
   
@@ -24,7 +26,9 @@ UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin)
 
 # Texas A&M digitized records (Includes both AGHY and ELVI)
 AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
-  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>% 
+  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>%
+  separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   select(-contains("X"))
 
 
@@ -47,8 +51,9 @@ BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT)
 # Read in our transcribed datasheet from google sheets
 # I am reading these in as csv files that I saved from the excel file because excel does weird things with the date entries.
 specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_specimen.csv") %>% 
-  mutate(eventDate = Date_collected) %>% 
-  separate(Date_collected, into = c("month", "day", "year"),sep = "/") %>% 
+  mutate(eventDate = Date_collected) %>%
+  mutate(TEXT_Date_collected = gsub("'", "", TEXT_Date_collected)) %>%  #TEXT_Date_collected is saved with a starting ' to preserve the date as text while saving from excel, so I remove that here
+  separate(TEXT_Date_collected, into = c("month", "day", "year"), remove = FALSE) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day))%>% 
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
                             !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
@@ -86,8 +91,9 @@ matches <- BRIT_matches %>%
 
 # Now we merge all of our records together with the endo_herbarium database
 
+# Merge in the AM_records that we have so far
 endo_herbarium1 <- endo_herbarium %>% 
-  left_join(AM_records, by = "Institution_specimen_id") %>% 
+  left_join(AM_records, by = c( "new_id" = "Institution_specimen_id")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
                                is.na(county) ~ County)) %>% 
   mutate(State = case_when(is.na(State) ~ state,
@@ -96,15 +102,63 @@ endo_herbarium1 <- endo_herbarium %>%
                                is.na(Country.y) ~ Country.x)) %>% 
   mutate(Municipality = case_when(is.na(Municipality) ~ Municpality,
                                       is.na(Municpality) ~ Municipality)) %>% 
-  mutate(Locality_new = case_when(is.na(Locality_info) ~ Locality,
+  mutate(Locality = case_when(is.na(Locality_info) ~ Locality,
                                   is.na(Locality) ~ Locality_info)) %>% 
-  mutate(DateCollected= case_when(is.na(eventDate) ~ DateCollected,
-                                       is.na(DateCollected) ~ eventDate)) %>% 
-  select(Sample_id, Institution_specimen_id, Country, County, Municipality, Locality, DateCollected, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                                       is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                          is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                          is.na(day.y) ~ day.x)) %>% 
+  select(Sample_id, Institution_specimen_id, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
 
-
+# Merge in the BRIT records that we have so far
 endo_herbarium2 <- endo_herbarium1 %>% 
-  left_join(BRIT_torch, by = c("Institution_specimen_id" = "catalogNumber"))
+  left_join(BRIT_torch, by = c("new_id" = "catalogNumber")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality)) %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  select(Sample_id, Institution_specimen_id, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+
+# Merge in the UT Austin records that we have so far
+endo_herbarium3 <- endo_herbarium2 %>% 
+  left_join(UTAustin_torch, by = c("new_id" = "new_id")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  select(Sample_id, Institution_specimen_id, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+
+
+# Now I am going to link these county/locality records to a gps point with ggmap
+endo_herbarium_georeferenced <- mutate_geocode(endo_herbarium3, county)
+
+
 
 
 # I'm gonna filter for just AGHY to be able to merge this with the digitized records for AGHY
@@ -140,35 +194,11 @@ data <- specimen_info %>%
   group_by(newSPP)
   summarise(n())
 
-# now we can merge in the specimen and the sample info based on the Specimen id
-AGHY_data <- AGHY_specimen_info %>% 
-  left_join(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
-  dplyr::select(Specimen_id, YEAR, MONTH, DAY, COUNTRY, STATE, COUNTY, MUNICIPALITY, LOCALITY, Endo_status_liberal, Endo_status_conservative) %>% 
-  filter(!is.na(Endo_status_conservative)) %>% 
-  mutate(DATE = as.Date(ymd(paste(YEAR, MONTH, DAY, sep = "-"))))
-write_csv(AGHY_data, path = "AGHY_data_forgeoreference.csv")
 
 
 
 
-
-# Simple model to look at date effects on infections
 model <-  glm(Endo_status_liberal ~ YEAR, data = AGHY_data, family = "binomial")
-
-yrep <- predict(model, list(YEAR = AGHY_data$YEAR), type = "response" )
-
-plot(AGHY_data$YEAR, AGHY_data$Endo_status_liberal, pch = 16, xlab = "WEIGHT (g)", ylab = "VS")
-lines(AGHY_data$YEAR, yrep)
-# Not significant, but maybe a slight decrease
-
-model <-  glm(Endo_status_conservative ~ YEAR, data = AGHY_data, family = "binomial")
-
-yrep <- predict(model, list(YEAR = AGHY_data$YEAR), type = "response" )
-
-plot(AGHY_data$YEAR, AGHY_data$Endo_status_conservative, pch = 16, xlab = "WEIGHT (g)", ylab = "VS")
-lines(AGHY_data$YEAR, yrep)
-
-
 
 
 
