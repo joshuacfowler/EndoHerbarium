@@ -67,7 +67,7 @@ sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_He
 
 
 
-endo_herbarium <- specimen_info %>% 
+endo_herb <- specimen_info %>% 
   merge(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
   select(-contains("X1"),-contains("X2"))
 
@@ -80,7 +80,7 @@ BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
   mutate(transcibed = NA)
 
 
-data_matches <- endo_herbarium %>%
+data_matches <- endo_herb %>%
   filter(Herbarium_id == "BRIT") %>% 
   rename( catalogNumber = Institution_specimen_id)
 
@@ -89,10 +89,10 @@ matches <- BRIT_matches %>%
 # write_csv(matches, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/scored_BRIT_matches_Mar25.csv")
 
 
-# Now we merge all of our records together with the endo_herbarium database
+# Now we merge all of our records together with the endo_herb database
 
 # Merge in the AM_records that we have so far
-endo_herbarium1 <- endo_herbarium %>% 
+endo_herb1 <- endo_herb %>% 
   left_join(AM_records, by = c( "new_id" = "Institution_specimen_id")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
                                is.na(county) ~ County)) %>% 
@@ -113,7 +113,7 @@ endo_herbarium1 <- endo_herbarium %>%
   select(Sample_id, Institution_specimen_id, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
 
 # Merge in the BRIT records that we have so far
-endo_herbarium2 <- endo_herbarium1 %>% 
+endo_herb2 <- endo_herb1 %>% 
   left_join(BRIT_torch, by = c("new_id" = "catalogNumber")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
                             is.na(county) ~ County)) %>% 
@@ -134,7 +134,7 @@ endo_herbarium2 <- endo_herbarium1 %>%
   select(Sample_id, Institution_specimen_id, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
 
 # Merge in the UT Austin records that we have so far
-endo_herbarium3 <- endo_herbarium2 %>% 
+endo_herb3 <- endo_herb2 %>% 
   left_join(UTAustin_torch, by = c("new_id" = "new_id")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
                             is.na(county) ~ County)) %>% 
@@ -161,19 +161,50 @@ endo_herbarium3 <- endo_herbarium2 %>%
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
 
-endo_herbarium_georef <-endo_herbarium3 %>% 
+endo_herb_georef <-endo_herb3 %>% 
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>% 
   filter(Endo_status_liberal <= 1) %>% 
   mutate_geocode(location_string)
-# write_csv(endo_herbarium_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herbarium_georef.csv")
-
-long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = endo_herbarium_georef, family = binomial)
-
-plot(endo_herbarium_georef$lon, endo_herbarium_georef$Endo_status_liberal)
-x_seq <- seq(-120, -60, 1)
-y_pred <- predict(long_date_mod, list(lon = x_seq, year = z_seq ),type="response")
+# write_csv(endo_herb_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
+endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
+  filter(Country != "Canada")
 
 
+# Now we can explore the data
+plot(endo_herb_georef$lon, endo_herb_georef$lat)
+hist(endo_herb_georef$year)
+hist(endo_herb_georef$lon)
+
+long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = endo_herb_georef, family = binomial)
+
+plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal)
+plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal)
+plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal)
+
+
+newdat1900 <- data.frame(lon = seq(-120,-60,1), year = 1900)
+newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
+newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
+
+y_pred1900 <- predict(long_date_mod, newdata = newdat1900, type = "response")
+y_pred1950 <- predict(long_date_mod, newdata = newdat1950, type = "response")
+y_pred2000 <- predict(long_date_mod, newdata = newdat2000, type = "response")
+
+plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal)
+  lines(newdat1900$lon, y_pred1900, col = "red3")
+  lines(newdat1950$lon, y_pred1950, col = "gray39")
+  lines(newdat1950$lon, y_pred2000, col = "royalblue3")
+  
+  
+
+
+
+
+
+
+count_of_complete_records <- endo_herb_georef %>% 
+  filter(!is.na(lon), !is.na(year), !is.na(Endo_status_liberal))
+dim(count_of_complete_records)
 
 
 
