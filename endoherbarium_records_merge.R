@@ -174,11 +174,12 @@ endo_herb3 <- endo_herb2 %>%
 # filter(Endo_status_liberal <= 1) %>%
 # mutate_geocode(location_string)
 # write_csv(endo_herb_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
-endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
+endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%  
   filter(Country != "Canada")
 
 
 # Now we can explore the data
+plot(endo_herb_georef$lon, endo_herb_georef$lat)
 plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal)
 plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal)
 plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal)
@@ -211,14 +212,14 @@ plot(endo_herb_AGHY$lon, endo_herb_AGHY$Endo_status_liberal)
   lines(newdat1900$lon, y_pred1900, col = "red3")
   lines(newdat1950$lon, y_pred1950, col = "gray39")
   lines(newdat1950$lon, y_pred2000, col = "royalblue3")
-  
+anova(long_date_mod, test = "Chisq")
   
 # ELVI
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
 hist(endo_herb_ELVI$year)
 hist(endo_herb_ELVI$lon)
   
-long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = endo_herb_ELVI, family = binomial)
+long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = subset(endo_herb_ELVI, lon < -90), family = binomial)
   
 newdat1900 <- data.frame(lon = seq(-120,-60,1), year = 1900)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
@@ -233,6 +234,7 @@ lines(newdat1900$lon, y_pred1900, col = "red3")
 lines(newdat1950$lon, y_pred1950, col = "gray39")
 lines(newdat1950$lon, y_pred2000, col = "royalblue3")
   
+anova(long_date_mod, test = "Chisq")
 
 
 
