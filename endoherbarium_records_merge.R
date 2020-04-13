@@ -33,12 +33,12 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
 
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
-# This was downloaded on Apr 5, and we can get more specimens transcribed and download again.
-AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-04-05_162933_DwC-A/occurrences.csv") %>% 
+# This was downloaded on Apr 13, and we can get more specimens transcribed and download again.
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-04-13_090555_DwC-A/occurrences.csv") %>% 
   filter(!is.na(county), !is.na(eventDate)) %>%
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGHY")
-ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-04-05_163112_DwC-A/occurrences.csv") %>% 
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-04-13_090303_DwC-A/occurrences.csv") %>% 
   filter(!is.na(county), !is.na(eventDate)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
@@ -61,7 +61,7 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
 
 # This is the sample info and we will filter for only those that we have scored so far.
 sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
-  filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>% 
+  filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>%
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
 
@@ -169,10 +169,10 @@ endo_herb3 <- endo_herb2 %>%
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
 
-# endo_herb_georef <-endo_herb3 %>%
-# unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-# filter(Endo_status_liberal <= 1) %>%
-# mutate_geocode(location_string)
+endo_herb_georef <-endo_herb3 %>%
+  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
+  filter(Endo_status_liberal <= 1) %>% 
+# mutate_geocode(location_string) # Uncomment this to run the geocoding.
 # write_csv(endo_herb_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%  
   filter(Country != "Canada")
@@ -189,53 +189,112 @@ endo_herb_AGHY <- endo_herb_georef %>%
   filter(grepl("AGHY", Sample_id)) %>% 
   filter(!is.na(lon) & !is.na(year))
 
+ binned_AGHY <- endo_herb_AGHY %>% 
+   mutate(binned_lon = cut(lon, breaks = 12), binned_year = cut(year, breaks = 3)) %>%  
+   group_by(binned_lon, binned_year) %>%   
+   summarise(mean_lon = mean(lon),
+             mean_year = mean(year),
+             mean_endo = mean(Endo_status_liberal),
+             sample = n())
+
 endo_herb_ELVI <- endo_herb_georef %>% 
   filter(grepl("ELVI", Sample_id)) %>% 
   filter(!is.na(lon) & !is.na(year))
+
+binned_ELVI <- endo_herb_ELVI %>% 
+  mutate(binned_lon = cut(lon, breaks = 12), binned_year = cut(year, breaks = 3)) %>%  
+  group_by(binned_lon, binned_year) %>%   
+  summarise(mean_lon = mean(lon),
+            mean_year = mean(year),
+            mean_endo = mean(Endo_status_liberal),
+            sample = n())
 
 # AGHY
 plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
 hist(endo_herb_AGHY$year)
 hist(endo_herb_AGHY$lon)
 
-long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = endo_herb_AGHY, family = binomial)
+long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = subset(endo_herb_AGHY, lon>-100), family = binomial)
 
-newdat1900 <- data.frame(lon = seq(-120,-60,1), year = 1900)
+newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
 newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
+newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
+newpred <- cbind(newdat, y_pred)
 
-y_pred1900 <- predict(long_date_mod, newdata = newdat1900, type = "response")
-y_pred1950 <- predict(long_date_mod, newdata = newdat1950, type = "response")
-y_pred2000 <- predict(long_date_mod, newdata = newdat2000, type = "response")
 
-plot(endo_herb_AGHY$lon, endo_herb_AGHY$Endo_status_liberal)
-  lines(newdat1900$lon, y_pred1900, col = "red3")
-  lines(newdat1950$lon, y_pred1950, col = "gray39")
-  lines(newdat1950$lon, y_pred2000, col = "royalblue3")
+plot(binned_AGHY$mean_lon[binned_AGHY$mean_year<1940], binned_AGHY$mean_endo[binned_AGHY$mean_year<1940], pch = 1, cex = binned_AGHY$`n()`/10, col = "violetred1")
+  points(binned_AGHY$mean_lon[binned_AGHY$mean_year<1980 & binned_AGHY$mean_year>1940], binned_AGHY$mean_endo[binned_AGHY$mean_year<1980 & binned_AGHY$mean_year>1940], pch = 1, cex = binned_AGHY$`n()`/10, col = "gray39")
+  points(binned_AGHY$mean_lon[binned_AGHY$mean_year>1980], binned_AGHY$mean_endo[binned_AGHY$mean_year>1980],pch = 1, cex= binned_AGHY$`n()`/10, col = "royalblue3")
+  lines(newdat1920$lon, y_pred1920, col = "violetred1", lwd = 2)
+  lines(newdat1950$lon, y_pred1950, col = "gray39", lwd = 2)
+  lines(newdat1950$lon, y_pred2000, col = "royalblue3", lwd = 2)
 anova(long_date_mod, test = "Chisq")
+
+ggplot() +
+  geom_point(data = binned_AGHY,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
+  geom_smooth(data = newpred, aes(x = lon, y = y_pred, group = year, color = as.character(year))) + 
+  theme_classic() + 
+  scale_colour_manual(values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  xlim(-105,-60)
   
+
+
+  
+
+
 # ELVI
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
 hist(endo_herb_ELVI$year)
 hist(endo_herb_ELVI$lon)
   
 long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = subset(endo_herb_ELVI, lon < -90), family = binomial)
-  
-newdat1900 <- data.frame(lon = seq(-120,-60,1), year = 1900)
+
+newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
 newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
-  
-y_pred1900 <- predict(long_date_mod, newdata = newdat1900, type = "response")
-y_pred1950 <- predict(long_date_mod, newdata = newdat1950, type = "response")
-y_pred2000 <- predict(long_date_mod, newdata = newdat2000, type = "response")
-  
+newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
+newpred <- cbind(newdat, y_pred)
+
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$Endo_status_liberal)
-lines(newdat1900$lon, y_pred1900, col = "red3")
+lines(newdat1920$lon, y_pred1920, col = "red3")
 lines(newdat1950$lon, y_pred1950, col = "gray39")
 lines(newdat1950$lon, y_pred2000, col = "royalblue3")
-  
+ 
+
 anova(long_date_mod, test = "Chisq")
 
+ggplot() +
+  geom_point(data = binned_ELVI,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
+  geom_line(data = newpred, aes(x = lon, y = y_pred, group = year, color = as.character(year))) + 
+  theme_classic() + 
+  scale_colour_manual(values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  xlim(-100,-85)
+
+
+# messing around with latitude
+
+lat_date_mod <- glm(Endo_status_liberal == 1 ~ lat*year, data = subset(endo_herb_ELVI, lat < -90), family = binomial)
+lat_date_mod <- glm(Endo_status_liberal == 1 ~ lat*year, data = endo_herb_AGHY, family = binomial)
+
+newdat1900 <- data.frame(lat = seq(25,100,1), year = 1900)
+newdat1950 <- data.frame(lat = seq(25,100,1), year = 1950)
+newdat2000 <- data.frame(lat = seq(25,100,1), year = 2000)
+
+y_pred1900 <- predict(lat_date_mod, newdata = newdat1900, type = "response")
+y_pred1950 <- predict(lat_date_mod, newdata = newdat1950, type = "response")
+y_pred2000 <- predict(lat_date_mod, newdata = newdat2000, type = "response")
+
+plot(endo_herb_AGHY$lat, endo_herb_AGHY$Endo_status_liberal)
+lines(newdat1900$lat, y_pred1900, col = "red3")
+lines(newdat1950$lat, y_pred1950, col = "gray39")
+lines(newdat1950$lat, y_pred2000, col = "royalblue3")
+
+
+
+anova(lat_date_mod, test = "Chisq")
 
 
 
