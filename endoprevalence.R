@@ -8,11 +8,11 @@ library(tidyr)
 library(reshape2)
 library(tidyverse)
 
-world_endo <- read_xlsx("~joshuacfowler/Downloads/Rudgers_endophyte_world_database2017.xlsx")
-endosurveys <- read.csv("~joshuacfowler/Downloads/appendixB.csv")
-sneck <- read.csv("~joshuacfowler/Downloads/sneckelvielca.csv")
-ecolab_sites <- read_excel(path = "~joshuacfowler/Dropbox/Student Projects/Ceyda Kural/ecolab.xlsx")
-ecolab_surveys <- read_excel(path ="~joshuacfowler/Dropbox/Student Projects/Ceyda Kural/ecolab.xlsx", sheet = "Plants Scored"  )
+world_endo <- read_xlsx("~/Downloads/Rudgers_endophyte_world_database2017.xlsx")
+endosurveys <- read_csv("~/Downloads/appendixB.csv")
+sneck <- read_csv(file = "~/Downloads/sneckelvielca.csv")
+ecolab_sites <- read_excel(path = "~/Dropbox/Endophyte removal experiment 2018-2019/ecolab2.0.xlsx")
+ecolab_surveys <- read_excel(path ="~/Dropbox/Endophyte removal experiment 2018-2019/ecolab2.0.xlsx", sheet = "Plants Scored"  )
 
 ecolab_sites_gpsfix <- ecolab_sites %>% 
   mutate(gps_lat = case_when(.$siteID == "GBP15" ~ 29.726, .$siteID == "KP15" ~  29.7220, .$siteID == "KP18"~ 29.7220, .$siteID == "LP15" ~ 30.0910, TRUE ~.$gps_lat )) %>% 
@@ -26,265 +26,6 @@ ecolab <- ecolab_sites_gpsfix %>%
   summarize(popprev = mean(endostat))
 
 
-ecolab <- read_csv("ecolab_withPRISM_meansandCV.csv") %>% 
-  rename(gps_lon = Long, gps_lat = Lat, popprev = endoprev) %>% 
-  mutate(speciesID = case_when(spp == "Agrostis_hyemalis" ~ "AGHY",
-                               spp == "Poa_autumnalis" ~ "POAU",
-                               spp == "Poa_sylvestris" ~ "POSY",
-                               spp == "Agrostis_perennans" ~ "AGPE",
-                               spp == "Elymus_virginicus" ~ "ELVI",
-                               spp == "Elymus_canadensis" ~ "ELCA",
-                               spp == "Sphenopholis_nitida" ~ "SPNI",
-                               spp == "Sphenopholis_obtusata" ~ "SPOB",
-                               spp == "Cinna_arundinacea" ~ "CIAR",
-                               spp == "Lolium_perenne" ~ "LOPE",
-                               spp == "Festuca_subverticillata" ~ "FESU"
-                               ))
-# View(ecolab)
-ggplot(ecolab) +
-  geom_point(aes(x = gps_lon, y = popprev))+ facet_wrap(~spp)
-
-ggplot(ecolab) +
-  geom_point(aes(x = gps_lat, y = popprev))+ facet_wrap(~speciesID)
-
-ggplot(ecolab) +
-  geom_point(aes(x = PRISMppt30y, y = popprev))+ facet_wrap(~speciesID)
-
-ggplot(ecolab) +
-  geom_point(aes(x = PRISMtmean3, y = popprev))+ facet_wrap(~speciesID)
-
-
-# Longitude
-
-ggplot(subset(ecolab, speciesID %in% "AGHY")) + geom_vline(xintercept =-98) +
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm") +
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) + geom_vline(xintercept =-98) +
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm") +
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-
-# Latitude
-ggplot(subset(ecolab, speciesID %in% "AGHY")) +
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm") +
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) +
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm") +
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
-  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-
-# Tmean
-ggplot(subset(ecolab, speciesID %in% "AGHY")) +
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) +
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-# Tmean Coefficient of variation
-ggplot(subset(ecolab, speciesID %in% "AGHY")) +
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) +
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-# Ppt
-ggplot(subset(ecolab, speciesID %in% "AGHY")) +
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) +
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-# Ppt coefficient of variation
-ggplot(subset(ecolab, speciesID %in% "AGHY")) +
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("AGHY") 
-
-ggplot(subset(ecolab, speciesID %in% "AGPE")) +
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm") +
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("AGPE") 
-
-ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("POAU") 
-
-ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("POSY") 
-
-ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("ELVI") 
-
-ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("ELCA") 
-
-ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("CIAR") 
-
-ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("SPOB") 
-
-ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
-  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
-  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("FESU") 
-
-
-
-
-
-
-
 
 
 sneckspp <- sneck %>% 
@@ -293,9 +34,9 @@ sneckspp <- sneck %>%
                              .$Species == "EC" ~ "ELCA"))
 
 snecksplit <- sneckspp %>% 
-  separate(E....., c("Eprev1","Eprev2"), sep = ";") %>% 
-  select(Site, Site.name, Species, Lat., Long., Temp..., Ppt...mm., SPEI, Elev.m., Sampling.Date,Eprev1, Eprev2, sppcode) %>% 
-  melt(id.vars = c("Site", "Site.name", "Species", "Lat.", "Long.", "Temp...", "Ppt...mm.", "SPEI", "Elev.m.", "Sampling.Date", "sppcode")) %>% 
+  separate("E+ (%)", c("Eprev1","Eprev2"), sep = ";") %>% 
+  select(Site, "Site name", Species, Lat., Long., "Temp. (c)", "Ppt. (mm)", SPEI, "Elev(m)", "Sampling Date",Eprev1, Eprev2, sppcode) %>% 
+  melt(id.vars = c("Site", "Site name", "Species", "Lat.", "Long.", "Temp. (c)", "Ppt. (mm)", "SPEI", "Elev(m)", "Sampling Date", "sppcode")) %>% 
   mutate(endoprev = case_when(.$sppcode == "ELVI" & .$variable == "Eprev1" ~ .$value,.$sppcode == "ELCA" & .$variable == "Eprev1" ~ .$value,.$sppcode == "ELVI;ELCA" & .$variable == "Eprev1" ~ .$value,.$sppcode == "ELVI;ELCA" & .$variable == "Eprev2" ~ .$value)) %>% 
   mutate(spp = case_when(.$sppcode == "ELVI" ~ "ELVI", .$sppcode == "ELCA" ~ "ELCA", .$sppcode == "ELVI;ELCA" & .$variable == "Eprev1" ~ "ELCA", .$sppcode == "ELVI;ELCA" & .$variable == "Eprev2"~ "ELVI")) %>% 
   mutate(endoprev = as.numeric(endoprev)*.01) %>% 
@@ -312,16 +53,16 @@ ggplot(snecksplit)+
 
 
 ggplot(subset(snecksplit, spp %in% "ELVI"))+
-  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = Ppt...mm.))+ scale_colour_gradient(low = "lightblue", high = "blue")
+  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = `Ppt. (mm)`))+ scale_colour_gradient(low = "lightblue", high = "blue")
 ggplot(subset(snecksplit, spp %in% "ELVI"))+
-  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = Temp...))+ scale_colour_gradient(low = "lightblue", high = "blue")
+  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = `Temp. (c)`))+ scale_colour_gradient(low = "lightblue", high = "blue")
 ggplot(subset(snecksplit, spp %in% "ELVI"))+
   geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = SPEI))+ scale_colour_gradient(low = "lightblue", high = "blue")
 
 
 
 ggplot(subset(snecksplit, spp %in% "ELCA"))+
-  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = Ppt...mm.))+ scale_colour_gradient(low = "lightblue", high = "blue")
+  geom_point(aes(x = Long., y = Lat., lwd = endoprev, color = `Ppt. (mm)`))+ scale_colour_gradient(low = "lightblue", high = "blue")
 
 
 
@@ -360,49 +101,53 @@ ggplot(subset(snecksplit, spp %in% "ELVI"))+
 
 
 ggplot(subset(snecksplit, spp %in% "ELVI")) + geom_vline(xintercept= -101)+
-  geom_smooth(aes(x = Long., y = Ppt...mm.), method = "lm")+
-  geom_point(aes(x = Long., y = Ppt...mm.), lwd = 3)+ ggtitle("ELVI") 
+  geom_smooth(aes(x = Long., y = `Ppt. (mm)`), method = "lm")+
+  geom_point(aes(x = Long., y = `Ppt. (mm)`), lwd = 3)+ ggtitle("ELVI") 
 
 ggplot(subset(snecksplit, spp %in% "ELVI")) + geom_vline(xintercept= -101)+
-  geom_smooth(aes(x = Long., y = Temp...), method = "lm")+
-  geom_point(aes(x = Long., y = Temp...), lwd = 3)+ ggtitle("ELVI") 
+  geom_smooth(aes(x = Long., y = `Temp. (c)`), method = "lm")+
+  geom_point(aes(x = Long., y = `Temp. (c)`), lwd = 3)+ ggtitle("ELVI") 
 
 
 # Jenn Rudger's 2009 data
 
 endos <- endosurveys %>% 
-  mutate(Lat = as.factor(Latitude), Long = as.factor(Longitude?)) %>% 
-  mutate(plantsppcode = str_c(Plant.genus, Plant.species, sep = "_"))
-
-
-# coming frequency measurements
-endos$endofrequency = ifelse(!is.na(endos$Tiller.Freq....) & is.na(endos$Seed.Freq....), endos$Tiller.Freq..., 
-                             ifelse(is.na(endos$Tiller.Freq....) & !is.na(endos$Seed.Freq....), endos$Seed.Freq...., 
-                                    ifelse(!is.na(endos$Tiller.Freq....) & !is.na(endos$Seed.Freq....), (endos$Tiller.Freq.... + endos$Seed.Freq....)/2, NA)))
-# Converting lat long coordinates
-endos$Lat = gsub(' ', "", endos$Lat)
-endos$Lat = gsub('N', "", endos$Lat)
-endos$Lat = gsub('?', " ", endos$Lat)
-endos$Lat = gsub('"', "", endos$Lat)
-endos$Lat = gsub("'", " ", endos$Lat)
-
-endos$Long = gsub(' ', "", endos$Long)
-endos$Long = gsub('W', "", endos$Long)
-endos$Long = gsub('?', " ", endos$Long)
-endos$Long = gsub('"', "", endos$Long)
-endos$Long = gsub("'", " ", endos$Long)
-endos$Long = gsub("[:?:]", "", endos$Long)
-
-endos1 <- endos %>% 
-  separate(Lat, paste("lat",c("d","m","s"), sep="_") ) %>%
-  separate(Long, paste("long",c("d","m","s"), sep="_" ) ) %>%
+  mutate(Lat = as.factor(Latitude), Long = as.factor(Longitude)) %>% 
+  mutate(plantsppcode  = paste(`Plant genus`, `Plant species`, sep = "_")) %>% 
+  mutate(endofrequency = case_when(!is.na(`Tiller Freq (%)`) & is.na(`Seed Freq (%)`) ~ `Tiller Freq (%)`,
+                                   is.na(`Tiller Freq (%)`) & !is.na(`Seed Freq (%)`) ~ `Seed Freq (%)`,
+                                   !is.na(`Tiller Freq (%)`) & !is.na(`Seed Freq (%)`) ~ (`Tiller Freq (%)` + `Seed Freq (%)`)/2))
+  endos1 <- endos %>% 
+  separate(Lat, paste("lat",c("cardinal","d","m","s"), sep = "_") ) %>% # convert gps to decimal degrees
+  separate(Long, paste("long",c("cardinal", "d","m","s"), sep = "_") ) %>% 
   mutate(lat_s = case_when(.$lat_s == "" ~ "00", !is.na(.$lat_s)~.$lat_s)) %>% 
   mutate(long_s = case_when(.$long_s == "" ~"00", !is.na(.$long_s)~.$long_s))  %>% 
   mutate_each(funs(as.numeric), lat_d,lat_m,lat_s, long_d, long_m, long_s) %>% 
   mutate(lat_dec=lat_d + lat_m/60 + lat_s/60^2,
             long_dec=long_d + long_m/60 + long_s/60^2)
 
+ecolab2019 <- read_csv(file = "~/Dropbox/Josh&Tom - shared/ecolab2019/endophyte_field_collections_2019.csv") %>% 
+  mutate(endo_status = case_when(seeds.eplus >0 ~ 1,
+                                 seeds.eplus == 0 ~ 0),
+         plantsppcode = case_when(SpeciesID == "POAU" ~ "Poa_autumnalis",
+                                  SpeciesID == "AGHY" ~ "Agrostis_hyemalis",))  %>% 
+  filter(!is.na(endo_status)) %>% 
+  group_by(SiteID, SpeciesID, plantsppcode) %>% 
+  summarize(endo_prev = mean(endo_status)*100,
+            n()) %>% 
+  filter(!is.na(endo_prev))
+  
+  ecolab2019_gps <- read_xlsx(path = "~/Dropbox/Josh&Tom - shared/ecolab2019/endophyte_field_collections_2019.xlsx", sheet = "Collection Locations") %>% 
+    left_join(ecolab2019, by = c("SiteID", "SpeciesID")) %>% 
+    mutate(`longitude (dd)` = abs(`longitude (dd)`)) 
+    
 
+  
+jenn_and_ecolab <- full_join(endos1, ecolab2019_gps, by = c("endofrequency" = "endo_prev", "long_dec" = "longitude (dd)", "lat_dec" = "latitude (dd)", "plantsppcode" = "plantsppcode"))
+
+ggplot(subset(jenn_and_ecolab, plantsppcode %in% c("Poa_autumnalis"))) +
+  # geom_smooth(aes(x = long_dec, y = endofrequency), method = "lm")+
+  geom_point(aes(x = long_dec, y = endofrequency), lwd = 3) + geom_vline(xintercept = 96) + scale_x_reverse()+ scale_colour_gradient(low = "lightblue", high = "blue") + ggtitle("POAU")
 
 
 # View(endos1)
@@ -413,7 +158,7 @@ ggplot(subset(endos1, plantsppcode %in% c("Poa_autumnalis"))) +
   geom_point(aes(x = long_dec, y = lat_dec, color = endofrequency), lwd = 3) + geom_vline(xintercept = 96) + scale_x_reverse()+ scale_colour_gradient(low = "lightblue", high = "blue") + ggtitle("POAU")
 
 ggplot(subset(endos1, plantsppcode %in% c("Poa_autumnalis"))) +
-  geom_smooth(aes(x = long_dec, y = endofrequency), method = "lm")+
+  # geom_smooth(aes(x = long_dec, y = endofrequency), method = "lm")+
   geom_point(aes(x = long_dec, y = endofrequency), lwd = 3) + geom_vline(xintercept = 96) + scale_x_reverse()+ scale_colour_gradient(low = "lightblue", high = "blue") + ggtitle("POAU")
 
 
@@ -430,7 +175,7 @@ ggplot(subset(endos1, plantsppcode %in% c("Festuca_subverticillata"))) +
 
 ggplot(subset(endos1, plantsppcode %in% c("Festuca_subverticillata"))) +
   geom_smooth(aes(x = long_dec, y = endofrequency), method = "lm")+
-  geom_point(aes(x = long_dec, y = lat_dec, color = endofrequency), lwd = 3) + scale_x_reverse()+ scale_colour_gradient(low = "lightblue", high = "blue")
+  geom_point(aes(x = long_dec, y = endofrequency, color = endofrequency), lwd = 3) + scale_x_reverse()+ scale_colour_gradient(low = "lightblue", high = "blue")
 
 
 ggplot(subset(endos1, plantsppcode %in% c("Elymus_virginicus"))) + ggtitle("ELVI")+
@@ -689,3 +434,266 @@ ggplot(data = type2_endo1) + ggtitle("Percentage of populations with infection")
            
 
 View(type2_endo)
+
+
+
+
+
+ecolab <- read_csv("endosurveys_withPRISM_meansandCV.csv") %>% 
+  rename(gps_lon = Long, gps_lat = Lat, popprev = endoprev) %>% 
+  mutate(speciesID = case_when(spp == "Agrostis_hyemalis" ~ "AGHY",
+                               spp == "Poa_autumnalis" ~ "POAU",
+                               spp == "Poa_sylvestris" ~ "POSY",
+                               spp == "Agrostis_perennans" ~ "AGPE",
+                               spp == "Elymus_virginicus" ~ "ELVI",
+                               spp == "Elymus_canadensis" ~ "ELCA",
+                               spp == "Sphenopholis_nitida" ~ "SPNI",
+                               spp == "Sphenopholis_obtusata" ~ "SPOB",
+                               spp == "Cinna_arundinacea" ~ "CIAR",
+                               spp == "Lolium_perenne" ~ "LOPE",
+                               spp == "Festuca_subverticillata" ~ "FESU"
+  ))
+# View(ecolab)
+ggplot(ecolab) +
+  geom_point(aes(x = gps_lon, y = popprev))+ facet_wrap(~spp)
+
+ggplot(ecolab) +
+  geom_point(aes(x = gps_lat, y = popprev))+ facet_wrap(~spp)
+
+ggplot(ecolab) +
+  geom_point(aes(x = PRISMppt30y, y = popprev))+ facet_wrap(~spp)
+
+ggplot(ecolab) +
+  geom_point(aes(x = PRISMtmean3, y = popprev))+ facet_wrap(~spp)
+
+
+# Longitude
+
+ggplot(subset(ecolab, speciesID %in% "AGHY")) + geom_vline(xintercept =-98) +
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm") +
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) + geom_vline(xintercept =-98) +
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm") +
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = gps_lon, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lon, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+
+# Latitude
+ggplot(subset(ecolab, speciesID %in% "AGHY")) +
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm") +
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) +
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm") +
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = gps_lat, y = popprev), method = "lm")+
+  geom_point(aes(x= gps_lat, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+
+# Tmean
+ggplot(subset(ecolab, speciesID %in% "AGHY")) +
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) +
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = PRISMtmean3, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMtmean3, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+# Tmean Coefficient of variation
+ggplot(subset(ecolab, speciesID %in% "AGHY")) +
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) +
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = PRISM_tmean_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_tmean_cv, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+# Ppt
+ggplot(subset(ecolab, speciesID %in% "AGHY")) +
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) +
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = PRISMppt30y, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISMppt30y, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+# Ppt coefficient of variation
+ggplot(subset(ecolab, speciesID %in% "AGHY")) +
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("AGHY") 
+
+ggplot(subset(ecolab, speciesID %in% "AGPE")) +
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm") +
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("AGPE") 
+
+ggplot(subset(ecolab, speciesID %in% "POAU"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("POAU") 
+
+ggplot(subset(ecolab, speciesID %in% "POSY"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("POSY") 
+
+ggplot(subset(ecolab, speciesID %in% "ELVI"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("ELVI") 
+
+ggplot(subset(ecolab, speciesID %in% "ELCA"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("ELCA") 
+
+ggplot(subset(ecolab, speciesID %in% "CIAR"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("CIAR") 
+
+ggplot(subset(ecolab, speciesID %in% "SPOB"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("SPOB") 
+
+ggplot(subset(ecolab, speciesID %in% "FESU"))+ 
+  geom_smooth(aes(x = PRISM_ppt_cv, y = popprev), method = "lm")+
+  geom_point(aes(x= PRISM_ppt_cv, y = popprev), lwd = 3) + ggtitle("FESU") 
+
+
+
+
+
+

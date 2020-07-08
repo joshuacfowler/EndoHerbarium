@@ -1,13 +1,13 @@
 # Title: Digital Herbarium Records and Sample Integration
 # Purpose: Imports and merges downloaded digitized herbarium records with the Endo_Herbarium database
 # Authors: Joshua Fowler and Lani Dufresne
-# Updated: Mar 23, 2020
+# Updated: Apr 13, 2020
 
 library(tidyverse)
-library(fuzzyjoin)
 library(readxl)
 library(ggmap)
 library(lubridate)
+library(rstan)
 
 # Read in digitized herbarium records
 # UT Austin downloaded from TORCH
@@ -169,9 +169,9 @@ endo_herb3 <- endo_herb2 %>%
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
 
-endo_herb_georef <-endo_herb3 %>%
-  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-  filter(Endo_status_liberal <= 1) %>% 
+# endo_herb_georef <-endo_herb3 %>%
+#   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
+#   filter(Endo_status_liberal <= 1) %>% 
 # mutate_geocode(location_string) # Uncomment this to run the geocoding.
 # write_csv(endo_herb_georef, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%  
@@ -223,13 +223,14 @@ newdat <- rbind(newdat1920, newdat1950, newdat2000)
 y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
 newpred <- cbind(newdat, y_pred)
 
-
+plot(endo_herb_AGHY$lon, endo_herb_AGHY$Endo_status_liberal)
+lines(newdat$lon, y_pred)
 plot(binned_AGHY$mean_lon[binned_AGHY$mean_year<1940], binned_AGHY$mean_endo[binned_AGHY$mean_year<1940], pch = 1, cex = binned_AGHY$`n()`/10, col = "violetred1")
   points(binned_AGHY$mean_lon[binned_AGHY$mean_year<1980 & binned_AGHY$mean_year>1940], binned_AGHY$mean_endo[binned_AGHY$mean_year<1980 & binned_AGHY$mean_year>1940], pch = 1, cex = binned_AGHY$`n()`/10, col = "gray39")
   points(binned_AGHY$mean_lon[binned_AGHY$mean_year>1980], binned_AGHY$mean_endo[binned_AGHY$mean_year>1980],pch = 1, cex= binned_AGHY$`n()`/10, col = "royalblue3")
-  lines(newdat1920$lon, y_pred1920, col = "violetred1", lwd = 2)
-  lines(newdat1950$lon, y_pred1950, col = "gray39", lwd = 2)
-  lines(newdat1950$lon, y_pred2000, col = "royalblue3", lwd = 2)
+  lines(newdat$lon, y_pred, col = "violetred1", lwd = 2)
+  lines(newdat$lon, y_pred, col = "gray39", lwd = 2)
+  lines(newdat$lon, y_pred, col = "royalblue3", lwd = 2)
 anova(long_date_mod, test = "Chisq")
 
 ggplot() +
@@ -255,6 +256,11 @@ newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
 newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
 newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred1920 <- predict(long_date_mod, newdata = newdat1920, type = "response")
+y_pred1950 <- predict(long_date_mod, newdata = newdat1950, type = "response")
+y_pred2000 <- predict(long_date_mod, newdata = newdat2000, type = "response")
+
+
 y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
 newpred <- cbind(newdat, y_pred)
 
@@ -326,9 +332,75 @@ ggplot(data = lani_endo)+
   geom_point(aes(x = Date, y = `01liberal`)) +
   stat_smooth(aes(x = Date, y = `01liberal`), method = glm, method.args = list(family = "binomial"))
 
-# 
+# Messing around with Stan models
 
+invlogit<-function(x){exp(x)/(1+exp(x))}
+logit = function(x) { log(x/(1-x)) }
 
+#########################################################################################################
+# Bernoulli GLM for endo ~  lon + year + lon*year   -------------------------
+########################################################################################
+## here is the Stan model ##
+## run this to optimize computer system settings
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+set.seed(123)
 
+## MCMC settings
+ni <- 1000
+nb <- 500
+nc <- 3
+endo_herb_forstan <- endo_herb_georef %>% 
+  mutate(SPP_CODE = case_when(grepl("AGHY", Sample_id) ~ 0,
+                              grepl("ELVI", Sample_id) ~ 1)) %>% 
+  filter(!is.na(year), !is.na(lon), !is.na(SPP_CODE))
+
+endo_herb_list <- list(endo = as.integer(endo_herb_forstan$Endo_status_liberal),
+                  lon = endo_herb_forstan$lon,
+                  year = endo_herb_forstan$year,
+                  spp = endo_herb_forstan$SPP_CODE,
+                  N = length(endo_herb_forstan$Endo_status_liberal),
+                  K = 3L)
+
+sink("endoherb.stan")
+cat("
+    data { 
+     int<lower=0> N;                       // number of observations
+     int<lower=0> K;                       // number of predictors
+     int<lower = 0, upper = 1> endo[N];    // infection status (response)
+     real<lower = 0> year[N];                // year of collection
+     real<upper = 0> lon[N];             // longitude
+     int<lower = 0, upper = 1> spp[N];    // Spp specific intercept
+    }
+    
+    parameters {
+    vector[K] beta;
+    real<lower = 0> sigma;
+    }
+    
+    transformed parameters{
+    real mu[N];                             //Linear Predictor
+    for(n in 1:N){
+    mu[n] = beta[1] + beta[2]*lon[n] + beta[3]*year[n];
+    }
+    }
+    model {
+    // Priors
+    beta ~ normal(0,sigma); // prior for predictor intercepts
+    // Likelihood
+        endo ~ bernoulli_logit(mu);
+    }
+    
+         generated quantities{
+    }
+  
+      ", fill = T)
+sink()
+
+stanmodel <- stanc("endoherb.stan")
+
+sm<- stan(file = "endoherb.stan", data = endo_herb_list,
+              iter = ni, warmup = nb, chains = nc, save_warmup = FALSE)
+# saveRDS(sm, file = "endoherb_fit.rds")
 
 
