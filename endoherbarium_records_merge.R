@@ -1,7 +1,7 @@
 # Title: Digital Herbarium Records and Sample Integration
 # Purpose: Imports and merges downloaded digitized herbarium records with the Endo_Herbarium database
 # Authors: Joshua Fowler and Lani Dufresne
-# Updated: Apr 13, 2020
+# Updated: Nov. 10, 2020
 
 library(tidyverse)
 library(readxl)
@@ -15,6 +15,10 @@ library(ggmap) # for making maps
 library(rnaturalearth)# for making maps
 library(rnaturalearthdata)# for making maps
 library(rgeos)# for making maps
+library(prism)
+library(raster) ##working with raster data
+library(reshape2)
+library(viridis)
 
 # Read in digitized herbarium records
 # UT Austin downloaded from TORCH
@@ -41,11 +45,100 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
 # This was downloaded on Jul17 and we can get more specimens transcribed and download again.
-AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-10-02_141423_DwC-A/occurrences.csv") %>% 
-  filter(!is.na(county), !is.na(eventDate)) %>%
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
-  mutate(Spp_code = "AGHY")
-ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-10-02_140926_DwC-A/occurrences.csv") %>% 
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-10-02_141423_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
+  mutate(Spp_code = "AGHY", eventDate = as.Date(eventDate))
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-10-02_140926_DwC-A/occurrences.csv")
   filter(!is.na(county), !is.na(eventDate)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
@@ -269,6 +362,56 @@ AGHY_herb <- ggplot() +
 ggsave(AGHY_herb, filename = "~/Documents/AGHYherb.tiff", width = 4, height = 3)
 
 
+
+
+
+### Plot for binned over longitude, all times merged
+
+longbin_AGHY <- endo_herb_AGHY %>% 
+  mutate(binned_lon = cut(lon, breaks = 25)) %>%  
+  group_by(binned_lon) %>%   
+  summarise(mean_lon = mean(lon),
+            mean_endo = mean(Endo_status_liberal),
+            sample = n())
+
+long_mod <- glm(Endo_status_liberal ~ lon, data = subset(endo_herb_AGHY), family = binomial)
+summary(long_mod)
+anova(long_mod, test = "Chisq")
+
+newdatlong <- data.frame(lon = seq(-110,-60,1))
+y_pred <- predict(long_mod, newdata = newdatlong, type = "response")
+y_CI <- predict(long_mod, newdata = newdatlong, interval = "confidence", type = "link", se.fit=TRUE)
+linkinv <- family(long_mod)$linkinv ## inverse-link function
+
+
+newpred <- newdatlong
+newpred$pred0 <- y_CI$fit
+newpred$pred <- linkinv(y_CI$fit)
+alpha <- 0.95
+sc <- abs(qnorm((1-alpha)/2))  ## Normal approx. to likelihood
+alpha2 <- 0.5
+sc2 <- abs(qnorm((1-alpha2)/2))  ## Normal approx. to likelihood
+newpred <- transform(newpred,
+                     lwr=linkinv(pred0-sc*y_CI$se.fit),
+                     upr=linkinv(pred0+sc*y_CI$se.fit),
+                     lwr2=linkinv(pred0-sc2*y_CI$se.fit),
+                     upr2=linkinv(pred0+sc2*y_CI$se.fit))
+
+
+
+AGHY_herb_long <- ggplot() +
+  geom_point(data = longbin_AGHY,aes(x = mean_lon, y = mean_endo, size = sample)) + 
+  geom_line(data = newpred, aes(x = lon, y = pred)) +
+  geom_ribbon(data = newpred, aes(x = lon, ymin = lwr, ymax = upr, alpha = .5)) +
+  theme_classic() + labs(y = "Mean Endophyte Prevalence", x = "Longitude")+
+  xlim(-110,-60) + guides(alpha = FALSE)
+
+AGHY_herb_long
+ggsave(AGHY_herb_long, filename = "~/Documents/AGHYherb_long.tiff", width = 4, height = 3)
+
+
+
+
 #### Plot for change over time, binned by longitude
 
 binned_AGHY_time <- endo_herb_AGHY %>% 
@@ -316,17 +459,13 @@ AGHY_herb_time <- ggplot() +
   facet_wrap(~lon, nrow = 1)+
   xlim(1880,2015) + guides(fill = FALSE)
 AGHY_herb_time
-ggsave(AGHY_herb_time, filename = "~/Documents/AGHYherb_time.tiff", width = 6, height = 3)
+ggsave(AGHY_herb_time, filename = "~/Documents/AGHY_herb_time.tiff", width = 6, height = 3)
 
 
 
 
 # Making a map of scored AGHY
-usa <- ne_counties(scale = "medium", country = "United States of America", returnclass = "sf")
-class(usa)
-
 usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE))
-
 AGHY_herb_map <- ggplot()+
   geom_sf(data = usa, fill = "white") +
   geom_point(data = endo_herb_AGHY, aes(x = lon, y = lat), lwd = 2,alpha = .5) +
@@ -335,9 +474,81 @@ AGHY_herb_map <- ggplot()+
 AGHY_herb_map
 ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 
+
+
+# Get annual prism climate data to make map of climate change magnitude
+# Should have these PRISM files saved after running the first time
+get_prism_annual(type = c("ppt"), years=1895:2016, keepZip = TRUE)
+get_prism_annual(type = c("tmean"), years=1895:2016, keepZip = TRUE)
+
+ls_prism_data(name=TRUE)
+
+new_file<-c(1:(length(1895:2016))) ##change to corresponding file numbers
+RS <- prism_stack(ls_prism_data()[new_file,1]) ##raster file
+to_slice <- grep("_2016",RS[,1],value=T)##search through names
+
+
+df <- data.frame(rasterToPoints(RS)) ##creates a dataframe of points
+year.df <- melt(df, c("x", "y")) %>% 
+  separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>% 
+  rename("lon" = "x", "lat" = "y")
+
+
+normals <- year.df %>% 
+  mutate(time.period = case_when(Year>=1895 & Year <=1956 ~ "start",
+                                 Year>=1957 & Year <=2016 ~ "end")) %>% 
+  group_by(lon, lat, Variable, time.period) %>% 
+  summarize(normal = mean(value)) 
+
+
+normals_diff <- normals %>% 
+  pivot_wider(names_from = "time.period", values_from = "normal") %>% 
+  group_by(lon,lat,Variable) %>% 
+  mutate(normal_diff = end - start)
+
+
+ggplot()+
+  geom_raster(data = subset(normals_diff, Variable == "tmean"), aes(x = lon, y = lat, fill = normal_diff)) +
+  scale_fill_distiller("Change in Mean Temperature (\u00B0C)", palette = "Spectral", limits = c(-1.15,1.15)) +
+  theme_minimal() +coord_fixed(ratio=1.3)
+
+ggplot()+
+  geom_raster(data = subset(normals_diff, Variable == "ppt"), aes(x = lon, y = lat, fill = normal_diff)) +
+  scale_fill_distiller("Change in Annual Precipitation (mm.)", palette = "Spectral", trans = "reverse", limits = c(250,-250)) +
+  theme_minimal() +coord_fixed(ratio=1.3)
+
+
+
+
+# Map of collections with change in temp and ppt
+
+tempchangemap <- ggplot()+
+  geom_raster(data = subset(normals_diff, Variable == "tmean"), aes(x = lon, y = lat, fill = normal_diff)) +
+  geom_sf(data = usa, fill = "transparent") +
+  geom_point(data = endo_herb_AGHY, aes(x = lon, y = lat), shape = 4, lwd = 1.5,alpha = .6) +
+  theme_minimal() + labs(x = c("Longitude"), y = c("Latitude"), fill = c("Mean Temp. Change (\u00B0C)"))+
+  scale_fill_distiller( palette = "Spectral", limits = c(-1.15,1.15)) + lims(x = c(-108,-65))
+
+tempchangemap
+ggsave(tempchangemap, filename = "~/Documents/tempchangemap2.tiff")
+
+
+
+pptchangemap <- ggplot()+
+  geom_raster(data = subset(normals_diff, Variable == "ppt"), aes(x = lon, y = lat, fill = normal_diff)) +
+  geom_sf(data = usa, fill = "transparent") +
+  geom_point(data = endo_herb_AGHY, aes(x = lon, y = lat), shape = 4, lwd = 1.5,alpha = .6) + 
+  theme_minimal() + labs(x = c("Longitude"), y = c("Latitude"), fill = c("Annual Precip. Change (mm.)"))+
+  scale_fill_distiller("Annual Precip. Change (mm.)", palette = "Spectral", trans = "reverse", limits = c(150,-150)) + lims(x = c(-108,-65))
+  
+pptchangemap
+ggsave(pptchangemap, filename = "~/Documents/pptchangemap2.tiff")
+
+
+
+
+
 #
-
-
 
 
 
