@@ -32,8 +32,13 @@ ELVI_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Dig
   mutate(municipality = as.character(municipality)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
-  
-UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin)
+AGPE_UTAustin <-   read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGPErecords/occurrences.csv") %>% 
+  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
+  mutate(municipality = as.character(municipality)) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "ELVI")
+
+UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin)
 
 # Texas A&M digitized records (Includes both AGHY and ELVI)
 AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
@@ -45,7 +50,7 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
 # This was downloaded on Jul17 and we can get more specimens transcribed and download again.
-AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-10-02_141423_DwC-A/occurrences.csv",
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-11-10_144536_DwC-A/occurrences.csv",
                       col_types = cols(id = col_double(),
                                        institutionCode = col_character(),
                                        collectionCode = col_logical(),
@@ -136,15 +141,203 @@ AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
                                        references = col_character())) %>% 
   filter(!is.na(county), !is.na(eventDate)) %>% 
   separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
-  mutate(Spp_code = "AGHY", eventDate = as.Date(eventDate))
-ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-10-02_140926_DwC-A/occurrences.csv")
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGHY")
+
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-11-10_144847_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
   filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
 
 
-BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT)
+AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGPE_TORCH_records/SymbOutput_2020-11-10_144221_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGPE")
+
+
+BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT)
 
 
 
