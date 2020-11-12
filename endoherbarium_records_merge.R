@@ -8,6 +8,7 @@ library(readxl)
 library(ggmap)
 library(lubridate)
 library(rstan)
+library(brms) #Stan package for bayesian models similar to lme4
 library(car)
 library(sf) # for making maps
 library(here) # for making maps (lets you set filepaths)
@@ -19,6 +20,7 @@ library(prism)
 library(raster) ##working with raster data
 library(reshape2)
 library(viridis)
+
 
 # Read in digitized herbarium records
 # UT Austin downloaded from TORCH
@@ -36,7 +38,7 @@ AGPE_UTAustin <-   read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/D
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
   mutate(municipality = as.character(municipality)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
-  mutate(Spp_code = "ELVI")
+  mutate(Spp_code = "AGPE")
 
 UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin)
 
@@ -45,7 +47,7 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
   unite(Institution_specimen_id, CollectionCode, id, sep = "") %>%
   separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
-  select(-contains("X"))
+  dplyr::select(-contains("X"))
 
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
@@ -350,6 +352,8 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day))%>% 
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
                             !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
+  mutate(Specimen_id_temp = Specimen_id) %>% 
+  separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_") %>% 
   filter(!is.na(Specimen_id))
 
 # This is the sample info and we will filter for only those that we have scored so far.
@@ -361,9 +365,7 @@ sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_He
 
 
 endo_herb <- specimen_info %>% 
-  merge(sample_info, by = c("Specimen_id" = "Specimen_id")) %>% 
-  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-                            is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  merge(sample_info, by = c("Specimen_id" = "Specimen_id", "Herbarium_id" = "Herbarium_id", "Spp_code" = "Spp_code", "Specimen_no" = "Specimen_no")) %>% 
   dplyr::select(-contains("X1"),-contains("X2"))
 
 
@@ -405,8 +407,6 @@ endo_herb1 <- endo_herb %>%
                           is.na(month.y) ~ month.x)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
                           is.na(day.y) ~ day.x)) %>% 
-  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
   dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
 
 # Merge in the BRIT records that we have so far
@@ -453,15 +453,15 @@ endo_herb3 <- endo_herb2 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
-
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)  %>% 
+  filter(!duplicated(Sample_id))
 
 # Now I am going to link these county/locality records to a gps point with ggmap
 # This requires and API key which you can set up through google, look at ?register_google. 
 # There are restrictions to the total number of queries that you can do per day and month, and if you go over, it costs money, so we will save the output. I believe we have a free trial for year.
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
-
+# 
 # endo_herb_georef <-endo_herb3 %>%
 #   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
 #   filter(Endo_status_liberal <= 1) %>%
@@ -502,6 +502,23 @@ binned_ELVI <- endo_herb_ELVI %>%
             mean_endo = mean(Endo_status_liberal),
             sample = n())
 
+# AGPE need to get year records from Lani/ many of these are only partially digitized
+endo_herb_AGPE <- endo_herb_georef %>%
+  filter(grepl("AGPE", Sample_id)) %>%
+  filter(!is.na(lon) & !is.na(year))
+# 
+# binned_AGPE <- endo_herb_AGPE %>% 
+#   mutate(binned_lon = cut(lon, breaks = 12), binned_year = cut(year, breaks = 3)) %>%  
+#   group_by(binned_lon, binned_year) %>%   
+#   summarise(mean_lon = mean(lon),
+#             mean_year = mean(year),
+#             mean_endo = mean(Endo_status_liberal),
+#             sample = n())
+
+###########################################################################
+##### Statistical analysis of changes in prevalence over space and time
+###########################################################################
+
 # AGHY
 plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
 plot(endo_herb_AGHY$year,endo_herb_AGHY$Endo_status_liberal)
@@ -509,13 +526,13 @@ plot(endo_herb_AGHY$lon,endo_herb_AGHY$Endo_status_liberal)
 hist(endo_herb_AGHY$year)
 hist(endo_herb_AGHY$lon)
 
-long_date_mod <- glm(Endo_status_liberal ~ lon * year, data = subset(endo_herb_AGHY), family = binomial)
-long_date_mod <- glm(Endo_status_liberal ~ year * lon, data = subset(endo_herb_AGHY), family = binomial)
-
+long_date_mod <- glm(Endo_status_liberal ~ 1 + lon * year, data = endo_herb_AGHY, family = binomial)
 anova(long_date_mod, test = "Chisq")
 summary(long_date_mod)
 
 Anova(long_date_mod, test = "LR")
+
+
 
 newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
@@ -555,7 +572,32 @@ AGHY_herb <- ggplot() +
 ggsave(AGHY_herb, filename = "~/Documents/AGHYherb.tiff", width = 4, height = 3)
 
 
+## here is the brms Stan model version ##
+## run this to optimize computer system settings
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+set.seed(123)
 
+## MCMC settings
+ni <- 2000
+nb <- 1000
+nc <- 3
+
+long_date_mod_bayesian <- brm(formula = Endo_status_liberal ~  lon + year + lon*year, 
+                              data = endo_herb_AGHY,
+                              family = bernoulli(link = "logit"),
+                              prior = c(set_prior("normal(0,10)", class = "b", coef = "lon"),
+                                        set_prior("normal(0,10)", class = "b", coef = "year"),
+                                        set_prior("normal(0,10)", class = "b", coef = "lon:year")),
+                              warmup = nb, 
+                              iter = ni, 
+                              chains = nc)
+
+mcmc_plot(long_date_mod_bayesian, 
+         type = "trace")
+summary(long_date_mod_bayesian)
+
+prior_summary(long_date_mod_bayesian)
 
 
 ### Plot for binned over longitude, all times merged
@@ -757,7 +799,7 @@ plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
 hist(endo_herb_ELVI$year)
 hist(endo_herb_ELVI$lon)
   
-long_date_mod <- glm(Endo_status_liberal == 1 ~ lon*year, data = subset(endo_herb_ELVI, lon < -90), family = binomial)
+long_date_mod <- glm(Endo_status_liberal ~ lon*year, data = subset(endo_herb_ELVI, lon < -90), family = binomial)
 summary(long_date_mod)
 newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
 newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
