@@ -9,6 +9,8 @@ library(ggmap)
 library(lubridate)
 library(rstan)
 library(brms) #Stan package for bayesian models similar to lme4
+library(modelr)
+library(tidybayes)
 library(car)
 library(sf) # for making maps
 library(here) # for making maps (lets you set filepaths)
@@ -586,18 +588,103 @@ nc <- 3
 long_date_mod_bayesian <- brm(formula = Endo_status_liberal ~  lon + year + lon*year, 
                               data = endo_herb_AGHY,
                               family = bernoulli(link = "logit"),
-                              prior = c(set_prior("normal(0,10)", class = "b", coef = "lon"),
-                                        set_prior("normal(0,10)", class = "b", coef = "year"),
-                                        set_prior("normal(0,10)", class = "b", coef = "lon:year")),
+                              prior = c(set_prior("normal(0,5)", class = "b")),
+                              # prior = c(set_prior("normal(0,5)", class = "b", coef = "lon"),
+                              #           set_prior("normal(0,5)", class = "b", coef = "year"),
+                              #           set_prior("normal(0,1)", class = "b", coef = "lon:year")),
                               warmup = nb, 
                               iter = ni, 
                               chains = nc)
-
+# plot the traceplots
 mcmc_plot(long_date_mod_bayesian, 
          type = "trace")
+# summary of the parameters
 summary(long_date_mod_bayesian)
 
+# figure out which priors the brm function is using
 prior_summary(long_date_mod_bayesian)
+
+plot(conditional_effects(long_date_mod_bayesian, effects = "lon:year"))
+
+endo_herb_AGHY %>% 
+  mutate(binned_year = cut(year, breaks = 3)) %>%  
+  group_by(year = binned_year) %>% 
+  data_grid(lon = seq_range(lon, n = 100))+
+  add_fitted_draws(long_date_mod_bayesian) %>% 
+  ggplot(aes(x = lon, y = Endo_status_liberal)) +
+  stat_lineribbon(aes(y = .value)) 
+  geom_point(data = binned_AGHY, aes(x = binned_lon, y = binned_year)) +
+  scale_fill_brewer(palette = "Greys") +
+  scale_color_brewer(palette = "Set2")
+
+
+AGHY_herb_bayes <- ggplot() +
+  geom_point(data = binned_AGHY,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
+  geom_line(data = newpred, aes(x = lon, y = pred, group = year, color = as.character(year))) +
+  geom_ribbon(data = newpred, aes(x = lon, ymin = lwr, ymax = upr, group = year, fill = as.factor(year)), alpha = .2) +
+  theme_classic() + labs(y = "Mean Endophyte Prevalence", x = "Longitude", color = "year")+
+  scale_colour_manual(breaks = c("1920", "1950", "2000"),
+                      values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  scale_fill_manual(breaks = c("1920", "1950", "2000"),
+                    values = c("#fc8d59", "#636363", "#91bfdb")) +
+  xlim(-105,-60) + guides(fill = FALSE)
+
+AGHY_herb_bayes
+
+ggsave(AGHY_herb, filename = "~/Documents/AGHYherb.tiff", width = 4, height = 3)
+
+
+# ELVI
+plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
+plot(endo_herb_ELVI$year,endo_herb_ELVI$Endo_status_liberal)
+plot(endo_herb_ELVI$lon,endo_herb_ELVI$Endo_status_liberal)
+hist(endo_herb_ELVI$year)
+hist(endo_herb_ELVI$lon)
+
+long_date_mod <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_ELVI, family = binomial)
+anova(long_date_mod, test = "Chisq")
+summary(long_date_mod)
+
+Anova(long_date_mod, test = "LR")
+
+
+
+newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
+newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
+newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
+newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
+y_CI <- predict(long_date_mod, newdata = newdat, interval = "confidence", type = "link", se.fit=TRUE)
+linkinv <- family(long_date_mod)$linkinv ## inverse-link function
+
+newpred <- newdat
+newpred$pred0 <- y_CI$fit
+newpred$pred <- linkinv(y_CI$fit)
+alpha <- 0.95
+sc <- abs(qnorm((1-alpha)/2))  ## Normal approx. to likelihood
+alpha2 <- 0.5
+sc2 <- abs(qnorm((1-alpha2)/2))  ## Normal approx. to likelihood
+newpred <- transform(newpred,
+                     lwr=linkinv(pred0-sc*y_CI$se.fit),
+                     upr=linkinv(pred0+sc*y_CI$se.fit),
+                     lwr2=linkinv(pred0-sc2*y_CI$se.fit),
+                     upr2=linkinv(pred0+sc2*y_CI$se.fit))
+
+
+
+ELVI_herb <- ggplot() +
+  geom_point(data = binned_ELVI,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
+  geom_line(data = newpred, aes(x = lon, y = pred, group = year, color = as.character(year))) +
+  geom_ribbon(data = newpred, aes(x = lon, ymin = lwr, ymax = upr, group = year, fill = as.factor(year)), alpha = .2) +
+  theme_classic() + labs(y = "Mean Endophyte Prevalence", x = "Longitude", color = "year")+
+  scale_colour_manual(breaks = c("1920", "1950", "2000"),
+                      values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  scale_fill_manual(breaks = c("1920", "1950", "2000"),
+                    values = c("#fc8d59", "#636363", "#91bfdb")) +
+  xlim(-105,-60) + guides(fill = FALSE)
+
+ELVI_herb
+ggsave(ELVI_herb, filename = "~/Documents/ELVIherb.tiff", width = 4, height = 3)
 
 
 ### Plot for binned over longitude, all times merged
