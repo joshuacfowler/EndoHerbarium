@@ -23,8 +23,10 @@ library(raster) ##working with raster data
 library(reshape2)
 library(viridis)
 
+################################################################################
+############ Read in digitized herbarium records ############################### 
+################################################################################
 
-# Read in digitized herbarium records
 # UT Austin downloaded from TORCH
 AGHY_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGHYrecords/occurrences.csv") %>% 
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%   #creates a new id that we will use to merge with the 
@@ -344,8 +346,11 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
 BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT)
 
 
+################################################################################
+############ Read in endophyte scores and our transcribed specimen data ############################### 
+################################################################################
 
-# Read in our transcribed datasheet from google sheets
+# Read in our transcribed datasheet from google sheets which I have backed up in dropbox
 # I am reading these in as csv files that I saved from the excel file because excel does weird things with the date entries.
 specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_specimen.csv") %>% 
   mutate(eventDate = Date_collected) %>%
@@ -366,16 +371,50 @@ sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_He
 
 
 
-endo_herb <- specimen_info %>% 
+endo_scores <- specimen_info %>% 
   merge(sample_info, by = c("Specimen_id" = "Specimen_id", "Herbarium_id" = "Herbarium_id", "Spp_code" = "Spp_code", "Specimen_no" = "Specimen_no")) %>% 
+  mutate(Specimen_no = as.numeric(Specimen_no)) %>% 
   dplyr::select(-contains("X1"),-contains("X2"))
 
 
+# Read in the fitness and size data that we have collected
 
+aghy_fitness <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/AGHY_fitness_data.csv") %>% 
+  filter(!is.na(surface_area_cm2)) %>% 
+  dplyr::select(-seed, -stem)
+  
+elvi_fitness <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/ELVI_fitness_data.csv") %>% 
+  filter(!is.na(Area)) %>%
+  pivot_longer(cols = c(Length1, Length2, Length3, Length4, Length5,
+                        Length_w_fuzzy_1, Length_w_fuzzy_2, Length_w_fuzzy_3, Length_w_fuzzy_4, Length_w_fuzzy_5),
+               names_to = c("Infl_measurement", "Infl_no"), names_pattern = "(.+)(.+)") %>% 
+  filter(!is.na(value)) %>% 
+  pivot_wider(names_from = Infl_measurement, values_from = value) %>% 
+  group_by(Specimen_id, Institution_specimen_id, new_id, Herbarium_id, Spp_code, Specimen_no, Area) %>% 
+  summarize(mean_infl_length = mean(Length),
+            mean_inflplusawn_length = mean(Length_w_fuzzy_),
+            infl_count = n())
+
+fitness_data <- full_join(aghy_fitness, elvi_fitness, by = c("Specimen_id" = "Specimen_id",
+                                                         "Institution_specimen_id" = "Institution_specimen_id", 
+                                                         "new_id"= "new_id", 
+                                                         "Herbarium_id" = "Herbarium_id", 
+                                                         "Spp_code" = "Spp_code", 
+                                                         "Specimen_no" = "Specimen_no", 
+                                                         "surface_area_cm2" = "Area"))  %>% 
+  dplyr::select( -Institution_specimen_id, -new_id)
+
+
+endo_herb <- endo_scores %>% 
+  left_join(fitness_data, by = c("Specimen_id" = "Specimen_id",
+                                 "Herbarium_id" = "Herbarium_id", 
+                                 "Spp_code" = "Spp_code", 
+                                 "Specimen_no" = "Specimen_no"))
+  
 
 # These are the matches from BRIT for transcription using the file that Jason Best shared of their database, Mar 25th, 2020
 BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/fowler_matches_Mar25.csv") %>% 
-  select("catalogNumber") %>% 
+  dplyr::select("catalogNumber") %>% 
   mutate(transcibed = NA)
 
 
@@ -409,7 +448,7 @@ endo_herb1 <- endo_herb %>%
                           is.na(month.y) ~ month.x)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
                           is.na(day.y) ~ day.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
 endo_herb2 <- endo_herb1 %>% 
@@ -432,7 +471,7 @@ endo_herb2 <- endo_herb1 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                             is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the UT Austin records that we have so far
 endo_herb3 <- endo_herb2 %>% 
@@ -455,8 +494,8 @@ endo_herb3 <- endo_herb2 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative)  %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+filter(!duplicated(Sample_id))
 
 # Now I am going to link these county/locality records to a gps point with ggmap
 # This requires and API key which you can set up through google, look at ?register_google. 
@@ -472,6 +511,9 @@ endo_herb3 <- endo_herb2 %>%
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
   filter(Country != "Canada")
 
+################################################################################
+############ Visualizing samples and analysis ############################### 
+################################################################################
 
 # Now we can explore the data
 plot(endo_herb_georef$lon, endo_herb_georef$lat)
@@ -517,10 +559,9 @@ endo_herb_AGPE <- endo_herb_georef %>%
 #             mean_endo = mean(Endo_status_liberal),
 #             sample = n())
 
-###########################################################################
-##### Statistical analysis of changes in prevalence over space and time
-###########################################################################
-
+############################################################################
+##### Spatial and temporal trends ##########################################
+############################################################################
 # AGHY
 plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
 plot(endo_herb_AGHY$year,endo_herb_AGHY$Endo_status_liberal)
@@ -784,7 +825,9 @@ AGHY_herb_time
 ggsave(AGHY_herb_time, filename = "~/Documents/AGHY_herb_time.tiff", width = 6, height = 3)
 
 
-
+############################################################################
+##### Pulling in Climate Data ###############################################
+############################################################################
 
 # Making a map of scored AGHY
 usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE))
@@ -800,12 +843,14 @@ ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 
 # Get annual prism climate data to make map of climate change magnitude
 # Should have these PRISM files saved after running the first time
-get_prism_annual(type = c("ppt"), years=1895:2016, keepZip = TRUE)
-get_prism_annual(type = c("tmean"), years=1895:2016, keepZip = TRUE)
+
+get_prism_monthlys(type = c("ppt"), years=1895:2016, mon = 1:12, keepZip = TRUE)
+get_prism_monthlys(type = c("tmean"), years=1895:2016, mon = 1:12, keepZip = TRUE)
+
 
 ls_prism_data(name=TRUE)
 
-new_file<-c(1:(length(1895:2016))) ##change to corresponding file numbers
+new_file<-c(1:(length(1895:2016)*12)) ##change to corresponding file numbers
 RS <- prism_stack(ls_prism_data()[new_file,1]) ##raster file
 to_slice <- grep("_2016",RS[,1],value=T)##search through names
 
@@ -870,7 +915,11 @@ ggsave(pptchangemap, filename = "~/Documents/pptchangemap2.tiff")
 
 
 
-#
+
+
+############################################################################
+##### Analyzing fitness data ###############################################
+############################################################################
 
 
 
@@ -880,102 +929,15 @@ ggsave(pptchangemap, filename = "~/Documents/pptchangemap2.tiff")
 
 
 
-
-# ELVI
-plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
-hist(endo_herb_ELVI$year)
-hist(endo_herb_ELVI$lon)
-  
-long_date_mod <- glm(Endo_status_liberal ~ lon*year, data = subset(endo_herb_ELVI, lon < -90), family = binomial)
-summary(long_date_mod)
-newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
-newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
-newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
-newdat <- rbind(newdat1920, newdat1950, newdat2000)
-y_pred1920 <- predict(long_date_mod, newdata = newdat1920, type = "response")
-y_pred1950 <- predict(long_date_mod, newdata = newdat1950, type = "response")
-y_pred2000 <- predict(long_date_mod, newdata = newdat2000, type = "response")
-
-
-y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
-newpred <- cbind(newdat, y_pred)
-
-plot(endo_herb_ELVI$lon, endo_herb_ELVI$Endo_status_liberal)
-lines(newdat1920$lon, y_pred1920, col = "red3")
-lines(newdat1950$lon, y_pred1950, col = "gray39")
-lines(newdat1950$lon, y_pred2000, col = "royalblue3")
- 
-
-anova(long_date_mod, test = "Chisq")
-
-ggplot() +
-  geom_point(data = binned_ELVI,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
-  geom_line(data = newpred, aes(x = lon, y = y_pred, group = year, color = as.character(year))) + 
-  theme_classic() + 
-  scale_colour_manual(values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
-  xlim(-100,-85)
-
-
-# messing around with latitude
-
-lat_date_mod <- glm(Endo_status_liberal == 1 ~ lat*year, data = subset(endo_herb_ELVI, lat < -90), family = binomial)
-lat_date_mod <- glm(Endo_status_liberal == 1 ~ lat*year, data = endo_herb_AGHY, family = binomial)
-
-newdat1900 <- data.frame(lat = seq(25,100,1), year = 1900)
-newdat1950 <- data.frame(lat = seq(25,100,1), year = 1950)
-newdat2000 <- data.frame(lat = seq(25,100,1), year = 2000)
-
-y_pred1900 <- predict(lat_date_mod, newdata = newdat1900, type = "response")
-y_pred1950 <- predict(lat_date_mod, newdata = newdat1950, type = "response")
-y_pred2000 <- predict(lat_date_mod, newdata = newdat2000, type = "response")
-
-plot(endo_herb_AGHY$lat, endo_herb_AGHY$Endo_status_liberal)
-lines(newdat1900$lat, y_pred1900, col = "red3")
-lines(newdat1950$lat, y_pred1950, col = "gray39")
-lines(newdat1950$lat, y_pred2000, col = "royalblue3")
-
-
-
-anova(lat_date_mod, test = "Chisq")
-
-
-
-count_of_complete_records <- endo_herb_georef %>% 
-  filter(!is.na(lon), !is.na(year), !is.na(Endo_status_liberal))
-dim(count_of_complete_records)
-
-
-
-#  Messing with Lani's data
-  
-lani_endo <- read_csv(file = "~/Downloads/endonew.csv") %>% 
-  filter(`01liberal` <=1)
-plot(lani_endo$decimalLongitude, lani_endo$`01liberal`)
-long_date_mod <- glm(`01liberal` == 1 ~ decimalLongitude*Date, data = lani_endo, family = binomial)
-
-
-
-ggplot(data = lani_endo)+
-  geom_point(aes(x = decimalLongitude, y = `01liberal`)) +
-  stat_smooth(aes(x = decimalLongitude, y = `01liberal`), method = glm, method.args = list(family = "binomial"))
-  
-ggplot(data = lani_endo)+
-  geom_point(aes(x = decimalLatitude, y = `01liberal`)) +
-  stat_smooth(aes(x = decimalLatitude, y = `01liberal`), method = glm, method.args = list(family = "binomial"))
-
-
-ggplot(data = lani_endo)+
-  geom_point(aes(x = Date, y = `01liberal`)) +
-  stat_smooth(aes(x = Date, y = `01liberal`), method = glm, method.args = list(family = "binomial"))
-
+#########################################################################################################
+# Bernoulli GLM for endo ~  lon + year + lon*year   -------------------------
+########################################################################################
 # Messing around with Stan models
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
 logit = function(x) { log(x/(1-x)) }
 
-#########################################################################################################
-# Bernoulli GLM for endo ~  lon + year + lon*year   -------------------------
-########################################################################################
+
 ## here is the Stan model ##
 ## run this to optimize computer system settings
 rstan_options(auto_write = TRUE)
