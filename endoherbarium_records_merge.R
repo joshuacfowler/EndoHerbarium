@@ -3,7 +3,10 @@
 # Authors: Joshua Fowler and Lani Dufresne
 # Updated: Nov. 10, 2020
 
-library(tidyverse)
+library(tidyverse) # for data manipulation and ggplot
+library(slider) # add on to tidyverse to calculate sliding windows for climate data
+library(stats)
+library(fuzzyjoin) # add on to tidyverse to merge tables on nearest values
 library(readxl)
 library(ggmap)
 library(lubridate)
@@ -842,25 +845,37 @@ ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 
 
 # Get annual prism climate data to make map of climate change magnitude
-# Should have these PRISM files saved after running the first time
+# There are several steps that take a bit of time, 1: downloading PRISM raster files, 2: arranging them into a dataframe.
+# Should have these PRISM files saved after running the first time in a folder called prismtmp
 
-get_prism_monthlys(type = c("ppt"), years=1895:2016, mon = 1:12, keepZip = TRUE)
-get_prism_monthlys(type = c("tmean"), years=1895:2016, mon = 1:12, keepZip = TRUE)
-
-
+# Uncomment either annual or monthly 
+# get_prism_annual(type = c("ppt"), years=1895:2016, keepZip = TRUE)
+# get_prism_annual(type = c("tmean"), years=1895:2016, keepZip = TRUE)
+# 
+# # For monthly, use this 
+# get_prism_monthlys(type = c("ppt"), years=1895:2016, mon = 1:12, keepZip = TRUE)
+# get_prism_monthlys(type = c("tmean"), years=1895:2016, mon = 1:12, keepZip = TRUE)
+# 
 ls_prism_data(name=TRUE)
 
-new_file<-c(1:(length(1895:2016)*12)) ##change to corresponding file numbers
+# We need to adjust the following lines to match whether you are using annual prism or monthly prism files
+new_file<-c(1:2*(length(1895:2016))) ##change to corresponding file numbers
 RS <- prism_stack(ls_prism_data()[new_file,1]) ##raster file
 to_slice <- grep("_2016",RS[,1],value=T)##search through names
 
+# Now we will extract the climate data from the raster files and save to a dataframe.
+# This takes a while, so uncomment following lines and then you should save the output as an R data object
 
-df <- data.frame(rasterToPoints(RS)) ##creates a dataframe of points
-year.df <- melt(df, c("x", "y")) %>% 
-  separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>% 
-  rename("lon" = "x", "lat" = "y")
+# point_df <- data.frame(rasterToPoints(RS)) ##creates a dataframe of points (This step takes a bit of time)
+# year.df <- melt(point_df, c("x", "y")) %>% 
+#   separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>% 
+#   rename("lon" = "x", "lat" = "y")
+# saveRDS(year.df, file = "PRISM_climate_year_df.Rda")
+
+year.df <- readRDS(file = "PRISM_climate_year_df.Rda")
 
 
+# Creating maps to visualize sample locations and overall change in climate
 normals <- year.df %>% 
   mutate(time.period = case_when(Year>=1895 & Year <=1956 ~ "start",
                                  Year>=1957 & Year <=2016 ~ "end")) %>% 
@@ -918,13 +933,78 @@ ggsave(pptchangemap, filename = "~/Documents/pptchangemap2.tiff")
 
 
 ############################################################################
+##### Analyzing climate and prevalence data ################################
+############################################################################
+# filter the big year.df file to just the longitudes that we collected from
+spatialsubset_year.df <- year.df %>% 
+  filter(lon >= min(endo_herb_georef$lon)-1 & lon <= max(endo_herb_georef$lon)+1) %>% 
+  filter(Year > 2005)
+
+# calculate rolling decadal means for each location and year
+decadalmeans <- spatialsubset_year.df %>% 
+  arrange(lon, lat, Year, Variable)
+
+decadalmeans$decadevalue <- stats::filter(decadalmeans$value, rep(1/10,10), sides = 1)
+
+
+spatialsubset_year.df$decadevalue <- stats::filter(spatialsubset_year.df$value, rep(1/10,10), sides = 1)
+
+# merge these climate variables with the endophyte scores
+climate_endo_herb_georef <- endo_herb_georef %>% 
+  fuzzy_left_join(spatialsubset_year.df) # joins the dataframes based on the closest lat,long, and year (important because the prism lat longs are a grid, and not exactly matching out location centroids)
+  
+
+
+
+############################################################################
 ##### Analyzing fitness data ###############################################
 ############################################################################
 
+aghy_fitness_data <- endo_herb_AGHY %>% 
+  filter(!is.na(surface_area_cm2))
+plot(aghy_fitness_data$year, aghy_fitness_data$surface_area_cm2)
+plot(aghy_fitness_data$lon, aghy_fitness_data$surface_area_cm2)
+plot( aghy_fitness_data$Endo_status_liberal, aghy_fitness_data$surface_area_cm2)
+
+
+area_mod <- glm(surface_area_cm2~ lon+year+Endo_status_liberal, data = aghy_fitness_data, family = gaussian)
+area_mod <- glm(surface_area_cm2~ year, data = aghy_fitness_data, family = gaussian)
+
+anova(area_mod, test = "Chisq")
+summary(area_mod)
 
 
 
 
+elvi_fitness_data <- endo_herb_ELVI %>% 
+  filter(!is.na(surface_area_cm2))
+
+plot(elvi_fitness_data$year, elvi_fitness_data$mean_infl_length)
+plot(elvi_fitness_data$lon, elvi_fitness_data$mean_infl_length)
+plot(elvi_fitness_data$Endo_status_liberal, elvi_fitness_data$mean_infl_length)
+
+plot(elvi_fitness_data$year, elvi_fitness_data$infl_count)
+plot(elvi_fitness_data$lon, elvi_fitness_data$infl_count)
+plot(elvi_fitness_data$Endo_status_liberal, elvi_fitness_data$infl_count)
+
+plot(elvi_fitness_data$year,  elvi_fitness_data$surface_area_cm2)
+plot(elvi_fitness_data$lon, elvi_fitness_data$surface_area_cm2)
+plot(elvi_fitness_data$Endo_status_liberal, elvi_fitness_data$surface_area_cm2)
+
+
+plot(elvi_fitness_data$surface_area_cm2, elvi_fitness_data$mean_infl_length)
+plot(elvi_fitness_data$surface_area_cm2, elvi_fitness_data$infl_count)
+
+infl_mod <- glm(mean_infl_length ~ lon*Endo_status_liberal*year, data = elvi_fitness_data, family = gaussian)
+anova(infl_mod, test = "Chisq")
+summary(infl_mod)
+
+
+
+inflcount_mod <- glm(infl_count ~  lon*Endo_status_liberal, data = elvi_fitness_data, family = poisson)
+
+anova(inflcount_mod, test = "Chisq")
+summary(inflcount_mod)
 
 
 
