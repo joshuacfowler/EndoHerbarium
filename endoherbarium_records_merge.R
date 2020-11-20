@@ -955,75 +955,67 @@ climate_collections <- data.frame(coordinates(collection_sites),
 # Reshape data. Col 1:3 are lat, long, and site ID. Col 4:ncol are climate data
 # Column headers include date and climate type info
 climate_collections <- climate_collections %>% 
-  pivot_longer(cols = starts_with("PRISM"), names_to = "date", values_to = "value")
+  pivot_longer(cols = starts_with("PRISM"), names_to = "header", values_to = "value")
 
+
+# The column header includes the date and data type, but also some other metadata that we don't need
+# Here, I remove the extra info from the column header
+climate_collections$header <- gsub('PRISM_', '', climate_collections$header) %>% 
+  gsub('stable_4kmM3_', '', .) %>% 
+  gsub('stable_4kmM2_', '', .) %>%
+  gsub('_bil', '', .)
+
+# Split header into type (precipitation or temperature), year, and month
+climate_collections <- separate(climate_collections, 'header', 
+                         into = c('variable', 'year'), 
+                         sep = '_')
+# climate_lter <- separate(climate_lter, 'YearMonth',
+#                          into = c('year', 'month'),
+#                          sep = 4)
+
+
+# Reshape data-- make a separate column for temperature and precipitation
+climate_collections1 <- unique(climate_collections)
+climate_collections1 <- climate_collections1 %>% 
+  pivot_wider(names_from = variable, values_from = value) %>% 
+  mutate(year = as.numeric(year)) %>%  # Make year numeric variables
+  rename(Sample_id = collection_sites.Sample_id) %>% 
+  arrange(Sample_id) # Order data by sample id
+
+
+decadalmean <- climate_collections1 %>% 
+  group_by(Sample_id, lon, lat) %>% 
+  arrange(Sample_id,lon, lat, year) %>% 
+  mutate(decade_ppt = slider::slide_dbl(ppt, mean, .before = 10, .after = 0),
+         fiveyear_ppt = slider::slide_dbl(ppt, mean, .before = 5, .after = 0),
+         decade_tmean = slider::slide_dbl(tmean, mean, .before = 10, .after = 0),
+         fiveyear_tmean = slider::slide_dbl(tmean, mean, .before = 5, .after = 0)) %>% 
+  ungroup() 
 
 
 ############################################################################
 ##### Analyzing climate and prevalence data ################################
 ############################################################################
-# filter the big year.df file to just the longitudes that we collected from
-spatialsubset_year.df <- year.df %>% 
-  filter(lon >= min(endo_herb_georef$lon)-1 & lon <= max(endo_herb_georef$lon)+1) %>% 
-  filter(Year > 2005)
-
-# calculate rolling decadal means for each location and year
-decadalmeans <- spatialsubset_year.df %>% 
-  rename(year = Year) %>% 
-  group_by(Variable, lon, lat) %>% 
-  arrange(Variable,lon, lat, year) %>% 
-  mutate(decadevalue = slider::slide_dbl(value, mean, .before = 10, .after = 0),
-         fiveyearvalue = slider::slide_dbl(value, mean, .before = 5, .after = 0)) %>% 
-  ungroup() 
 
 
-# merge these climate variables with the endophyte scores
-test <- subset(endo_herb_georef, year == 1941)
-test <- subset(decadalmeans, year == 1941)
-test
+# merge the climate variables with the endophyte scores
 
 climate_endo_herb_georef <- endo_herb_georef %>% 
-  filter(year <2017 & year >2005)
-for(i in min(climate_endo_herb_georef$year, na.rm = TRUE):max(climate_endo_herb_georef$year, na.rm = TRUE)){
-  subsetPRISM <- subset(decadalmeans, year == i)
-  subsetendo <- subset(climate_endo_herb_georef, year == i)
-  geo_left_join(subsetendo, subsetPRISM,
-                by = c("lat", "lon"))
-}
+  left_join(decadalmean,
+             by = c("Sample_id", "lon", "lat", "year")) # joins the dataframes based on the lat,long, and year 
 
-subsetPRISM$lon
-subsetendo$lon
-# First, need to define match_fun_distance. 
-# This is copied from the source code for distance_join in https://github.com/dgrtwo/fuzzyjoin
-match_fun_distance <- function(v1, v2) {
-  
-  # settings for this method
-  method = "manhattan"
-  max_dist = 99
-  distance_col = "dist"
-  
-  if (is.null(dim(v1))) {
-    v1 <- t(t(v1))
-    v2 <- t(t(v2))
-  }
-  if (method == "euclidean") {
-    d <- sqrt(rowSums((v1 - v2)^2))
-  }
-  else if (method == "manhattan") {
-    d <- rowSums(abs(v1 - v2))
-  }
-  ret <- tibble::tibble(instance = d <= max_dist)
-  if (!is.null(distance_col)) {
-    ret[[distance_col]] <- d
-  }
-  ret
-}
+climate_AGHY <- climate_endo_herb_georef %>% 
+  filter(Spp_code == "AGHY")
 
-climate_endo_herb_georef <- endo_herb_georef %>% 
-  fuzzy_join(spatialsubset_year.df,
-             by = c("lon", "lat", "year"),
-             match_fun = list(match_fun_distance, match_fun_distance, `==`),
-             mode = "left") # joins the dataframes based on the closest lat,long, and matching year (important because the prism lat longs are a grid, and not exactly matching out location centroids)
+# AGHY
+
+
+AGHY_climate_mod <- glm(Endo_status_liberal ~ lon * year + lon*tmean + lon*ppt, data = climate_AGHY, family = binomial)
+anova(AGHY_climate_mod, test = "Chisq")
+summary(AGHY_climate_mod)
+
+Anova(AGHY_climate_mod, test = "LR")
+
 
 ############################################################################
 ##### Analyzing fitness data ###############################################
