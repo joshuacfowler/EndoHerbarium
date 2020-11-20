@@ -845,30 +845,29 @@ ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 
 
 # Get annual prism climate data to make map of climate change magnitude
-# There are several steps that take a bit of time, 1: downloading PRISM raster files, 2: arranging them into a dataframe.
-# Should have these PRISM files saved after running the first time in a folder called prismtmp
+# There are several steps that take a bit of time, 1: downloading PRISM raster files, 2: extracting climate data from raster files
+# Should have these PRISM files saved after running the first time in a folder called prismtmp (or whatever you want to name it)
 
-# Uncomment either annual or monthly 
-# get_prism_annual(type = c("ppt"), years=1895:2016, keepZip = TRUE)
-# get_prism_annual(type = c("tmean"), years=1895:2016, keepZip = TRUE)
-# 
-# # For monthly, use this 
-# get_prism_monthlys(type = c("ppt"), years=1895:2016, mon = 1:12, keepZip = TRUE)
-# get_prism_monthlys(type = c("tmean"), years=1895:2016, mon = 1:12, keepZip = TRUE)
-# 
+# Uncomment to download raster files
+# get_prism_annual(type = c("ppt"), years=1895:2017, keepZip = F)
+# get_prism_annual(type = c("tmean"), years=1895:2017, keepZip = F)
+
+
 ls_prism_data(name=TRUE)
 
-# We need to adjust the following lines to match whether you are using annual prism or monthly prism files
-new_file<-c(1:2*(length(1895:2016))) ##change to corresponding file numbers
-RS <- prism_stack(ls_prism_data()[new_file,1]) ##raster file
-to_slice <- grep("_2016",RS[,1],value=T)##search through names
+# Grab the prism data and compile the files
+climate_data <- ls_prism_data() %>%  
+  prism_stack(.)  
+
+# Extract projection coordinates from raster stack
+climate_crs <- climate_data@crs@projargs
 
 # Now we will extract the climate data from the raster files and save to a dataframe.
 # This takes a while, so uncomment following lines and then you should save the output as an R data object
 
-# point_df <- data.frame(rasterToPoints(RS)) ##creates a dataframe of points (This step takes a bit of time)
-# year.df <- melt(point_df, c("x", "y")) %>% 
-#   separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>% 
+# point_df <- data.frame(rasterToPoints(climate_data)) ##creates a dataframe of points (This step takes a bit of time)
+# year.df <- melt(point_df, c("x", "y")) %>%
+#   separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>%
 #   rename("lon" = "x", "lat" = "y")
 # saveRDS(year.df, file = "PRISM_climate_year_df.Rda")
 
@@ -878,7 +877,7 @@ year.df <- readRDS(file = "PRISM_climate_year_df.Rda")
 # Creating maps to visualize sample locations and overall change in climate
 normals <- year.df %>% 
   mutate(time.period = case_when(Year>=1895 & Year <=1956 ~ "start",
-                                 Year>=1957 & Year <=2016 ~ "end")) %>% 
+                                 Year>=1957 & Year <=2017 ~ "end")) %>% 
   group_by(lon, lat, Variable, time.period) %>% 
   summarize(normal = mean(value)) 
 
@@ -927,8 +926,36 @@ pptchangemap
 ggsave(pptchangemap, filename = "~/Documents/pptchangemap2.tiff")
 
 
+# # Now I will download monthly prism data 
+# Since the monthly data come in a pretty gnarly shape, I will extract it at just the locations of our collections from the raster files.
+# # For monthly, uncomment the following
+# get_prism_monthlys(type = c("ppt"), years=1895:2017, mon = 1:12, keepZip = TRUE)
+# get_prism_monthlys(type = c("tmean"), years=1895:2017, mon = 1:12, keepZip = TRUE)
+# 
+# Grab the prism data and compile the files
+climate_data <- ls_prism_data() %>%  
+  prism_stack(.)  
 
+# Extract project coordinates from raster stack
+climate_crs <- climate_data@crs@projargs
 
+# We can get the lat/longs from our endophyte scores data frame "endo_herb_georef"
+collection_sites <- endo_herb_georef %>% 
+  dplyr::select(Sample_id, lat, lon)
+
+# Convert these locations to format that can be matched to Prism climate data
+coordinates(collection_sites) <- c('lon', 'lat')
+proj4string(collection_sites) <- CRS(climate_crs)
+
+# Extract the  climate data from the raster stack for those sites 
+climate_collections <- data.frame(coordinates(collection_sites), 
+                           collection_sites$Sample_id, 
+                           extract(climate_data, collection_sites))
+
+# Reshape data. Col 1:3 are lat, long, and site ID. Col 4:ncol are climate data
+# Column headers include date and climate type info
+climate_collections <- climate_collections %>% 
+  pivot_longer(cols = starts_with("PRISM"), names_to = "date", values_to = "value")
 
 
 
@@ -942,19 +969,61 @@ spatialsubset_year.df <- year.df %>%
 
 # calculate rolling decadal means for each location and year
 decadalmeans <- spatialsubset_year.df %>% 
-  arrange(lon, lat, Year, Variable)
+  rename(year = Year) %>% 
+  group_by(Variable, lon, lat) %>% 
+  arrange(Variable,lon, lat, year) %>% 
+  mutate(decadevalue = slider::slide_dbl(value, mean, .before = 10, .after = 0),
+         fiveyearvalue = slider::slide_dbl(value, mean, .before = 5, .after = 0)) %>% 
+  ungroup() 
 
-decadalmeans$decadevalue <- stats::filter(decadalmeans$value, rep(1/10,10), sides = 1)
-
-
-spatialsubset_year.df$decadevalue <- stats::filter(spatialsubset_year.df$value, rep(1/10,10), sides = 1)
 
 # merge these climate variables with the endophyte scores
+test <- subset(endo_herb_georef, year == 1941)
+test <- subset(decadalmeans, year == 1941)
+test
+
 climate_endo_herb_georef <- endo_herb_georef %>% 
-  fuzzy_left_join(spatialsubset_year.df) # joins the dataframes based on the closest lat,long, and year (important because the prism lat longs are a grid, and not exactly matching out location centroids)
+  filter(year <2017 & year >2005)
+for(i in min(climate_endo_herb_georef$year, na.rm = TRUE):max(climate_endo_herb_georef$year, na.rm = TRUE)){
+  subsetPRISM <- subset(decadalmeans, year == i)
+  subsetendo <- subset(climate_endo_herb_georef, year == i)
+  geo_left_join(subsetendo, subsetPRISM,
+                by = c("lat", "lon"))
+}
+
+subsetPRISM$lon
+subsetendo$lon
+# First, need to define match_fun_distance. 
+# This is copied from the source code for distance_join in https://github.com/dgrtwo/fuzzyjoin
+match_fun_distance <- function(v1, v2) {
   
+  # settings for this method
+  method = "manhattan"
+  max_dist = 99
+  distance_col = "dist"
+  
+  if (is.null(dim(v1))) {
+    v1 <- t(t(v1))
+    v2 <- t(t(v2))
+  }
+  if (method == "euclidean") {
+    d <- sqrt(rowSums((v1 - v2)^2))
+  }
+  else if (method == "manhattan") {
+    d <- rowSums(abs(v1 - v2))
+  }
+  ret <- tibble::tibble(instance = d <= max_dist)
+  if (!is.null(distance_col)) {
+    ret[[distance_col]] <- d
+  }
+  ret
+}
 
-
+climate_endo_herb_georef <- endo_herb_georef %>% 
+  fuzzy_join(spatialsubset_year.df,
+             by = c("lon", "lat", "year"),
+             match_fun = list(match_fun_distance, match_fun_distance, `==`),
+             mode = "left") # joins the dataframes based on the closest lat,long, and matching year (important because the prism lat longs are a grid, and not exactly matching out location centroids)
 
 ############################################################################
 ##### Analyzing fitness data ###############################################
