@@ -1,7 +1,7 @@
 # Title: Digital Herbarium Records and Sample Integration
 # Purpose: Imports and merges downloaded digitized herbarium records with the Endo_Herbarium database
-# Authors: Joshua Fowler and Lani Dufresne
-# Updated: Nov. 10, 2020
+# Authors: Joshua Fowler Ella Segal, Lani Dufresne, and Tom Miller
+# Updated: Nov. 26, 2020
 
 library(tidyverse) # for data manipulation and ggplot
 library(slider) # add on to tidyverse to calculate sliding windows for climate data
@@ -25,7 +25,8 @@ library(prism)
 library(raster) ##working with raster data
 library(reshape2)
 library(viridis)
-
+library(gganimate)
+library(gifski)
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
 ################################################################################
@@ -348,6 +349,10 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
 
 BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT)
 
+# Lani's year and county info for her AGPE samples
+AGPE_meta <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/agpe_working.csv") %>% 
+  dplyr::select(ID1,ID2) %>% 
+  rename(Specimen_id = ID1, year = ID2)
 
 ################################################################################
 ############ Read in endophyte scores and our transcribed specimen data ############################### 
@@ -364,7 +369,12 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
                             !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_") %>% 
-  filter(!is.na(Specimen_id))
+  filter(!is.na(Specimen_id)) %>% 
+  left_join(AGPE_meta, by = c("Specimen_id")) %>% 
+  mutate(year = case_when(Spp_code != "AGPE" ~ year.x,
+                          Spp_code == "AGPE" & is.na(year.y) ~ year.x,
+                          Spp_code == "AGPE" & is.na(year.x) ~ year.y)) %>% 
+  select(-year.x, - year.y)
 
 # This is the sample info and we will filter for only those that we have scored so far.
 sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
@@ -519,12 +529,15 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
 ################################################################################
 
 # Now we can explore the data
+hist(endo_herb_georef$year)
 plot(endo_herb_georef$lon, endo_herb_georef$lat)
 plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal)
 plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal)
 plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal)
 
 # counts of scores
+table(endo_herb_georef$Spp_code, endo_herb_georef$Endo_status_liberal) # Spp code has NA's, have to look in sample id
+
 endo_herb_AGHY <- endo_herb_georef %>% 
   filter(grepl("AGHY", Sample_id)) %>% 
   filter(!is.na(lon) & !is.na(year))
@@ -553,14 +566,14 @@ binned_ELVI <- endo_herb_ELVI %>%
 endo_herb_AGPE <- endo_herb_georef %>%
   filter(grepl("AGPE", Sample_id)) %>%
   filter(!is.na(lon) & !is.na(year))
-# 
-# binned_AGPE <- endo_herb_AGPE %>% 
-#   mutate(binned_lon = cut(lon, breaks = 12), binned_year = cut(year, breaks = 3)) %>%  
-#   group_by(binned_lon, binned_year) %>%   
-#   summarise(mean_lon = mean(lon),
-#             mean_year = mean(year),
-#             mean_endo = mean(Endo_status_liberal),
-#             sample = n())
+
+binned_AGPE <- endo_herb_AGPE %>%
+  mutate(binned_lon = cut(lon, breaks = 12), binned_year = cut(year, breaks = 3)) %>%
+  group_by(binned_lon, binned_year) %>%
+  summarise(mean_lon = mean(lon),
+            mean_year = mean(year),
+            mean_endo = mean(Endo_status_liberal),
+            sample = n())
 
 ############################################################################
 ##### Spatial and temporal trends ##########################################
@@ -571,6 +584,26 @@ plot(endo_herb_AGHY$year,endo_herb_AGHY$Endo_status_liberal)
 plot(endo_herb_AGHY$lon,endo_herb_AGHY$Endo_status_liberal)
 hist(endo_herb_AGHY$year)
 hist(endo_herb_AGHY$lon)
+
+heatmap_aghy <- endo_herb_AGHY %>%
+  mutate(binned_lon = cut(lon, breaks = 100), binned_lat = cut(lat, breaks = 100), binned_year = cut(year, breaks = 5)) %>%  
+  group_by(binned_lon, binned_lat, binned_year) %>%   
+  summarise(mean_lon = mean(lon),
+            mean_lat = mean(lat),
+            mean_year = mean(year),
+            mean_endo = mean(Endo_status_liberal),
+            sample = n())
+head(heatmap_aghy)
+ggplot(heatmap_aghy, aes(x = lon, y = lat, fill = Endo_status_liberal)) +
+  geom_tile()
+
+ggplot(heatmap_aghy, aes(x = binned_lon, y = binned_year, fill = mean_endo)) +
+  geom_tile()
+ggplot(heatmap_aghy, aes(x = binned_lon, y = binned_lat, fill = mean_endo)) +
+  facet_wrap(~binned_year)+
+  geom_tile()
+
+
 
 long_date_mod <- glm(Endo_status_liberal ~ 1 + lon * year, data = endo_herb_AGHY, family = binomial)
 anova(long_date_mod, test = "Chisq")
@@ -731,6 +764,61 @@ ELVI_herb
 ggsave(ELVI_herb, filename = "~/Documents/ELVIherb.tiff", width = 4, height = 3)
 
 
+
+# AGPE
+plot(endo_herb_AGPE$lon, endo_herb_AGPE$lat)
+plot(endo_herb_AGPE$year,endo_herb_AGPE$Endo_status_liberal)
+plot(endo_herb_AGPE$lon,endo_herb_AGPE$Endo_status_liberal)
+hist(endo_herb_AGPE$year)
+hist(endo_herb_AGPE$lon)
+long_date_mod <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_AGPE, family = binomial)
+anova(long_date_mod, test = "Chisq")
+summary(long_date_mod)
+
+Anova(long_date_mod, test = "LR")
+
+
+
+newdat1920 <- data.frame(lon = seq(-120,-60,1), year = 1920)
+newdat1950 <- data.frame(lon = seq(-120,-60,1), year = 1950)
+newdat2000 <- data.frame(lon = seq(-120,-60,1), year = 2000)
+newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred <- predict(long_date_mod, newdata = newdat, type = "response")
+y_CI <- predict(long_date_mod, newdata = newdat, interval = "confidence", type = "link", se.fit=TRUE)
+linkinv <- family(long_date_mod)$linkinv ## inverse-link function
+
+newpred <- newdat
+newpred$pred0 <- y_CI$fit
+newpred$pred <- linkinv(y_CI$fit)
+alpha <- 0.95
+sc <- abs(qnorm((1-alpha)/2))  ## Normal approx. to likelihood
+alpha2 <- 0.5
+sc2 <- abs(qnorm((1-alpha2)/2))  ## Normal approx. to likelihood
+newpred <- transform(newpred,
+                     lwr=linkinv(pred0-sc*y_CI$se.fit),
+                     upr=linkinv(pred0+sc*y_CI$se.fit),
+                     lwr2=linkinv(pred0-sc2*y_CI$se.fit),
+                     upr2=linkinv(pred0+sc2*y_CI$se.fit))
+
+
+
+AGPE_herb <- ggplot() +
+  geom_point(data = binned_AGPE,aes(x = mean_lon, y = mean_endo, size = sample, color = binned_year)) + 
+  geom_line(data = newpred, aes(x = lon, y = pred, group = year, color = as.character(year))) +
+  geom_ribbon(data = newpred, aes(x = lon, ymin = lwr, ymax = upr, group = year, fill = as.factor(year)), alpha = .2) +
+  theme_classic() + labs(y = "Mean Endophyte Prevalence", x = "Longitude", color = "year")+
+  scale_colour_manual(breaks = c("1920", "1950", "2000"),
+                      values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  scale_fill_manual(breaks = c("1920", "1950", "2000"),
+                    values = c("#fc8d59", "#636363", "#91bfdb")) +
+  xlim(-105,-60) + guides(fill = FALSE)
+
+AGPE_herb
+ggsave(AGPE_herb, filename = "~/Documents/AGPEherb.tiff", width = 4, height = 3)
+
+
+
+
 ### Plot for binned over longitude, all times merged
 
 longbin_AGHY <- endo_herb_AGHY %>% 
@@ -842,6 +930,27 @@ AGHY_herb_map <- ggplot()+
 AGHY_herb_map
 ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 
+AGHY_endocolor_map <- ggplot()+
+  geom_sf(data = usa, fill = "white") +
+  geom_point(data = endo_herb_AGHY, aes(x = lon, y = lat, color = as.factor(Endo_status_liberal)), lwd = 2,alpha = .5) +
+  theme_minimal() + scale_color_manual(values = c("#636363", "#2c7fb8")) + lims(x = c(-105,-72)) + labs(x = c("Longitude"), y = c("Latitude"), color = "Endophyte presence")
+
+AGHY_endocolor_map
+ggsave(AGHY_endocolor_map, filename = "~/Documents/AGHY_endocolor_map.tiff")
+
+
+# making an animated map
+anim_AGHY_herb_map <- AGHY_endocolor_map +
+  ggtitle('{closest_state}')+
+  transition_states(year,
+                    transition_length = 2,
+                    state_length = 1)+
+  shadow_mark()
+
+animate(anim_AGHY_herb_map, renderer = gifski_renderer(), height = 800, width = 1000, res = 400)
+anim_save("anim_AGHY_herb_map.gif", anim_AGHY_herb_map)
+
+
 
 
 # Get annual prism climate data to make map of climate change magnitude
@@ -849,8 +958,11 @@ ggsave(AGHY_herb_map, filename = "~/Documents/AGHY_herb_map.tiff")
 # Should have these PRISM files saved after running the first time in a folder called prismtmp (or whatever you want to name it)
 
 # Uncomment to download raster files
-# get_prism_annual(type = c("ppt"), years=1895:2017, keepZip = F)
-# get_prism_annual(type = c("tmean"), years=1895:2017, keepZip = F)
+get_prism_annual(type = c("ppt"), years=1895:2017, keepZip = F)
+get_prism_annual(type = c("tmean"), years=1895:2017, keepZip = F)
+get_prism_annual(type = c("tmin"), years=1895:2017, keepZip = F)
+get_prism_annual(type = c("tmax"), years=1895:2017, keepZip = F)
+
 
 
 ls_prism_data(name=TRUE)
@@ -865,11 +977,11 @@ climate_crs <- climate_data@crs@projargs
 # Now we will extract the climate data from the raster files and save to a dataframe.
 # This takes a while, so uncomment following lines and then you should save the output as an R data object
 
-# point_df <- data.frame(rasterToPoints(climate_data)) ##creates a dataframe of points (This step takes a bit of time)
-# year.df <- melt(point_df, c("x", "y")) %>%
-#   separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>%
-#   rename("lon" = "x", "lat" = "y")
-# saveRDS(year.df, file = "PRISM_climate_year_df.Rda")
+point_df <- data.frame(rasterToPoints(climate_data)) ##creates a dataframe of points (This step takes a bit of time)
+year.df <- melt(point_df, c("x", "y")) %>%
+  separate(variable, into = c("PRISM", "Variable", "Label", "Resolution", "Year", "file")) %>%
+  rename("lon" = "x", "lat" = "y")
+saveRDS(year.df, file = "PRISM_climate_year_df.Rda")
 
 year.df <- readRDS(file = "PRISM_climate_year_df.Rda")
 
@@ -1006,16 +1118,59 @@ climate_endo_herb_georef <- endo_herb_georef %>%
 
 climate_AGHY <- climate_endo_herb_georef %>% 
   filter(Spp_code == "AGHY")
+binned_climate_AGHY <- climate_AGHY %>% 
+  mutate(binned_ppt = cut(decade_ppt, breaks = 12), binned_year = cut(year, breaks = 3)) %>%  
+  group_by(binned_ppt, binned_year) %>%   
+  summarise(mean_ppt = mean(decade_ppt),
+            mean_year = mean(year),
+            mean_endo = mean(Endo_status_liberal),
+            sample = n())
 
 # AGHY
 
 
-AGHY_climate_mod <- glm(Endo_status_liberal ~ lon * year + lon*tmean + lon*ppt, data = climate_AGHY, family = binomial)
+AGHY_climate_mod <- glm(Endo_status_liberal ~  year + decade_tmean + decade_ppt, data = climate_AGHY, family = binomial)
 anova(AGHY_climate_mod, test = "Chisq")
 summary(AGHY_climate_mod)
 
 Anova(AGHY_climate_mod, test = "LR")
 
+
+newdat1920 <- data.frame(decade_tmean = mean(climate_AGHY$decade_tmean, na.rm = T), decade_ppt = seq_range(min(climate_AGHY$decade_ppt, na.rm = T):max(climate_AGHY$decade_ppt, na.rm = T), n = length(climate_AGHY$decade_ppt)), year = 1920)
+newdat1950 <- data.frame(decade_tmean = mean(climate_AGHY$decade_tmean, na.rm = T), decade_ppt = seq_range(min(climate_AGHY$decade_ppt, na.rm = T):max(climate_AGHY$decade_ppt, na.rm = T), n = length(climate_AGHY$decade_ppt)), year = 1950)
+newdat2000 <- data.frame(decade_tmean = mean(climate_AGHY$decade_tmean, na.rm = T), decade_ppt = seq_range(min(climate_AGHY$decade_ppt, na.rm = T):max(climate_AGHY$decade_ppt, na.rm = T), n = length(climate_AGHY$decade_ppt)), year = 2000)
+newdat <- rbind(newdat1920, newdat1950, newdat2000)
+y_pred <- predict(AGHY_climate_mod, newdata = newdat, type = "response")
+y_CI <- predict(AGHY_climate_mod, newdata = newdat, interval = "confidence", type = "link", se.fit=TRUE)
+linkinv <- family(AGHY_climate_mod)$linkinv ## inverse-link function
+
+newpred <- newdat
+newpred$pred0 <- y_CI$fit
+newpred$pred <- linkinv(y_CI$fit)
+alpha <- 0.95
+sc <- abs(qnorm((1-alpha)/2))  ## Normal approx. to likelihood
+alpha2 <- 0.5
+sc2 <- abs(qnorm((1-alpha2)/2))  ## Normal approx. to likelihood
+newpred <- transform(newpred,
+                     lwr=linkinv(pred0-sc*y_CI$se.fit),
+                     upr=linkinv(pred0+sc*y_CI$se.fit),
+                     lwr2=linkinv(pred0-sc2*y_CI$se.fit),
+                     upr2=linkinv(pred0+sc2*y_CI$se.fit))
+
+
+
+AGHY_ppt <- ggplot() +
+  geom_point(data = binned_climate_AGHY,aes(x = mean_ppt, y = mean_endo, size = sample , color = as.factor(binned_year))) +
+  geom_line(data = newpred, aes(x = decade_ppt, y = pred, group = year, color = as.character(year))) +
+  geom_ribbon(data = newpred, aes(x = decade_ppt, ymin = lwr, ymax = upr, group = year, fill = as.factor(year)), alpha = .2) +
+  theme_classic() + labs(y = "Mean Endophyte Prevalence", x = "Ppt", color = "year")+
+  scale_colour_manual(breaks = c("1920", "1950", "2000"),
+                      values = c("#fc8d59", "#636363", "#91bfdb", "#fc8d69", "#635363", "#81bfdb")) +
+  scale_fill_manual(breaks = c("1920", "1950", "2000"),
+                    values = c("#fc8d59", "#636363", "#91bfdb")) + guides(fill = FALSE)
+
+AGHY_ppt
+ggsave(AGHY_ppt, filename = "~/Documents/AGHYppt.tiff", width = 4, height = 3)
 
 ############################################################################
 ##### Analyzing fitness data ###############################################
