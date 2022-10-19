@@ -1,0 +1,57 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: endo_herbarium.aux
+The style file: plain.bst
+Database file #1: endo_herbarium.bib
+Repeated entry---line 288 of file endo_herbarium.bib
+ : @article{fine1975vectors
+ :                         ,
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for ""
+Warning--I didn't find a database entry for "LemKapEx07"
+Warning--I didn't find a database entry for "Ing11"
+Warning--I didn't find a database entry for "Xiao2015"
+Warning--I didn't find a database entry for "DavisEtAl2011"
+Warning--I didn't find a database entry for "CookEtAl2015"
+You've used 22 entries,
+            2118 wiz_defined-function locations,
+            660 strings with 8867 characters,
+and the built_in function-call counts, 8768 in all, are:
+= -- 848
+> -- 523
+< -- 0
++ -- 212
+- -- 184
+* -- 767
+:= -- 1502
+add.period$ -- 66
+call.type$ -- 22
+change.case$ -- 155
+chr.to.int$ -- 0
+cite$ -- 22
+duplicate$ -- 243
+empty$ -- 595
+format.name$ -- 184
+if$ -- 1723
+int.to.chr$ -- 0
+int.to.str$ -- 22
+missing$ -- 23
+newline$ -- 113
+num.names$ -- 44
+pop$ -- 118
+preamble$ -- 1
+purify$ -- 134
+quote$ -- 0
+skip$ -- 157
+stack$ -- 0
+substring$ -- 651
+swap$ -- 22
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 86
+warning$ -- 0
+while$ -- 84
+width$ -- 24
+write$ -- 243
+(There was 1 error message)
