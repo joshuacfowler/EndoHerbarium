@@ -4,8 +4,7 @@
 # Updated: Nov. 26, 2020
 
 library(tidyverse) # for data manipulation and ggplot
-library(slider) # add on to tidyverse to calculate sliding windows for climate data
-library(stats)
+# library(slider) # add on to tidyverse to calculate sliding windows for climate data
 library(fuzzyjoin) # add on to tidyverse to merge tables on nearest values
 library(readxl)
 library(lubridate)
@@ -13,17 +12,18 @@ library(rstan)
 library(brms) #Stan package for bayesian models similar to lme4
 library(modelr)
 library(bbmle) #use for AIC
-library(tidybayes)
+# library(tidybayes)
 library(car)
 library(sf) # for making maps
-library(here) # for making maps (lets you set filepaths)
+# library(here) # for making maps (lets you set filepaths)
 library(ggmap) # for making maps
 library(prism)
 library(raster) ##working with raster data
-library(reshape2)
-library(viridis)
-library(gganimate)
-library(gifski)
+# library(reshape2)
+# library(viridis)
+# library(gganimate)
+# library(gifski)
+library(INLA)
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
 ################################################################################
@@ -841,9 +841,10 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   mutate(eventDate = Date_collected) %>%
   mutate(TEXT_Date_collected = gsub("'", "", TEXT_Date_collected)) %>%  #TEXT_Date_collected is saved with a starting ' to preserve the date as text while saving from excel, so I remove that here
   separate(TEXT_Date_collected, into = c("month", "day", "year"), remove = FALSE) %>% 
-  mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day))%>% 
+  mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
-                            !grepl("LL00", Institution_specimen_id) ~ Institution_specimen_id)) %>% 
+                            grepl("MO",Original_herbarium_id) ~ substr(Institution_specimen_id, 2, nchar(Institution_specimen_id)),
+                            TRUE ~ Institution_specimen_id)) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_") %>% 
   filter(!is.na(Specimen_id)) %>% 
@@ -855,7 +856,7 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
 
 # This is the sample info and we will filter for only those that we have scored so far.
 sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv")  %>% 
-  filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>%
+  # filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>%
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
 
@@ -1091,8 +1092,9 @@ endo_herb7 <- endo_herb6 %>%
 
 
 # Merge in the MOBOT records that we have so far
+ci_str_detect <- function(x, y){str_detect(x, regex(y, ignore_case = TRUE))}
 endo_herb8 <- endo_herb7 %>% 
-  left_join(MOBOT_records, by = c("new_id" = "new_id")) %>% 
+  fuzzy_left_join(MOBOT_records, match_fun = ci_str_detect, by = c("new_id" = "new_id")) %>%  
   mutate(County = case_when(is.na(County) ~ county,
                             is.na(county) ~ County)) %>% 
   mutate(State = case_when(is.na(State) ~ stateProvince,
@@ -1111,17 +1113,18 @@ endo_herb8 <- endo_herb7 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  mutate(new_id = new_id.x) %>% 
   dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
 
 
-specimen_counts <- endo_herb3 %>% 
+specimen_counts <- endo_herb8 %>% 
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
-  group_by(Spp_code) %>% 
+  group_by(Spp_code, tissue_type) %>% 
   summarize(n())
 # Now I am going to link these county/locality records to a gps point with ggmap
 # This requires and API key which you can set up through google, look at ?register_google.
@@ -1129,11 +1132,11 @@ specimen_counts <- endo_herb3 %>%
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
 #
-register_google()
-endo_herb_georef <-endo_herb3 %>%
-  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-  filter(Endo_status_liberal <= 1) %>%
-  mutate_geocode(location_string) # Uncomment this to run the geocoding.
+# register_google()
+# endo_herb_georef <-endo_herb8 %>%
+#   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
+#   # filter(Endo_status_liberal <= 1) %>%
+#   mutate_geocode(location_string) # Uncomment this to run the geocoding.
 # write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
   filter(Country != "Canada") %>%
@@ -1150,7 +1153,7 @@ specimen_counts <- endo_herb_georef %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
-  group_by(Spp_code) %>% 
+  group_by(Spp_code, tissue_type) %>% 
   summarize(n())
 # Now we can explore the data
 hist(endo_herb_georef$year)
@@ -1166,6 +1169,22 @@ table(endo_herb_georef$Spp_code) # Spp code has NA's, have to look in sample id
 endo_herb_AGHY <- endo_herb_georef %>% 
   filter(Spp_code == "AGHY") %>% 
   filter(!is.na(lon) & !is.na(year)) 
+
+
+# messing aruond with INLA model fitting
+# generate mesh
+coords <- cbind(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
+max.edge = diff(range(coords[,2]))/(3*5)
+mesh <- inla.mesh.2d(loc = coords, max.edge = c(1,2)*max.edge,
+            cutoff = max.edge/5)
+mesh$n # the number of mesh vertices
+plot(mesh)
+points(coords, col = "red")
+
+
+formula <- formula(Endo_status_liberal ~ year + f(lon, model = "iid"))
+I <- inla(Endo_status_liberal ~ year + f(lon, model = "iid") , family = "binomial",
+          data = endo_herb_AGHY, verbose = TRUE)
 
  binned_AGHY <- endo_herb_AGHY %>% 
    mutate(binned_lon = cut(lon, breaks = 20), binned_year = cut(year, breaks = 2)) %>%  
@@ -1794,17 +1813,56 @@ AGHY_endocolor_map <- ggplot()+
 AGHY_endocolor_map
 ggsave(AGHY_endocolor_map, filename = "~/Documents/AGHY_endocolor_map.tiff")
 
+endo_herb_georef_seed <- endo_herb_georef %>% 
+  filter(tissue_type == "seed") %>% 
+  filter(!is.na(Spp_code)) %>% 
+  mutate(year_bin = case_when(year < 1900 ~ "pre-1900",
+                              1900<=year & year<1930 ~ "1900-1930",
+                              1930<=year & year<1960 ~ "1930-1960",
+                              1960<=year & year<1990 ~ "1960-1990",
+                              1990<=year ~ "post-1990")) %>% 
+  mutate(year_bin = fct_relevel(year_bin, "pre-1900", "1900-1930", "1930-1960","1960-1990","post-1990")) %>% 
+  mutate(Sample_id_temp = Sample_id) %>% 
+  separate(Sample_id_temp, into = c("Herbarium_code", "Species", "Sample_no"))
+
 endocollections_map <- ggplot()+
   geom_sf(data = usa, fill = "white") +
-  geom_point(data = subset(endo_herb_georef, !is.na(Spp_code)), aes(x = lon, y = lat, color = Spp_code, pch = Spp_code), lwd = 1.5) +
+  geom_point(data = subset(endo_herb_georef_seed, !is.na(Endo_status_liberal)), aes(x = lon, y = lat, color = Spp_code, pch = Spp_code), lwd = 1.5) +
+  theme_minimal() + 
+  scale_color_manual(values = c(   "#41b056", "#eda44e", "#4c90dd")) +
+  scale_shape_manual(values = c(1, 2, 3)) +
+  lims(x = c(-105,-72)) + 
+  labs(x = c("Longitude"), y = c("Latitude"), color = "Species", pch = "Species") 
+
+endocollections_map
+ggsave(endocollections_map, filename = "~/Documents/endocollections_map.tiff")
+
+
+endocollections_map_byherb <- ggplot()+
+  geom_sf(data = usa, fill = "white") +
+  geom_point(data = subset(endo_herb_georef_seed, Herbarium_code != "AKL" & Herbarium_code != "OLKA"), aes(x = lon, y = lat, color = Herbarium_code, pch = Spp_code), alpha = .5,lwd = 1.5) +
+  theme_minimal() + 
+  scale_color_brewer(palette = "Paired") +
+  scale_shape_manual(values = c(1, 2, 3)) +
+  lims(x = c(-105,-72)) + 
+  labs(x = c("Longitude"), y = c("Latitude"), color = "Herbarium", pch = "Species") 
+  
+  endocollections_map_byherb
+ggsave(endocollections_map_byherb, filename = "~/Documents/endocollections_map_byherb.tiff")
+
+
+endocollections_map_byyear <- ggplot()+
+  geom_sf(data = usa, fill = "white") +
+  geom_point(data = endo_herb_georef_seed, aes(x = lon, y = lat, color = Spp_code, pch = Spp_code), lwd = 1.5) +
+  facet_wrap(~year_bin)+
   theme_minimal() + 
   scale_color_manual(values = c(   "#41b056", "#eda44e", "#4c90dd")) +
   scale_shape_manual(values = c(1, 2, 3)) +
   lims(x = c(-105,-72)) + 
   labs(x = c("Longitude"), y = c("Latitude"), color = "Species", pch = "Species")
 
-endocollections_map
-ggsave(endocollections_map, filename = "~/Documents/endocollections_map.tiff")
+endocollections_map_byyear
+ggsave(endocollections_map_byyear, filename = "~/Documents/endocollections_map_byyear.tiff", width = 8, height = 6)
 
 
 
