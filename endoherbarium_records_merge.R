@@ -1117,7 +1117,7 @@ endo_herb8 <- endo_herb7 %>%
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
   mutate(new_id = new_id.x) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1158,18 +1158,26 @@ specimen_counts <- endo_herb_georef %>%
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
   group_by(Spp_code, tissue_type) %>% 
   summarize(n())
+scored_counts <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  group_by(Spp_code, tissue_type) %>% 
+  summarize(n())
 # Now we can explore the data
 hist(endo_herb_georef$year)
 plot(endo_herb_georef$lon, endo_herb_georef$lat)
-plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal)
-plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal)
-plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal)
+plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal_1)
+plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal_1)
+plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal_1)
 
 # counts of scores
 table(endo_herb_georef$Spp_code, endo_herb_georef$Endo_status_liberal) # Spp code has NA's, have to look in sample id
-table(endo_herb_georef$Spp_code) # Spp code has NA's, have to look in sample id
+table(endo_herb_georef$Spp_code) 
 
 endo_herb_AGHY <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
   filter(Spp_code == "AGHY") %>% 
   filter(!is.na(lon) & !is.na(year)) 
 
@@ -1206,6 +1214,7 @@ I <- inla(Endo_status_liberal ~ year + f(lon, model = "iid") , family = "binomia
  
 
 endo_herb_ELVI <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
   filter(Spp_code == "ELVI") %>% 
   filter(!is.na(lon) & !is.na(year))
 
@@ -1244,8 +1253,8 @@ binned_AGPE <- endo_herb_AGPE %>%
 ############################################################################
 # AGHY
 plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
-plot(endo_herb_AGHY$year,endo_herb_AGHY$Endo_status_liberal)
-plot(endo_herb_AGHY$lon,endo_herb_AGHY$Endo_status_liberal)
+plot(endo_herb_AGHY$year,endo_herb_AGHY$Endo_status_liberal_1)
+plot(endo_herb_AGHY$lon,endo_herb_AGHY$Endo_status_liberal_1)
 hist(endo_herb_AGHY$year)
 hist(endo_herb_AGHY$lon)
 
@@ -1255,7 +1264,7 @@ heatmap_aghy <- endo_herb_AGHY %>%
   summarise(mean_lon = mean(lon),
             mean_lat = mean(lat),
             mean_year = mean(year),
-            mean_endo = mean(Endo_status_liberal),
+            mean_endo = mean(Endo_status_liberal_1),
             sample = n())
 head(heatmap_aghy)
 
@@ -1270,27 +1279,27 @@ ggplot(heatmap_aghy, aes(x = binned_lon, y = binned_lat, z = mean_endo)) +
   geom_contour()
 # model selection
 aghy_models <- list()
-aghy_models[[1]] <- glm(Endo_status_liberal ~ lon, data = endo_herb_AGHY, family = binomial)
-aghy_models[[2]] <- glm(Endo_status_liberal ~ lat, data = endo_herb_AGHY, family = binomial)
-aghy_models[[3]] <- glm(Endo_status_liberal ~ year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[4]] <- glm(Endo_status_liberal ~ lon + lat, data = endo_herb_AGHY, family = binomial)
-aghy_models[[5]] <- glm(Endo_status_liberal ~ lon * lat, data = endo_herb_AGHY, family = binomial)
-aghy_models[[6]] <- glm(Endo_status_liberal ~ lon + year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[7]] <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[8]] <- glm(Endo_status_liberal ~ lat + year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[9]] <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[10]] <- glm(Endo_status_liberal ~ lat + lon + year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[11]] <- glm(Endo_status_liberal ~ lat * lon + year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[12]] <- glm(Endo_status_liberal ~ lat + lon * year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[13]] <- glm(Endo_status_liberal ~ lon + lat * year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[14]] <- glm(Endo_status_liberal ~ lat * lon * year, data = endo_herb_AGHY, family = binomial)
-aghy_models[[15]] <- glm(Endo_status_liberal ~ 1, data = endo_herb_AGHY, family = binomial)
+aghy_models[[1]] <- glm(Endo_status_liberal_1 ~ lon, data = endo_herb_AGHY, family = binomial)
+aghy_models[[2]] <- glm(Endo_status_liberal_1 ~ lat, data = endo_herb_AGHY, family = binomial)
+aghy_models[[3]] <- glm(Endo_status_liberal_1 ~ year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[4]] <- glm(Endo_status_liberal_1 ~ lon + lat, data = endo_herb_AGHY, family = binomial)
+aghy_models[[5]] <- glm(Endo_status_liberal_1 ~ lon * lat, data = endo_herb_AGHY, family = binomial)
+aghy_models[[6]] <- glm(Endo_status_liberal_1 ~ lon + year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[7]] <- glm(Endo_status_liberal_1 ~ lon * year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[8]] <- glm(Endo_status_liberal_1 ~ lat + year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[9]] <- glm(Endo_status_liberal_1 ~ lon * year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[10]] <- glm(Endo_status_liberal_1 ~ lat + lon + year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[11]] <- glm(Endo_status_liberal_1 ~ lat * lon + year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[12]] <- glm(Endo_status_liberal_1 ~ lat + lon * year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[13]] <- glm(Endo_status_liberal_1 ~ lon + lat * year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[14]] <- glm(Endo_status_liberal_1 ~ lat * lon * year, data = endo_herb_AGHY, family = binomial)
+aghy_models[[15]] <- glm(Endo_status_liberal_1 ~ 1, data = endo_herb_AGHY, family = binomial)
 
 AICtab(aghy_models) # The best model according to AIC is model 5, longitude by latitude interaction
 
 
 
-long_date_mod <- glm(Endo_status_liberal ~ lon+year  , data = subset(endo_herb_AGHY), family = binomial)
+long_date_mod <- glm(Endo_status_liberal_1 ~ lon*lat*year  , data = subset(endo_herb_AGHY), family = binomial)
 anova(long_date_mod, test = "Chisq")
 summary(long_date_mod)
 
@@ -1400,35 +1409,36 @@ ggsave(AGHY_herb, filename = "~/Documents/AGHYherb.tiff", width = 4, height = 3)
 
 # ELVI
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
-plot(endo_herb_ELVI$year,endo_herb_ELVI$Endo_status_liberal)
-plot(endo_herb_ELVI$lon,endo_herb_ELVI$Endo_status_liberal)
+plot(endo_herb_ELVI$year,endo_herb_ELVI$Endo_status_liberal_1)
+plot(endo_herb_ELVI$lon,endo_herb_ELVI$Endo_status_liberal_1)
+plot(endo_herb_ELVI$lat,endo_herb_ELVI$Endo_status_liberal_1)
 hist(endo_herb_ELVI$year)
 hist(endo_herb_ELVI$lon)
 
 # model selection
 elvi_models <- list()
-elvi_models[[1]] <- glm(Endo_status_liberal ~ lon, data = endo_herb_ELVI, family = binomial)
-elvi_models[[2]] <- glm(Endo_status_liberal ~ lat, data = endo_herb_ELVI, family = binomial)
-elvi_models[[3]] <- glm(Endo_status_liberal ~ year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[4]] <- glm(Endo_status_liberal ~ lon + lat, data = endo_herb_ELVI, family = binomial)
-elvi_models[[5]] <- glm(Endo_status_liberal ~ lon * lat, data = endo_herb_ELVI, family = binomial)
-elvi_models[[6]] <- glm(Endo_status_liberal ~ lon + year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[7]] <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[8]] <- glm(Endo_status_liberal ~ lat + year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[9]] <- glm(Endo_status_liberal ~ lon * year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[10]] <- glm(Endo_status_liberal ~ lat + lon + year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[11]] <- glm(Endo_status_liberal ~ lat * lon + year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[12]] <- glm(Endo_status_liberal ~ lat + lon * year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[13]] <- glm(Endo_status_liberal ~ lon + lat * year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[14]] <- glm(Endo_status_liberal ~ lat * lon * year, data = endo_herb_ELVI, family = binomial)
-elvi_models[[15]] <- glm(Endo_status_liberal ~ 1, data = endo_herb_ELVI, family = binomial)
+elvi_models[[1]] <- glm(Endo_status_liberal_1 ~ lon, data = endo_herb_ELVI, family = binomial)
+elvi_models[[2]] <- glm(Endo_status_liberal_1 ~ lat, data = endo_herb_ELVI, family = binomial)
+elvi_models[[3]] <- glm(Endo_status_liberal_1 ~ year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[4]] <- glm(Endo_status_liberal_1 ~ lon + lat, data = endo_herb_ELVI, family = binomial)
+elvi_models[[5]] <- glm(Endo_status_liberal_1 ~ lon * lat, data = endo_herb_ELVI, family = binomial)
+elvi_models[[6]] <- glm(Endo_status_liberal_1 ~ lon + year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[7]] <- glm(Endo_status_liberal_1 ~ lon * year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[8]] <- glm(Endo_status_liberal_1 ~ lat + year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[9]] <- glm(Endo_status_liberal_1 ~ lon * year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[10]] <- glm(Endo_status_liberal_1 ~ lat + lon + year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[11]] <- glm(Endo_status_liberal_1 ~ lat * lon + year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[12]] <- glm(Endo_status_liberal_1 ~ lat + lon * year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[13]] <- glm(Endo_status_liberal_1 ~ lon + lat * year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[14]] <- glm(Endo_status_liberal_1 ~ lat * lon * year, data = endo_herb_ELVI, family = binomial)
+elvi_models[[15]] <- glm(Endo_status_liberal_1 ~ 1, data = endo_herb_ELVI, family = binomial)
 
 AICtab(elvi_models) # The best model according to AIC is model 2, latitude only
 
 
 
 
-long_date_mod <- glm(Endo_status_liberal ~ lon*year, data = subset(endo_herb_ELVI), family = "binomial")
+long_date_mod <- glm(Endo_status_liberal_1 ~ lat*lon*year, data = subset(endo_herb_ELVI), family = "binomial")
 anova(long_date_mod, test = "Chisq")
 summary(long_date_mod)
 
