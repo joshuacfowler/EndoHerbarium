@@ -636,7 +636,8 @@ OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
+
 
 # Reading in the University of Kansas digitized records (downloaded from TORCH, but may need to cross check with the KU botany search)
 KANU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UniversityofKansas_digitized_records/SymbOutput_2022-04-15_101720_DwC-A/occurrences.csv",
@@ -838,12 +839,14 @@ MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Dig
 # Read in our transcribed datasheet from google sheets which I have backed up in dropbox
 # I am reading these in as csv files that I saved from the excel file because excel does weird things with the date entries.
 specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_specimen.csv") %>% 
-  mutate(eventDate = Date_collected) %>%
+  dplyr::select(-contains("...")) %>% 
+  mutate(eventDate = Date_collected) %>% 
   mutate(TEXT_Date_collected = gsub("'", "", TEXT_Date_collected)) %>%  #TEXT_Date_collected is saved with a starting ' to preserve the date as text while saving from excel, so I remove that here
   separate(TEXT_Date_collected, into = c("month", "day", "year"), remove = FALSE) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
                             grepl("MO",Original_herbarium_id) ~ substr(Institution_specimen_id, 2, nchar(Institution_specimen_id)),
+                            grepl("OKL_", Specimen_id) ~ str_split(Institution_specimen_id, fixed(";"), simplify = TRUE)[,1], 
                             TRUE ~ Institution_specimen_id)) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_") %>% 
@@ -855,8 +858,8 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   dplyr::select(-year.x, - year.y)
 
 # This is the sample info and we will filter for only those that we have scored so far.
-sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv")  %>% 
-  # filter(!is.na(Endo_status_liberal), !is.na(Specimen_id)) %>%
+sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
+  dplyr::select(-contains("...")) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
 
@@ -942,7 +945,7 @@ endo_herb1 <- endo_herb %>%
                           is.na(month.y) ~ month.x)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
                           is.na(day.y) ~ day.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
 endo_herb2 <- endo_herb1 %>% 
@@ -965,7 +968,7 @@ endo_herb2 <- endo_herb1 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                             is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the UT Austin records that we have so far
 endo_herb3 <- endo_herb2 %>% 
@@ -988,7 +991,7 @@ endo_herb3 <- endo_herb2 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
 filter(!duplicated(Sample_id))
 
 
@@ -1013,32 +1016,32 @@ endo_herb4 <- endo_herb3 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 # Merge in the OKL records that we have so far. This one is weird, and need to figure out which column to match on.
-endo_herb5 <- endo_herb4
-#   left_join(OKL_records, by = c("new_id" = "catalogNumber")) %>% 
-#   mutate(County = case_when(is.na(County) ~ county,
-#                             is.na(county) ~ County)) %>% 
-#   mutate(State = case_when(is.na(State) ~ stateProvince,
-#                            is.na(stateProvince) ~ State)) %>% 
-#   mutate(Country = case_when(is.na(Country) ~ country,
-#                              is.na(country) ~ Country)) %>%  
-#   mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
-#                                   is.na(municipality) ~ Municipality))  %>% 
-#   mutate(Locality = case_when(is.na(Locality) ~ locality,
-#                               is.na(locality) ~ Locality)) %>% 
-#   mutate(year = case_when(is.na(year.x) ~ year.y,
-#                           is.na(year.y) ~ year.x)) %>% 
-#   mutate(month = case_when(is.na(month.x) ~ month.y,
-#                            is.na(month.y) ~ month.x)) %>% 
-#   mutate(day = case_when(is.na(day.x) ~ day.y,
-#                          is.na(day.y) ~ day.x)) %>% 
-#   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-#                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-#   dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-#   filter(!duplicated(Sample_id))
+endo_herb5 <- endo_herb4 %>% 
+  left_join(OKL_records, by = c("new_id" = "otherCatalogNumbers")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>%
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>%
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>%
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>%
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>%
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>%
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>%
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>%
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
+  filter(!duplicated(Sample_id))
 
 # Merge in the OKLA records that we have so far
 endo_herb6 <- endo_herb5 %>% 
@@ -1061,7 +1064,7 @@ endo_herb6 <- endo_herb5 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1086,7 +1089,7 @@ endo_herb7 <- endo_herb6 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
