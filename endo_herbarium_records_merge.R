@@ -1,0 +1,1133 @@
+# Title: Digital Herbarium Records and Endophyte Sample Merging
+# Purpose: Imports and merges downloaded digitized herbarium records with the Endo_Herbarium database
+# Authors: Joshua Fowler, Mallory Tucker, Ella Segal, Lani Dufresne, and Tom Miller
+# Updated: Nov 4, 2022
+
+library(tidyverse) # for data manipulation and ggplot
+# library(slider) # add on to tidyverse to calculate sliding windows for climate data
+library(fuzzyjoin) # add on to tidyverse to merge tables on nearest values
+library(readxl)
+library(lubridate)
+
+
+################################################################################
+############ Read in digitized herbarium records ############################### 
+################################################################################
+
+# UT Austin downloaded from TORCH
+AGHY_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGHYrecords/occurrences.csv") %>%
+  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%   #creates a new id that we will use to merge with the
+  mutate(municipality = as.character(municipality)) %>%
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>%
+  mutate(Spp_code = "AGHY")
+ELVI_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinELVIrecords/occurrences.csv") %>% 
+  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
+  mutate(municipality = as.character(municipality)) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "ELVI")
+AGPE_UTAustin <-   read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGPErecords/occurrences.csv") %>% 
+  mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
+  mutate(municipality = as.character(municipality)) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGPE")
+
+UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin)
+
+# Texas A&M digitized records (Includes both AGHY and ELVI)
+AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
+  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>%
+  separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
+  dplyr::select(-contains("X"))
+
+
+# BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
+# This was downloaded on Jul17 and we can get more specimens transcribed and download again.
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2020-11-10_144536_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGHY")
+
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-11-10_144847_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "ELVI")
+
+
+AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGPE_TORCH_records/SymbOutput_2020-11-10_144221_DwC-A/occurrences.csv",
+                      col_types = cols(id = col_double(),
+                                       institutionCode = col_character(),
+                                       collectionCode = col_logical(),
+                                       ownerInstitutionCode = col_logical(),
+                                       basisOfRecord = col_character(),
+                                       occurrenceID = col_character(),
+                                       catalogNumber = col_character(),
+                                       otherCatalogNumbers = col_character(),
+                                       higherClassification = col_character(),
+                                       kingdom = col_character(),
+                                       phylum = col_character(),
+                                       class = col_logical(),
+                                       order = col_character(),
+                                       family = col_character(),
+                                       scientificName = col_character(),
+                                       taxonID = col_double(),
+                                       scientificNameAuthorship = col_character(),
+                                       genus = col_character(),
+                                       subgenus = col_logical(),
+                                       specificEpithet = col_character(),
+                                       verbatimTaxonRank = col_character(),
+                                       infraspecificEpithet = col_character(),
+                                       taxonRank = col_character(),
+                                       identifiedBy = col_character(),
+                                       dateIdentified = col_character(),
+                                       identificationReferences = col_character(),
+                                       identificationRemarks = col_character(),
+                                       taxonRemarks = col_character(),
+                                       identificationQualifier = col_character(),
+                                       typeStatus = col_logical(),
+                                       recordedBy = col_character(),
+                                       associatedCollectors = col_character(),
+                                       recordNumber = col_character(),
+                                       eventDate = col_character(),
+                                       year = col_double(),
+                                       month = col_double(),
+                                       day = col_double(),
+                                       startDayOfYear = col_double(),
+                                       endDayOfYear = col_logical(),
+                                       verbatimEventDate = col_character(),
+                                       occurrenceRemarks = col_character(),
+                                       habitat = col_character(),
+                                       substrate = col_character(),
+                                       verbatimAttributes = col_character(),
+                                       fieldNumber = col_logical(),
+                                       informationWithheld = col_logical(),
+                                       dataGeneralizations = col_logical(),
+                                       dynamicProperties = col_character(),
+                                       associatedTaxa = col_character(),
+                                       reproductiveCondition = col_character(),
+                                       establishmentMeans = col_character(),
+                                       cultivationStatus = col_logical(),
+                                       lifeStage = col_logical(),
+                                       sex = col_logical(),
+                                       individualCount = col_logical(),
+                                       preparations = col_logical(),
+                                       country = col_character(),
+                                       stateProvince = col_character(),
+                                       county = col_character(),
+                                       municipality = col_character(),
+                                       locality = col_character(),
+                                       locationRemarks = col_logical(),
+                                       localitySecurity = col_double(),
+                                       localitySecurityReason = col_logical(),
+                                       decimalLatitude = col_double(),
+                                       decimalLongitude = col_double(),
+                                       geodeticDatum = col_character(),
+                                       coordinateUncertaintyInMeters = col_double(),
+                                       verbatimCoordinates = col_character(),
+                                       georeferencedBy = col_character(),
+                                       georeferenceProtocol = col_character(),
+                                       georeferenceSources = col_character(),
+                                       georeferenceVerificationStatus = col_character(),
+                                       georeferenceRemarks = col_character(),
+                                       minimumElevationInMeters = col_double(),
+                                       maximumElevationInMeters = col_double(),
+                                       minimumDepthInMeters = col_logical(),
+                                       maximumDepthInMeters = col_logical(),
+                                       verbatimDepth = col_logical(),
+                                       verbatimElevation = col_character(),
+                                       disposition = col_logical(),
+                                       language = col_logical(),
+                                       recordEnteredBy = col_character(),
+                                       modified = col_datetime(format = ""),
+                                       `sourcePrimaryKey-dbpk` = col_logical(),
+                                       collId = col_double(),
+                                       recordId = col_character(),
+                                       references = col_character())) %>% 
+  filter(!is.na(county), !is.na(eventDate)) %>% 
+  separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  mutate(Spp_code = "AGPE")
+
+
+BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT)
+
+# Lani's year and county info for her AGPE samples
+AGPE_meta <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/agpe_working.csv") %>% 
+  dplyr::select(ID1,ID2) %>% 
+  rename(Specimen_id = ID1, year = ID2)
+
+# Reading in the Louisiana state university digitized records (all three species, using TORCH search term: "Elymus virginicus; Elymus virginicus f. australis; Elymus virginicus f. hirsutiglumis; Elymus virginicus f. jejunus; Elymus virginicus f. lasiolepis; Elymus virginicus f. submuticus; Elymus virginicus subsp. interruptus; Elymus virginicus subsp. villosus; Elymus virginicus var. arcuatus; Elymus virginicus var. australis; Elymus virginicus var. glabriflorus; Elymus virginicus var. glaucus; Elymus virginicus var. halophilus; Elymus virginicus var. hirsutiglumis; Elymus virginicus var. intermedius; Elymus virginicus var. jejunus; Elymus virginicus var. jenkensii; Elymus virginicus var. jenkinsii; Elymus virginicus var. micromeris; Elymus virginicus var. submuticus; Elymus virginicus var. minor; Elymus virginicus var. virginicus; Agrostis hyemalis; Agrostis hyemalis f. exaristata; Agrostis hyemalis f. tuckermanii; Agrostis hyemalis var. elata; Agrostis hyemalis var. geminata; Agrostis hyemalis var. hyemalis; Agrostis hyemalis var. keweenawensis; Agrostis hyemalis var. laxiflora; Agrostis hyemalis var. nutkaensis; Agrostis hyemalis var. oreophila; Agrostis hyemalis var. scabra; Agrostis hyemalis var. subrepens; Agrostis hyemalis var. tenuis; Agrostis hiemalis; Agrostis hiemalis var. geminata; Agrostis hiemalis var. laxiflora; Agrostis hiemalis var. subrepens; Agrostis perennans; Agrostis perennans f. aestivalis; Agrostis perennans f. atherophora; Agrostis perennans f. chaetophora; Agrostis perennans f. chaotophora; Agrostis perennans f. perennans; Agrostis perennans var. aestivalis; Agrostis perennans var. elata; Agrostis perennans var. humilis; Agrostis perennans var. perennans")
+
+LSU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/LouisianaStateUniversity_digitized_records/SymbOutput_2022-04-15_085400_DwC-A/occurrences.csv",
+                        col_types = cols(id = col_double(),
+                                         institutionCode = col_character(),
+                                         collectionCode = col_logical(),
+                                         ownerInstitutionCode = col_logical(),
+                                         basisOfRecord = col_character(),
+                                         occurrenceID = col_character(),
+                                         catalogNumber = col_character(),
+                                         otherCatalogNumbers = col_character(),
+                                         higherClassification = col_character(),
+                                         kingdom = col_character(),
+                                         phylum = col_character(),
+                                         class = col_logical(),
+                                         order = col_character(),
+                                         family = col_character(),
+                                         scientificName = col_character(),
+                                         taxonID = col_double(),
+                                         scientificNameAuthorship = col_character(),
+                                         genus = col_character(),
+                                         subgenus = col_logical(),
+                                         specificEpithet = col_character(),
+                                         verbatimTaxonRank = col_character(),
+                                         infraspecificEpithet = col_character(),
+                                         taxonRank = col_character(),
+                                         identifiedBy = col_character(),
+                                         dateIdentified = col_character(),
+                                         identificationReferences = col_character(),
+                                         identificationRemarks = col_character(),
+                                         taxonRemarks = col_character(),
+                                         identificationQualifier = col_character(),
+                                         typeStatus = col_logical(),
+                                         recordedBy = col_character(),
+                                         associatedCollectors = col_character(),
+                                         recordNumber = col_character(),
+                                         eventDate = col_character(),
+                                         year = col_double(),
+                                         month = col_double(),
+                                         day = col_double(),
+                                         startDayOfYear = col_double(),
+                                         endDayOfYear = col_logical(),
+                                         verbatimEventDate = col_character(),
+                                         occurrenceRemarks = col_character(),
+                                         habitat = col_character(),
+                                         substrate = col_character(),
+                                         verbatimAttributes = col_character(),
+                                         fieldNumber = col_logical(),
+                                         informationWithheld = col_logical(),
+                                         dataGeneralizations = col_logical(),
+                                         dynamicProperties = col_character(),
+                                         associatedTaxa = col_character(),
+                                         reproductiveCondition = col_character(),
+                                         establishmentMeans = col_character(),
+                                         cultivationStatus = col_logical(),
+                                         lifeStage = col_logical(),
+                                         sex = col_logical(),
+                                         individualCount = col_logical(),
+                                         preparations = col_logical(),
+                                         country = col_character(),
+                                         stateProvince = col_character(),
+                                         county = col_character(),
+                                         municipality = col_character(),
+                                         locality = col_character(),
+                                         locationRemarks = col_logical(),
+                                         localitySecurity = col_double(),
+                                         localitySecurityReason = col_logical(),
+                                         decimalLatitude = col_double(),
+                                         decimalLongitude = col_double(),
+                                         geodeticDatum = col_character(),
+                                         coordinateUncertaintyInMeters = col_double(),
+                                         verbatimCoordinates = col_character(),
+                                         georeferencedBy = col_character(),
+                                         georeferenceProtocol = col_character(),
+                                         georeferenceSources = col_character(),
+                                         georeferenceVerificationStatus = col_character(),
+                                         georeferenceRemarks = col_character(),
+                                         minimumElevationInMeters = col_double(),
+                                         maximumElevationInMeters = col_double(),
+                                         minimumDepthInMeters = col_logical(),
+                                         maximumDepthInMeters = col_logical(),
+                                         verbatimDepth = col_logical(),
+                                         verbatimElevation = col_character(),
+                                         disposition = col_logical(),
+                                         language = col_logical(),
+                                         recordEnteredBy = col_character(),
+                                         modified = col_datetime(format = ""),
+                                         `sourcePrimaryKey-dbpk` = col_logical(),
+                                         collID = col_double(),
+                                         recordID = col_character(),
+                                         references = col_character())) %>% 
+  mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
+                              genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
+
+# Reading in the Oklahoma state university digitized records
+OKLA_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/OklahomaStateUniversity_digitized_records/SymbOutput_2022-04-15_090328_DwC-A/occurrences.csv",
+                         col_types = cols(id = col_double(),
+                                          institutionCode = col_character(),
+                                          collectionCode = col_logical(),
+                                          ownerInstitutionCode = col_logical(),
+                                          basisOfRecord = col_character(),
+                                          occurrenceID = col_character(),
+                                          catalogNumber = col_character(),
+                                          otherCatalogNumbers = col_character(),
+                                          higherClassification = col_character(),
+                                          kingdom = col_character(),
+                                          phylum = col_character(),
+                                          class = col_logical(),
+                                          order = col_character(),
+                                          family = col_character(),
+                                          scientificName = col_character(),
+                                          taxonID = col_double(),
+                                          scientificNameAuthorship = col_character(),
+                                          genus = col_character(),
+                                          subgenus = col_logical(),
+                                          specificEpithet = col_character(),
+                                          verbatimTaxonRank = col_character(),
+                                          infraspecificEpithet = col_character(),
+                                          taxonRank = col_character(),
+                                          identifiedBy = col_character(),
+                                          dateIdentified = col_character(),
+                                          identificationReferences = col_character(),
+                                          identificationRemarks = col_character(),
+                                          taxonRemarks = col_character(),
+                                          identificationQualifier = col_character(),
+                                          typeStatus = col_logical(),
+                                          recordedBy = col_character(),
+                                          associatedCollectors = col_character(),
+                                          recordNumber = col_character(),
+                                          eventDate = col_character(),
+                                          year = col_double(),
+                                          month = col_double(),
+                                          day = col_double(),
+                                          startDayOfYear = col_double(),
+                                          endDayOfYear = col_logical(),
+                                          verbatimEventDate = col_character(),
+                                          occurrenceRemarks = col_character(),
+                                          habitat = col_character(),
+                                          substrate = col_character(),
+                                          verbatimAttributes = col_character(),
+                                          fieldNumber = col_logical(),
+                                          informationWithheld = col_logical(),
+                                          dataGeneralizations = col_logical(),
+                                          dynamicProperties = col_character(),
+                                          associatedTaxa = col_character(),
+                                          reproductiveCondition = col_character(),
+                                          establishmentMeans = col_character(),
+                                          cultivationStatus = col_logical(),
+                                          lifeStage = col_logical(),
+                                          sex = col_logical(),
+                                          individualCount = col_logical(),
+                                          preparations = col_logical(),
+                                          country = col_character(),
+                                          stateProvince = col_character(),
+                                          county = col_character(),
+                                          municipality = col_character(),
+                                          locality = col_character(),
+                                          locationRemarks = col_logical(),
+                                          localitySecurity = col_double(),
+                                          localitySecurityReason = col_logical(),
+                                          decimalLatitude = col_double(),
+                                          decimalLongitude = col_double(),
+                                          geodeticDatum = col_character(),
+                                          coordinateUncertaintyInMeters = col_double(),
+                                          verbatimCoordinates = col_character(),
+                                          georeferencedBy = col_character(),
+                                          georeferenceProtocol = col_character(),
+                                          georeferenceSources = col_character(),
+                                          georeferenceVerificationStatus = col_character(),
+                                          georeferenceRemarks = col_character(),
+                                          minimumElevationInMeters = col_double(),
+                                          maximumElevationInMeters = col_double(),
+                                          minimumDepthInMeters = col_logical(),
+                                          maximumDepthInMeters = col_logical(),
+                                          verbatimDepth = col_logical(),
+                                          verbatimElevation = col_character(),
+                                          disposition = col_logical(),
+                                          language = col_logical(),
+                                          recordEnteredBy = col_character(),
+                                          modified = col_datetime(format = ""),
+                                          `sourcePrimaryKey-dbpk` = col_logical(),
+                                          collID = col_double(),
+                                          recordID = col_character(),
+                                          references = col_character())) %>% 
+  mutate(new_id = paste0("OKLA", otherCatalogNumbers)) %>% #this is the id that I recorded in endo_herbarium, but with OKLA on the front. These sheets had a lot that were digitized, but on this number not the barcode
+  mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
+                              genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%    # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  dplyr::select(id, catalogNumber, new_id, genus, specificEpithet, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
+
+# Reading in the University of Oklahoma digitized records
+OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UniversityofOklahoma_digitized_records/SymbOutput_2022-04-15_091522_DwC-A/occurrences.csv",
+                        col_types = cols(id = col_double(),
+                                         institutionCode = col_character(),
+                                         collectionCode = col_logical(),
+                                         ownerInstitutionCode = col_logical(),
+                                         basisOfRecord = col_character(),
+                                         occurrenceID = col_character(),
+                                         catalogNumber = col_character(),
+                                         otherCatalogNumbers = col_character(),
+                                         higherClassification = col_character(),
+                                         kingdom = col_character(),
+                                         phylum = col_character(),
+                                         class = col_logical(),
+                                         order = col_character(),
+                                         family = col_character(),
+                                         scientificName = col_character(),
+                                         taxonID = col_double(),
+                                         scientificNameAuthorship = col_character(),
+                                         genus = col_character(),
+                                         subgenus = col_logical(),
+                                         specificEpithet = col_character(),
+                                         verbatimTaxonRank = col_character(),
+                                         infraspecificEpithet = col_character(),
+                                         taxonRank = col_character(),
+                                         identifiedBy = col_character(),
+                                         dateIdentified = col_character(),
+                                         identificationReferences = col_character(),
+                                         identificationRemarks = col_character(),
+                                         taxonRemarks = col_character(),
+                                         identificationQualifier = col_character(),
+                                         typeStatus = col_logical(),
+                                         recordedBy = col_character(),
+                                         associatedCollectors = col_character(),
+                                         recordNumber = col_character(),
+                                         eventDate = col_character(),
+                                         year = col_double(),
+                                         month = col_double(),
+                                         day = col_double(),
+                                         startDayOfYear = col_double(),
+                                         endDayOfYear = col_logical(),
+                                         verbatimEventDate = col_character(),
+                                         occurrenceRemarks = col_character(),
+                                         habitat = col_character(),
+                                         substrate = col_character(),
+                                         verbatimAttributes = col_character(),
+                                         fieldNumber = col_logical(),
+                                         informationWithheld = col_logical(),
+                                         dataGeneralizations = col_logical(),
+                                         dynamicProperties = col_character(),
+                                         associatedTaxa = col_character(),
+                                         reproductiveCondition = col_character(),
+                                         establishmentMeans = col_character(),
+                                         cultivationStatus = col_logical(),
+                                         lifeStage = col_logical(),
+                                         sex = col_logical(),
+                                         individualCount = col_logical(),
+                                         preparations = col_logical(),
+                                         country = col_character(),
+                                         stateProvince = col_character(),
+                                         county = col_character(),
+                                         municipality = col_character(),
+                                         locality = col_character(),
+                                         locationRemarks = col_logical(),
+                                         localitySecurity = col_double(),
+                                         localitySecurityReason = col_logical(),
+                                         decimalLatitude = col_double(),
+                                         decimalLongitude = col_double(),
+                                         geodeticDatum = col_character(),
+                                         coordinateUncertaintyInMeters = col_double(),
+                                         verbatimCoordinates = col_character(),
+                                         georeferencedBy = col_character(),
+                                         georeferenceProtocol = col_character(),
+                                         georeferenceSources = col_character(),
+                                         georeferenceVerificationStatus = col_character(),
+                                         georeferenceRemarks = col_character(),
+                                         minimumElevationInMeters = col_double(),
+                                         maximumElevationInMeters = col_double(),
+                                         minimumDepthInMeters = col_logical(),
+                                         maximumDepthInMeters = col_logical(),
+                                         verbatimDepth = col_logical(),
+                                         verbatimElevation = col_character(),
+                                         disposition = col_logical(),
+                                         language = col_logical(),
+                                         recordEnteredBy = col_character(),
+                                         modified = col_datetime(format = ""),
+                                         `sourcePrimaryKey-dbpk` = col_logical(),
+                                         collID = col_double(),
+                                         recordID = col_character(),
+                                         references = col_character())) %>% 
+  mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
+                              genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
+
+
+# Reading in the University of Kansas digitized records (downloaded from TORCH, but may need to cross check with the KU botany search)
+KANU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UniversityofKansas_digitized_records/SymbOutput_2022-04-15_101720_DwC-A/occurrences.csv",
+                         col_types = cols(id = col_double(),
+                                          institutionCode = col_character(),
+                                          collectionCode = col_logical(),
+                                          ownerInstitutionCode = col_logical(),
+                                          basisOfRecord = col_character(),
+                                          occurrenceID = col_character(),
+                                          catalogNumber = col_character(),
+                                          otherCatalogNumbers = col_character(),
+                                          higherClassification = col_character(),
+                                          kingdom = col_character(),
+                                          phylum = col_character(),
+                                          class = col_logical(),
+                                          order = col_character(),
+                                          family = col_character(),
+                                          scientificName = col_character(),
+                                          taxonID = col_double(),
+                                          scientificNameAuthorship = col_character(),
+                                          genus = col_character(),
+                                          subgenus = col_logical(),
+                                          specificEpithet = col_character(),
+                                          verbatimTaxonRank = col_character(),
+                                          infraspecificEpithet = col_character(),
+                                          taxonRank = col_character(),
+                                          identifiedBy = col_character(),
+                                          dateIdentified = col_character(),
+                                          identificationReferences = col_character(),
+                                          identificationRemarks = col_character(),
+                                          taxonRemarks = col_character(),
+                                          identificationQualifier = col_character(),
+                                          typeStatus = col_logical(),
+                                          recordedBy = col_character(),
+                                          associatedCollectors = col_character(),
+                                          recordNumber = col_character(),
+                                          eventDate = col_character(),
+                                          year = col_double(),
+                                          month = col_double(),
+                                          day = col_double(),
+                                          startDayOfYear = col_double(),
+                                          endDayOfYear = col_logical(),
+                                          verbatimEventDate = col_character(),
+                                          occurrenceRemarks = col_character(),
+                                          habitat = col_character(),
+                                          substrate = col_character(),
+                                          verbatimAttributes = col_character(),
+                                          fieldNumber = col_logical(),
+                                          informationWithheld = col_logical(),
+                                          dataGeneralizations = col_logical(),
+                                          dynamicProperties = col_character(),
+                                          associatedTaxa = col_character(),
+                                          reproductiveCondition = col_character(),
+                                          establishmentMeans = col_character(),
+                                          cultivationStatus = col_logical(),
+                                          lifeStage = col_logical(),
+                                          sex = col_logical(),
+                                          individualCount = col_logical(),
+                                          preparations = col_logical(),
+                                          country = col_character(),
+                                          stateProvince = col_character(),
+                                          county = col_character(),
+                                          municipality = col_character(),
+                                          locality = col_character(),
+                                          locationRemarks = col_logical(),
+                                          localitySecurity = col_double(),
+                                          localitySecurityReason = col_logical(),
+                                          decimalLatitude = col_double(),
+                                          decimalLongitude = col_double(),
+                                          geodeticDatum = col_character(),
+                                          coordinateUncertaintyInMeters = col_double(),
+                                          verbatimCoordinates = col_character(),
+                                          georeferencedBy = col_character(),
+                                          georeferenceProtocol = col_character(),
+                                          georeferenceSources = col_character(),
+                                          georeferenceVerificationStatus = col_character(),
+                                          georeferenceRemarks = col_character(),
+                                          minimumElevationInMeters = col_double(),
+                                          maximumElevationInMeters = col_double(),
+                                          minimumDepthInMeters = col_logical(),
+                                          maximumDepthInMeters = col_logical(),
+                                          verbatimDepth = col_logical(),
+                                          verbatimElevation = col_character(),
+                                          disposition = col_logical(),
+                                          language = col_logical(),
+                                          recordEnteredBy = col_character(),
+                                          modified = col_datetime(format = ""),
+                                          `sourcePrimaryKey-dbpk` = col_logical(),
+                                          collID = col_double(),
+                                          recordID = col_character(),
+                                          references = col_character())) %>% 
+  mutate(new_id = paste0("KANU00", catalogNumber)) %>% #this is the id that I recorded in endo_herbarium, but with KANU00 on the front.
+  mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
+                              genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%   # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  dplyr::select(id, new_id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+
+# Reading in the Missouri Botanic Garden digitized records # Mobot we need to find the specimens based on collector name and number
+MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/MOBOT_digitized_records/SymbOutput_2022-04-15_100805_DwC-A/occurrences.csv",
+                          col_types = cols(id = col_double(),
+                                           institutionCode = col_character(),
+                                           collectionCode = col_logical(),
+                                           ownerInstitutionCode = col_logical(),
+                                           basisOfRecord = col_character(),
+                                           occurrenceID = col_character(),
+                                           catalogNumber = col_character(),
+                                           otherCatalogNumbers = col_character(),
+                                           higherClassification = col_character(),
+                                           kingdom = col_character(),
+                                           phylum = col_character(),
+                                           class = col_logical(),
+                                           order = col_character(),
+                                           family = col_character(),
+                                           scientificName = col_character(),
+                                           taxonID = col_double(),
+                                           scientificNameAuthorship = col_character(),
+                                           genus = col_character(),
+                                           subgenus = col_logical(),
+                                           specificEpithet = col_character(),
+                                           verbatimTaxonRank = col_character(),
+                                           infraspecificEpithet = col_character(),
+                                           taxonRank = col_character(),
+                                           identifiedBy = col_character(),
+                                           dateIdentified = col_character(),
+                                           identificationReferences = col_character(),
+                                           identificationRemarks = col_character(),
+                                           taxonRemarks = col_character(),
+                                           identificationQualifier = col_character(),
+                                           typeStatus = col_logical(),
+                                           recordedBy = col_character(),
+                                           associatedCollectors = col_character(),
+                                           recordNumber = col_character(),
+                                           eventDate = col_character(),
+                                           year = col_double(),
+                                           month = col_double(),
+                                           day = col_double(),
+                                           startDayOfYear = col_double(),
+                                           endDayOfYear = col_logical(),
+                                           verbatimEventDate = col_character(),
+                                           occurrenceRemarks = col_character(),
+                                           habitat = col_character(),
+                                           substrate = col_character(),
+                                           verbatimAttributes = col_character(),
+                                           fieldNumber = col_logical(),
+                                           informationWithheld = col_logical(),
+                                           dataGeneralizations = col_logical(),
+                                           dynamicProperties = col_character(),
+                                           associatedTaxa = col_character(),
+                                           reproductiveCondition = col_character(),
+                                           establishmentMeans = col_character(),
+                                           cultivationStatus = col_logical(),
+                                           lifeStage = col_logical(),
+                                           sex = col_logical(),
+                                           individualCount = col_logical(),
+                                           preparations = col_logical(),
+                                           country = col_character(),
+                                           stateProvince = col_character(),
+                                           county = col_character(),
+                                           municipality = col_character(),
+                                           locality = col_character(),
+                                           locationRemarks = col_logical(),
+                                           localitySecurity = col_double(),
+                                           localitySecurityReason = col_logical(),
+                                           decimalLatitude = col_double(),
+                                           decimalLongitude = col_double(),
+                                           geodeticDatum = col_character(),
+                                           coordinateUncertaintyInMeters = col_double(),
+                                           verbatimCoordinates = col_character(),
+                                           georeferencedBy = col_character(),
+                                           georeferenceProtocol = col_character(),
+                                           georeferenceSources = col_character(),
+                                           georeferenceVerificationStatus = col_character(),
+                                           georeferenceRemarks = col_character(),
+                                           minimumElevationInMeters = col_double(),
+                                           maximumElevationInMeters = col_double(),
+                                           minimumDepthInMeters = col_logical(),
+                                           maximumDepthInMeters = col_logical(),
+                                           verbatimDepth = col_logical(),
+                                           verbatimElevation = col_character(),
+                                           disposition = col_logical(),
+                                           language = col_logical(),
+                                           recordEnteredBy = col_character(),
+                                           modified = col_datetime(format = ""),
+                                           `sourcePrimaryKey-dbpk` = col_logical(),
+                                           collID = col_double(),
+                                           recordID = col_character(),
+                                           references = col_character())) %>%  
+  mutate(coll_lastname = word(recordedBy, -1),
+         new_id = paste0(coll_lastname, recordNumber)) %>% 
+  mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
+                              genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  dplyr::select(id, new_id, recordedBy, coll_lastname, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+
+################################################################################
+############ Read in endophyte scores and our transcribed specimen data ############################### 
+################################################################################
+
+# Read in our transcribed datasheet from google sheets which I have backed up in dropbox
+# I am reading these in as csv files that I saved from the excel file because excel does weird things with the date entries.
+specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_specimen.csv") %>% 
+  dplyr::select(-contains("...")) %>% 
+  mutate(eventDate = Date_collected) %>% 
+  mutate(TEXT_Date_collected = gsub("'", "", TEXT_Date_collected)) %>%  #TEXT_Date_collected is saved with a starting ' to preserve the date as text while saving from excel, so I remove that here
+  separate(TEXT_Date_collected, into = c("month", "day", "year"), remove = FALSE) %>% 
+  mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
+  mutate(new_id = case_when(grepl("LL00", Institution_specimen_id) ~ gsub("[a-zA-Z ]", "", Institution_specimen_id),
+                            grepl("MO",Original_herbarium_id) ~ substr(Institution_specimen_id, 2, nchar(Institution_specimen_id)),
+                            grepl("OKL_", Specimen_id) ~ str_split(Institution_specimen_id, fixed(";"), simplify = TRUE)[,1], 
+                            TRUE ~ Institution_specimen_id)) %>% 
+  mutate(Specimen_id_temp = Specimen_id) %>% 
+  separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_") %>% 
+  filter(!is.na(Specimen_id)) %>% 
+  left_join(AGPE_meta, by = c("Specimen_id")) %>% 
+  mutate(year = case_when(Spp_code != "AGPE" ~ year.x,
+                          Spp_code == "AGPE" & is.na(year.y) ~ year.x,
+                          Spp_code == "AGPE" & is.na(year.x) ~ year.y)) %>% 
+  dplyr::select(-year.x, - year.y)
+
+# This is the sample info and we will filter for only those that we have scored so far.
+sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
+  dplyr::select(-contains("...")) %>% 
+  mutate(Specimen_id_temp = Specimen_id) %>% 
+  separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
+
+testsample_info<- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>% 
+  group_by(Specimen_id) %>% 
+  summarize(count = n()) %>% 
+  filter(count == 2)
+
+endo_scores <- specimen_info %>% 
+  merge(sample_info, by = c("Specimen_id" = "Specimen_id", "Herbarium_id" = "Herbarium_id", "Spp_code" = "Spp_code", "Specimen_no" = "Specimen_no")) %>% 
+  mutate(Specimen_no = as.numeric(Specimen_no)) %>% 
+  dplyr::select(-contains("X1"),-contains("X2"))
+
+
+# Read in the fitness and size data that we have collected
+
+aghy_fitness <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/AGHY_fitness_data.csv") %>% 
+  filter(!is.na(surface_area_cm2)) %>% 
+  dplyr::select(-seed, -stem)
+
+elvi_fitness <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/ELVI_fitness_data.csv") %>% 
+  filter(!is.na(Area)) %>%
+  pivot_longer(cols = c(Length1, Length2, Length3, Length4, Length5,
+                        Length_w_fuzzy_1, Length_w_fuzzy_2, Length_w_fuzzy_3, Length_w_fuzzy_4, Length_w_fuzzy_5),
+               names_to = c("Infl_measurement", "Infl_no"), names_pattern = "(.+)(.+)") %>% 
+  filter(!is.na(value)) %>% 
+  pivot_wider(names_from = Infl_measurement, values_from = value) %>% 
+  group_by(Specimen_id, Institution_specimen_id, new_id, Herbarium_id, Spp_code, Specimen_no, Area) %>% 
+  summarize(mean_infl_length = mean(Length),
+            mean_inflplusawn_length = mean(Length_w_fuzzy_),
+            infl_count = n())
+
+fitness_data <- full_join(aghy_fitness, elvi_fitness, by = c("Specimen_id" = "Specimen_id",
+                                                             "Institution_specimen_id" = "Institution_specimen_id", 
+                                                             "new_id"= "new_id", 
+                                                             "Herbarium_id" = "Herbarium_id", 
+                                                             "Spp_code" = "Spp_code", 
+                                                             "Specimen_no" = "Specimen_no", 
+                                                             "surface_area_cm2" = "Area"))  %>% 
+  dplyr::select( -Institution_specimen_id, -new_id)
+
+
+endo_herb <- endo_scores %>% 
+  left_join(fitness_data, by = c("Specimen_id" = "Specimen_id",
+                                 "Herbarium_id" = "Herbarium_id", 
+                                 "Spp_code" = "Spp_code", 
+                                 "Specimen_no" = "Specimen_no"))
+
+
+# These are the matches from BRIT for transcription using the file that Jason Best shared of their database, Mar 25th, 2020
+BRIT_matches <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/fowler_matches_Mar25.csv") %>% 
+  dplyr::select("catalogNumber") %>% 
+  mutate(transcibed = NA)
+
+
+data_matches <- endo_herb %>%
+  filter(Herbarium_id == "BRIT") %>% 
+  rename( catalogNumber = Institution_specimen_id)
+
+matches <- BRIT_matches %>% 
+  merge(data_matches, by = "catalogNumber")
+# write_csv(matches, path = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/id matches for Torch transcription/scored_BRIT_matches_Mar25.csv")
+
+
+# Now we merge all of our records together with the endo_herb database
+
+# Merge in the AM_records that we have so far
+endo_herb1 <- endo_herb %>% 
+  left_join(AM_records, by = c( "new_id" = "Institution_specimen_id")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ state,
+                           is.na(state) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country.x) ~ Country.y,
+                             is.na(Country.y) ~ Country.x)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ Municpality,
+                                  is.na(Municpality) ~ Municipality)) %>% 
+  mutate(Locality = case_when(is.na(Locality_info) ~ Locality,
+                              is.na(Locality) ~ Locality_info)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+
+# Merge in the BRIT records that we have so far
+endo_herb2 <- endo_herb1 %>% 
+  left_join(BRIT_torch, by = c("new_id" = "catalogNumber")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality)) %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+
+# Merge in the UT Austin records that we have so far
+endo_herb3 <- endo_herb2 %>% 
+  left_join(UTAustin_torch, by = c("new_id" = "new_id")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>% 
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  filter(!duplicated(Sample_id))
+
+
+# Merge in the LSU records that we have so far
+endo_herb4 <- endo_herb3 %>% 
+  left_join(LSU_records, by = c("new_id" = "catalogNumber")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%  
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  filter(!duplicated(Sample_id))
+
+# Merge in the OKL records that we have so far. This one is weird, and need to figure out which column to match on.
+endo_herb5 <- endo_herb4 %>% 
+  left_join(OKL_records, by = c("new_id" = "otherCatalogNumbers")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>%
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>%
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>%
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>%
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>%
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>%
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>%
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>%
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
+  filter(!duplicated(Sample_id))
+
+# Merge in the OKLA records that we have so far
+endo_herb6 <- endo_herb5 %>% 
+  left_join(OKLA_records, by = c("new_id" = "new_id")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%  
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  filter(!duplicated(Sample_id))
+
+
+# Merge in the KANU records that we have so far
+endo_herb7 <- endo_herb6 %>% 
+  left_join(KANU_records, by = c("new_id" = "new_id")) %>% 
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%  
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  filter(!duplicated(Sample_id))
+
+
+
+# Merge in the MOBOT records that we have so far
+ci_str_detect <- function(x, y){str_detect(x, regex(y, ignore_case = TRUE))}
+endo_herb8 <- endo_herb7 %>% 
+  fuzzy_left_join(MOBOT_records, match_fun = ci_str_detect, by = c("new_id" = "new_id")) %>%  
+  mutate(County = case_when(is.na(County) ~ county,
+                            is.na(county) ~ County)) %>% 
+  mutate(State = case_when(is.na(State) ~ stateProvince,
+                           is.na(stateProvince) ~ State)) %>% 
+  mutate(Country = case_when(is.na(Country) ~ country,
+                             is.na(country) ~ Country)) %>%  
+  mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
+                                  is.na(municipality) ~ Municipality))  %>% 
+  mutate(Locality = case_when(is.na(Locality) ~ locality,
+                              is.na(locality) ~ Locality)) %>% 
+  mutate(year = case_when(is.na(year.x) ~ year.y,
+                          is.na(year.y) ~ year.x)) %>% 
+  mutate(month = case_when(is.na(month.x) ~ month.y,
+                           is.na(month.y) ~ month.x)) %>% 
+  mutate(day = case_when(is.na(day.x) ~ day.y,
+                         is.na(day.y) ~ day.x)) %>% 
+  mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
+                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  mutate(new_id = new_id.x) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  filter(!duplicated(Sample_id))
+
+
+specimen_counts <- endo_herb8 %>% 
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  group_by(Spp_code, tissue_type) %>% 
+  summarize(n())
+# Now I am going to link these county/locality records to a gps point with ggmap
+# This requires and API key which you can set up through google, look at ?register_google.
+# There are restrictions to the total number of queries that you can do per day and month, and if you go over, it costs money, so we will save the output. I believe we have a free trial for year.
+# One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
+# I have found software that could do this, but would require a human to double check the output.
+#
+# register_google()
+# endo_herb_georef <-endo_herb8 %>%
+#   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
+#   # filter(Endo_status_liberal <= 1) %>%
+#   mutate_geocode(location_string) # Uncomment this to run the geocoding.
+# write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
+endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
+  filter(Country != "Canada") %>%
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE"))
+
