@@ -38,7 +38,7 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
   unite(Institution_specimen_id, CollectionCode, id, sep = "") %>%
   separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
-  dplyr::select(-contains("X"))
+  dplyr::select(-contains("..."))
 
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
@@ -1130,4 +1130,37 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE"))
+
+specimen_counts <- endo_herb_georef %>% 
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  group_by(Spp_code, tissue_type) %>% 
+  summarize(n())
+scored_counts <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  group_by(Spp_code, tissue_type) %>% 
+  summarize(n())
+
+hist(endo_herb_georef$year)
+plot(endo_herb_georef$lon, endo_herb_georef$lat)
+plot(endo_herb_georef$lon, endo_herb_georef$Endo_status_liberal_1)
+plot(endo_herb_georef$lat, endo_herb_georef$Endo_status_liberal_1)
+plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal_1)
+
+
+endo_herb_AGHY <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(Spp_code == "AGHY") %>% 
+  filter(!is.na(lon) & !is.na(year)) 
+plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
+
+endo_herb_ELVI <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(Spp_code == "ELVI") %>% 
+  filter(!is.na(lon) & !is.na(year))
+plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
 
