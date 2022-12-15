@@ -35,7 +35,7 @@ UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin)
 
 # Texas A&M digitized records (Includes both AGHY and ELVI)
 AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
-  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>%
+  unite(Institution_specimen_id, CollectionCode, id, sep = "") %>% 
   separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   dplyr::select(-contains("..."))
@@ -135,6 +135,8 @@ AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   filter(!is.na(county), !is.na(eventDate)) %>% 
   separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate_at(c("day", "month", "year"), as.numeric) %>% 
+  mutate(decimalLongitude = case_when(decimalLongitude>0 ~ decimalLongitude*-1,
+                                      TRUE ~ decimalLongitude)) %>% 
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGHY")
 
@@ -841,6 +843,8 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   mutate(year = case_when(Spp_code != "AGPE" ~ year.x,
                           Spp_code == "AGPE" & is.na(year.y) ~ year.x,
                           Spp_code == "AGPE" & is.na(year.x) ~ year.y)) %>% 
+  mutate(hand_georef_lon = case_when(decimalLongitude>0 ~ decimalLongitude*-1,TRUE ~ decimalLongitude),
+         hand_georef_lat = decimalLatitude) %>% 
   dplyr::select(-year.x, - year.y)
 
 # This is the sample info and we will filter for only those that we have scored so far.
@@ -931,7 +935,7 @@ endo_herb1 <- endo_herb %>%
                            is.na(month.y) ~ month.x)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
                          is.na(day.y) ~ day.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
 endo_herb2 <- endo_herb1 %>% 
@@ -946,6 +950,10 @@ endo_herb2 <- endo_herb1 %>%
                                   is.na(municipality) ~ Municipality)) %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -954,7 +962,7 @@ endo_herb2 <- endo_herb1 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the UT Austin records that we have so far
 endo_herb3 <- endo_herb2 %>% 
@@ -969,6 +977,10 @@ endo_herb3 <- endo_herb2 %>%
                                   is.na(municipality) ~ Municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -977,7 +989,7 @@ endo_herb3 <- endo_herb2 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -994,6 +1006,10 @@ endo_herb4 <- endo_herb3 %>%
                                   is.na(municipality) ~ Municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1002,7 +1018,7 @@ endo_herb4 <- endo_herb3 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 # Merge in the OKL records that we have so far. This one is weird, and need to figure out which column to match on.
@@ -1018,6 +1034,10 @@ endo_herb5 <- endo_herb4 %>%
                                   is.na(municipality) ~ Municipality))  %>%
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>%
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>%
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1026,7 +1046,7 @@ endo_herb5 <- endo_herb4 %>%
                          is.na(day.y) ~ day.x)) %>%
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>%
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
   filter(!duplicated(Sample_id))
 
 # Merge in the OKLA records that we have so far
@@ -1042,6 +1062,10 @@ endo_herb6 <- endo_herb5 %>%
                                   is.na(municipality) ~ Municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1050,7 +1074,7 @@ endo_herb6 <- endo_herb5 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1067,6 +1091,10 @@ endo_herb7 <- endo_herb6 %>%
                                   is.na(municipality) ~ Municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1075,7 +1103,7 @@ endo_herb7 <- endo_herb6 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1094,6 +1122,10 @@ endo_herb8 <- endo_herb7 %>%
                                   is.na(municipality) ~ Municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality)) %>% 
+  mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
+                                     is.na(decimalLatitude) ~ hand_georef_lat),
+         hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
+                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1103,7 +1135,7 @@ endo_herb8 <- endo_herb7 %>%
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
   mutate(new_id = new_id.x) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality,hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
