@@ -8,6 +8,7 @@ library(tidyverse) # for data manipulation and ggplot
 library(fuzzyjoin) # add on to tidyverse to merge tables on nearest values
 library(readxl)
 library(lubridate)
+library(ggmap)
 
 
 ################################################################################
@@ -17,26 +18,42 @@ library(lubridate)
 # UT Austin downloaded from TORCH
 AGHY_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGHYrecords/occurrences.csv") %>%
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%   #creates a new id that we will use to merge with the
-  mutate(municipality = as.character(municipality)) %>%
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>%
+  mutate(municipality = as.character(municipality)) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, new_id, eventDate, day, month, year) %>%
   mutate(Spp_code = "AGHY")
 ELVI_UTAustin <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinELVIrecords/occurrences.csv") %>% 
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
   mutate(municipality = as.character(municipality)) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
 AGPE_UTAustin <-   read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UTAustinAGPErecords/occurrences.csv") %>% 
   mutate(new_id = gsub("[a-zA-Z ]", "", catalogNumber)) %>%    #creates a new id that we will use to merge with the 
   mutate(municipality = as.character(municipality)) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, new_id, eventDate, day, month, year) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, new_id, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGPE")
 
-UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin)
+UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin) %>% 
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         primary_collector = word(primary_collector, sep = fixed("with")),
+         primary_collector = word(primary_collector, sep = fixed("and")),
+         primary_collector = word(primary_collector, sep = fixed("&")),
+         primary_collector = word(primary_collector, sep = fixed("asst")),
+         primary_collector = word(primary_collector, sep = fixed("assit")),
+         primary_collector = word(primary_collector, sep = fixed("et"))) %>% 
+  mutate(collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                 !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
 
 # Texas A&M digitized records (Includes both AGHY and ELVI)
 AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/TexasA&M_digitized_records/Fowler Data.csv") %>% 
   unite(Institution_specimen_id, CollectionCode, id, sep = "") %>% 
   separate(DateCollected, into = c("year", "month", "day"), remove = FALSE) %>% 
+  mutate(primary_collector = word(collector, sep = fixed("|")),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>%
+  mutate(collector_lastname = gsub( "[()]", "", collector_lastname)) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   dplyr::select(-contains("..."))
 
@@ -137,7 +154,7 @@ AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   mutate_at(c("day", "month", "year"), as.numeric) %>% 
   mutate(decimalLongitude = case_when(decimalLongitude>0 ~ decimalLongitude*-1,
                                       TRUE ~ decimalLongitude)) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGHY")
 
 ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2020-11-10_144847_DwC-A/occurrences.csv",
@@ -232,7 +249,7 @@ ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   filter(!is.na(county), !is.na(eventDate)) %>% 
   separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate_at(c("day", "month", "year"), as.numeric) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters,recordedBy, recordNumber, eventDate, day, month, year) %>% 
   mutate(Spp_code = "ELVI")
 
 
@@ -328,12 +345,17 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   filter(!is.na(county), !is.na(eventDate)) %>% 
   separate(eventDate, into = c("year", "month", "day"), remove = FALSE) %>% 
   mutate_at(c("day", "month", "year"), as.numeric) %>% 
-  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) %>% 
+  dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGPE")
 
 
-BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT)
-
+BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>% 
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         primary_collector = word(primary_collector, sep = fixed("and"))) %>% 
+  mutate(collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
 # Lani's year and county info for her AGPE samples
 AGPE_meta <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/agpe_working.csv") %>% 
   dplyr::select(ID1,ID2) %>% 
@@ -430,10 +452,15 @@ LSU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
                                          collID = col_double(),
                                          recordID = col_character(),
                                          references = col_character())) %>% 
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
+  dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) 
 
 # Reading in the Oklahoma state university digitized records
 OKLA_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/OklahomaStateUniversity_digitized_records/SymbOutput_2022-04-15_090328_DwC-A/occurrences.csv",
@@ -526,10 +553,16 @@ OKLA_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
                                           recordID = col_character(),
                                           references = col_character())) %>% 
   mutate(new_id = paste0("OKLA", otherCatalogNumbers)) %>% #this is the id that I recorded in endo_herbarium, but with OKLA on the front. These sheets had a lot that were digitized, but on this number not the barcode
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         primary_collector = word(primary_collector, sep = fixed("&")),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%    # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, catalogNumber, new_id, genus, specificEpithet, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) 
+  dplyr::select(id, catalogNumber, new_id, genus, specificEpithet, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters,  recordedBy, recordNumber, eventDate, day, month, year) 
 
 # Reading in the University of Oklahoma digitized records
 OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UniversityofOklahoma_digitized_records/SymbOutput_2022-04-15_091522_DwC-A/occurrences.csv",
@@ -621,10 +654,15 @@ OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
                                          collID = col_double(),
                                          recordID = col_character(),
                                          references = col_character())) %>% 
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
+  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
 
 
 # Reading in the University of Kansas digitized records (downloaded from TORCH, but may need to cross check with the KU botany search)
@@ -718,10 +756,16 @@ KANU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
                                           recordID = col_character(),
                                           references = col_character())) %>% 
   mutate(new_id = paste0("KANU00", catalogNumber)) %>% #this is the id that I recorded in endo_herbarium, but with KANU00 on the front.
+  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         primary_collector = word(primary_collector, sep = fixed(";")),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%   # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, new_id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+  dplyr::select(id, new_id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
 
 # Reading in the Missouri Botanic Garden digitized records # Mobot we need to find the specimens based on collector name and number
 MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/MOBOT_digitized_records/SymbOutput_2022-04-15_100805_DwC-A/occurrences.csv",
@@ -812,13 +856,16 @@ MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Dig
                                            `sourcePrimaryKey-dbpk` = col_logical(),
                                            collID = col_double(),
                                            recordID = col_character(),
-                                           references = col_character())) %>%  
-  mutate(coll_lastname = word(recordedBy, -1),
-         new_id = paste0(coll_lastname, recordNumber)) %>% 
+                                           references = col_character())) %>% 
+  mutate(primary_collector = recordedBy,
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
+  mutate(new_id = paste0(collector_lastname, recordNumber)) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, new_id, recordedBy, coll_lastname, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+  dplyr::select(id, new_id, recordedBy, primary_collector, collector_firstname, collector_lastname, recordID, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
 
 ################################################################################
 ############ Read in endophyte scores and our transcribed specimen data ############################### 
@@ -845,6 +892,14 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
                           Spp_code == "AGPE" & is.na(year.x) ~ year.y)) %>% 
   mutate(hand_georef_lon = case_when(decimalLongitude>0 ~ decimalLongitude*-1,TRUE ~ decimalLongitude),
          hand_georef_lat = decimalLatitude) %>% 
+  mutate(primary_collector = case_when(str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, end = 2, sep = fixed(",")),
+                                       !str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, sep = fixed(","))),
+         primary_collector = word(primary_collector, sep = fixed(";")),
+         primary_collector = word(primary_collector, sep = fixed("and")),
+         primary_collector = word(primary_collector, sep = fixed("&")),
+         collector_firstname = word(primary_collector),
+         collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
   dplyr::select(-year.x, - year.y)
 
 # This is the sample info and we will filter for only those that we have scored so far.
@@ -1151,11 +1206,11 @@ specimen_counts <- endo_herb8 %>%
 # One other note, is that we are only using the level of county/city/state which I believe should be pretty accurate through google. I'm not sure that it could accurately do a more detailed locality string
 # I have found software that could do this, but would require a human to double check the output.
 #
-# register_google()
-# endo_herb_georef <-endo_herb8 %>%
-#   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-#   # filter(Endo_status_liberal <= 1) %>%
-#   mutate_geocode(location_string) # Uncomment this to run the geocoding.
+register_google()
+endo_herb_georef <-endo_herb8 %>%
+  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
+  # filter(Endo_status_liberal <= 1) %>%
+  mutate_geocode(location_string) # Uncomment this to run the geocoding.
 # write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
   filter(Country != "Canada") %>%
