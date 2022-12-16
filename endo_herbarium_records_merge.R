@@ -352,7 +352,8 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
 BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>% 
   mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
                                        !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
-         primary_collector = word(primary_collector, sep = fixed("and"))) %>% 
+         primary_collector = word(primary_collector, sep = fixed("and")),
+         primary_collector = word(primary_collector, sep = fixed("&"))) %>% 
   mutate(collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
@@ -460,7 +461,7 @@ LSU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) 
+  dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, primary_collector, collector_lastname, collector_firstname, recordNumber, eventDate, day, month, year) 
 
 # Reading in the Oklahoma state university digitized records
 OKLA_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/OklahomaStateUniversity_digitized_records/SymbOutput_2022-04-15_090328_DwC-A/occurrences.csv",
@@ -562,7 +563,7 @@ OKLA_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%    # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, catalogNumber, new_id, genus, specificEpithet, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters,  recordedBy, recordNumber, eventDate, day, month, year) 
+  dplyr::select(id, catalogNumber, new_id, genus, specificEpithet, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters,   primary_collector, collector_lastname, collector_firstname, recordedBy, recordNumber, eventDate, day, month, year) 
 
 # Reading in the University of Oklahoma digitized records
 OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/UniversityofOklahoma_digitized_records/SymbOutput_2022-04-15_091522_DwC-A/occurrences.csv",
@@ -662,7 +663,7 @@ OKL_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
+  dplyr::select(id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, primary_collector, collector_lastname, collector_firstname,  recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column. For OKL, I recorded a string of id's. We need to take the first, which is usually of the form "OKL######"
 
 
 # Reading in the University of Kansas digitized records (downloaded from TORCH, but may need to cross check with the KU botany search)
@@ -765,7 +766,7 @@ KANU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%   # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
-  dplyr::select(id, new_id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
+  dplyr::select(id, new_id, catalogNumber, otherCatalogNumbers, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, primary_collector, collector_lastname, collector_firstname,  recordedBy, recordNumber, eventDate, day, month, year) #For the specimens that are digitized, they are found in the otherCatalogNumbers column
 
 # Reading in the Missouri Botanic Garden digitized records # Mobot we need to find the specimens based on collector name and number
 MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/MOBOT_digitized_records/SymbOutput_2022-04-15_100805_DwC-A/occurrences.csv",
@@ -990,7 +991,13 @@ endo_herb1 <- endo_herb %>%
                            is.na(month.y) ~ month.x)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
                          is.na(day.y) ~ day.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                        is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
 endo_herb2 <- endo_herb1 %>% 
@@ -1017,7 +1024,13 @@ endo_herb2 <- endo_herb1 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the UT Austin records that we have so far
 endo_herb3 <- endo_herb2 %>% 
@@ -1044,7 +1057,13 @@ endo_herb3 <- endo_herb2 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, primary_collector, collector_lastname, collector_firstname, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1073,7 +1092,13 @@ endo_herb4 <- endo_herb3 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code,  primary_collector, collector_lastname, collector_firstname, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 # Merge in the OKL records that we have so far. This one is weird, and need to figure out which column to match on.
@@ -1101,7 +1126,13 @@ endo_herb5 <- endo_herb4 %>%
                          is.na(day.y) ~ day.x)) %>%
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>%
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
   filter(!duplicated(Sample_id))
 
 # Merge in the OKLA records that we have so far
@@ -1129,7 +1160,13 @@ endo_herb6 <- endo_herb5 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1158,7 +1195,13 @@ endo_herb7 <- endo_herb6 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1189,8 +1232,14 @@ endo_herb8 <- endo_herb7 %>%
                          is.na(day.y) ~ day.x)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+  mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
+                                       is.na(primary_collector.y) ~ primary_collector.x),
+         collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
+                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+         collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
+                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
   mutate(new_id = new_id.x) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, Country, State, County, Municipality, Locality,hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality,hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
 
@@ -1200,6 +1249,10 @@ specimen_counts <- endo_herb8 %>%
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
   group_by(Spp_code, tissue_type) %>% 
   summarize(n())
+collector_count <- endo_herb8 %>% 
+  group_by(collector_lastname) %>% 
+  summarize(n())
+
 # Now I am going to link these county/locality records to a gps point with ggmap
 # This requires and API key which you can set up through google, look at ?register_google.
 # There are restrictions to the total number of queries that you can do per day and month, and if you go over, it costs money, so we will save the output. I believe we have a free trial for year.
