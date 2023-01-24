@@ -9,7 +9,7 @@ library(fuzzyjoin) # add on to tidyverse to merge tables on nearest values
 library(readxl)
 library(lubridate)
 library(ggmap)
-
+library(prism) # to import prism raster files
 
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
@@ -52,7 +52,8 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
   mutate(primary_collector = word(collector, sep = fixed("|")),
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
-                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>%
+                                        str_detect(primary_collector, "III") ~ word(str_trim(primary_collector),  start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr.") | !str_detect(primary_collector, "III") ~ word(str_trim(primary_collector), -1))) %>%
   mutate(collector_lastname = gsub( "[()]", "", collector_lastname)) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
   dplyr::select(-contains("..."))
@@ -352,8 +353,10 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
 BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>% 
   mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
                                        !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
-         primary_collector = word(primary_collector, sep = fixed("and")),
-         primary_collector = word(primary_collector, sep = fixed("&"))) %>% 
+         primary_collector = case_when(str_detect(primary_collector, "John and Connie Taylor") ~ primary_collector,
+                                       !str_detect(primary_collector, "John and Connie Taylor") ~ word(primary_collector, sep = fixed("and"))),
+         primary_collector = case_when(str_detect(primary_collector, "Jones") ~ primary_collector,
+                                       !str_detect(primary_collector, "Jones") ~ word(primary_collector, sep = fixed("&")))) %>%
   mutate(collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
@@ -758,11 +761,15 @@ KANU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digi
                                           references = col_character())) %>% 
   mutate(new_id = paste0("KANU00", catalogNumber)) %>% #this is the id that I recorded in endo_herbarium, but with KANU00 on the front.
   mutate(primary_collector = case_when(str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
-                                       !str_detect(recordedBy, "Jr") ~ word(recordedBy, start = 1, sep = fixed(","))),
+                                       str_detect(recordedBy, "et al.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(" ")),
+                                       str_detect(recordedBy, "II") ~ word(recordedBy, start = 1, end = 2, sep = fixed(" ")),
+                                       !str_detect(recordedBy, "Jr") & !str_detect(recordedBy, "II") ~ word(recordedBy, start = 1, sep = fixed(","))),
          primary_collector = word(primary_collector, sep = fixed(";")),
+         primary_collector = word(primary_collector, sep = fixed("&")),
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
-                                        !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
+                                        str_detect(primary_collector, "II") ~ word(str_trim(primary_collector), start = -2, end = -1),
+                                        !str_detect(primary_collector,"Jr") & !str_detect(primary_collector, "II") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%   # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
@@ -896,8 +903,10 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   mutate(primary_collector = case_when(str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, end = 2, sep = fixed(",")),
                                        !str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, sep = fixed(","))),
          primary_collector = word(primary_collector, sep = fixed(";")),
+         primary_collector = word(primary_collector, sep = fixed("with")),
          primary_collector = word(primary_collector, sep = fixed("and")),
          primary_collector = word(primary_collector, sep = fixed("&")),
+         primary_collector = str_replace(primary_collector,"\n", ""),
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
@@ -1249,10 +1258,25 @@ specimen_counts <- endo_herb8 %>%
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
   group_by(Spp_code, tissue_type) %>% 
   summarize(n())
-collector_count <- endo_herb8 %>% 
-  group_by(collector_lastname) %>% 
-  summarize(n())
 
+#collector info is a work in progress. Need to fix names with the II. and figure out how to match up initials and first names.
+collector_count <- endo_herb8 %>% 
+  group_by(collector_firstname, collector_lastname) %>% 
+  summarize(n()) %>% 
+  mutate(collector_full_string = paste(collector_firstname, collector_lastname),
+         collector_first_initial  = str_sub(collector_firstname, 1,1),
+         collector_string = paste(collector_first_initial, collector_lastname)) 
+# Traverse and Traveers
+
+unique_lastnames <- endo_herb8 %>% 
+  group_by(collector_lastname) %>% 
+  summarize(no_records = n(),
+            no_first_names = length(unique(collector_firstname)),
+            no_first_initial = sum(unique(collector_firstname)%in%c(LETTERS, paste0(LETTERS,"."))))
+
+# ggplot(unique_lastnames)+
+#   geom_histogram(aes(x = no_records))
+string_dist_matrix <- adist(collector_count$collector_string, collector_count$collector_string)
 # Now I am going to link these county/locality records to a gps point with ggmap
 # This requires and API key which you can set up through google, look at ?register_google.
 # There are restrictions to the total number of queries that you can do per day and month, and if you go over, it costs money, so we will save the output. I believe we have a free trial for year.
@@ -1262,14 +1286,19 @@ collector_count <- endo_herb8 %>%
 register_google()
 endo_herb_georef <-endo_herb8 %>%
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-  # filter(Endo_status_liberal <= 1) %>%
+  filter(Endo_status_liberal_1 <= 1) %>%
   mutate_geocode(location_string) # Uncomment this to run the geocoding.
 # write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
   filter(Country != "Canada") %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
-                              grepl("AGPE", Sample_id) ~ "AGPE"))
+                              grepl("AGPE", Sample_id) ~ "AGPE")) 
+  mutate(collector_string_dist = )
+
+
+           
+           agrep(paste(collector_firstname, collector_lastname))) # Telling is collector's first names kind of match 
 
 specimen_counts <- endo_herb_georef %>% 
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
@@ -1303,4 +1332,93 @@ endo_herb_ELVI <- endo_herb_georef %>%
   filter(Spp_code == "ELVI") %>% 
   filter(!is.na(lon) & !is.na(year))
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
+
+
+####################################################################################################
+######### Connecting the herbarium records to climate data from PRISM ##############################
+####################################################################################################
+# making a folder to store prism data
+prism_set_dl_dir(paste0(getwd(),"/prism_download"))
+
+# getting monthly data for mean temp and precipitation
+# takes a long time the first time, but can skip when you have raster files saved on your computer.
+get_prism_monthlys(type = "tmean", years = 1895:2018, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "ppt", years = 1895:2018, mon = 1:12, keepZip = FALSE)
+
+  
+tmean_stack <- pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 2016:2018))
+ppt_stack <- pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 2016:2018))
+
+tmean_stack <- terra::rast(tmean_stack)
+ppt_stack <- terra::rast(ppt_stack)
+
+# extracting the values at our herbarium specimens' coordinates
+coords <- cbind(endo_herb_georef$lon, endo_herb_georef$lat)
+
+tmean_extract <- terra::extract(tmean_stack, coords)
+tmean_extract$lon = endo_herb_georef$lon
+tmean_extract$lat = endo_herb_georef$lat
+
+
+lag_multiple <- function(x,name, n_vec){
+  purrr::map(n_vec, lag, x = x) %>% 
+    set_names(paste0(name,"_", "lag", n_vec)) %>% 
+    as_tibble()
+}
+
+tmean_longer <- tmean_extract %>% 
+  pivot_longer(cols = c(-lat, -lon)) %>% 
+  mutate(year = year(ym(stringr::str_sub(name,start = 26, end = 31))),
+         month = month(ym(stringr::str_sub(name,start = 26, end = 31)))) %>% 
+  group_by(lat,lon) %>% 
+  arrange(year, month) %>% 
+  mutate(lag_multiple(value,"temp", 0:140)) %>% 
+  ungroup() %>% 
+  mutate(mean_1month_temp = temp_lag0,
+         mean_2month_temp = rowMeans(select(., temp_lag0:temp_lag1), na.rm = TRUE),
+         mean_3month_temp = rowMeans(select(., temp_lag0:temp_lag2), na.rm = TRUE),
+         mean_4month_temp = rowMeans(select(., temp_lag0:temp_lag3), na.rm = TRUE),
+         mean_5month_temp = rowMeans(select(., temp_lag0:temp_lag4), na.rm = TRUE),
+         mean_6month_temp = rowMeans(select(., temp_lag0:temp_lag5), na.rm = TRUE),
+         mean_7month_temp = rowMeans(select(., temp_lag0:temp_lag6), na.rm = TRUE),
+         mean_8month_temp = rowMeans(select(., temp_lag0:temp_lag7), na.rm = TRUE),
+         mean_9month_temp = rowMeans(select(., temp_lag0:temp_lag8), na.rm = TRUE),
+         mean_10month_temp = rowMeans(select(., temp_lag0:temp_lag9), na.rm = TRUE),
+         mean_11month_temp = rowMeans(select(., temp_lag0:temp_lag10), na.rm = TRUE),
+         mean_annual_temp = rowMeans(select(., temp_lag0:temp_lag11), na.rm = TRUE),
+         mean_24month_temp = rowMeans(select(., temp_lag0:temp_lag23), na.rm = TRUE),
+         mean_decade_temp = rowMeans(select(., temp_lag0:temp_lag139), na.rm = TRUE)) %>% 
+  select(lat, lon, year, month, value, temp_lag1, temp_lag2, mean_1month_temp, mean_2month_temp, mean_annual_temp, mean_24month_temp, mean_decade_temp)
+
+ppt_extract <- terra::extract(ppt_stack, coords)
+ppt_extract$lon = endo_herb_georef$lon
+ppt_extract$lat = endo_herb_georef$lat
+
+ppt_longer <- ppt_extract %>% 
+  pivot_longer(cols = c(-lat, -lon)) %>% 
+  mutate(year =   year(ym(stringr::str_sub(name,start = 24, end = 29))),
+         month = month(ym(stringr::str_sub(name,start = 24, end = 29)))) %>% 
+  group_by(lat,lon) %>% 
+  arrange(year, month) %>% 
+  mutate(lag_multiple(value,"ppt", 0:140)) %>% 
+  ungroup() %>% 
+  mutate(total_1month_ppt = ppt_lag0,
+         total_2month_ppt = rowSums(select(., ppt_lag0:ppt_lag1), na.rm = TRUE),
+         total_3month_ppt = rowSums(select(., ppt_lag0:ppt_lag2), na.rm = TRUE),
+         total_4month_ppt = rowSums(select(., ppt_lag0:ppt_lag3), na.rm = TRUE),
+         total_5month_ppt = rowSums(select(., ppt_lag0:ppt_lag4), na.rm = TRUE),
+         total_6month_ppt = rowSums(select(., ppt_lag0:ppt_lag5), na.rm = TRUE),
+         total_7month_ppt = rowSums(select(., ppt_lag0:ppt_lag6), na.rm = TRUE),
+         total_8month_ppt = rowSums(select(., ppt_lag0:ppt_lag7), na.rm = TRUE),
+         total_9month_ppt = rowSums(select(., ppt_lag0:ppt_lag8), na.rm = TRUE),
+         total_10month_ppt = rowSums(select(., ppt_lag0:ppt_lag9), na.rm = TRUE),
+         total_11month_ppt = rowSums(select(., ppt_lag0:ppt_lag10), na.rm = TRUE),
+         total_annual_ppt = rowSums(select(., ppt_lag0:ppt_lag11), na.rm = TRUE),
+         total_24month_ppt = rowSums(select(., ppt_lag0:ppt_lag23), na.rm = TRUE),
+         total_decade_ppt = rowSums(select(., ppt_lag0:ppt_lag139), na.rm = TRUE)) %>% 
+  select(lat, lon, year, month, value, ppt_lag1, ppt_lag2, total_1month_ppt, total_2month_ppt, total_annual_ppt, total_24month_ppt, total_decade_ppt)
+
+
+
+
 
