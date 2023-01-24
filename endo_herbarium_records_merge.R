@@ -1342,26 +1342,26 @@ prism_set_dl_dir(paste0(getwd(),"/prism_download"))
 
 # getting monthly data for mean temp and precipitation
 # takes a long time the first time, but can skip when you have raster files saved on your computer.
-get_prism_monthlys(type = "tmean", years = 1895:2018, mon = 1:12, keepZip = FALSE)
-get_prism_monthlys(type = "ppt", years = 1895:2018, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "tmean", years = 1895:2019, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "ppt", years = 1895:2019, mon = 1:12, keepZip = FALSE)
 
-  
-tmean_stack <- pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 2016:2018))
-ppt_stack <- pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 2016:2018))
-
-tmean_stack <- terra::rast(tmean_stack)
-ppt_stack <- terra::rast(ppt_stack)
+tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:2019)))
+ppt_stack <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:2019)))
 
 # extracting the values at our herbarium specimens' coordinates
-coords <- cbind(endo_herb_georef$lon, endo_herb_georef$lat)
+coords_df <- endo_herb_georef %>% 
+  distinct(lat,lon)
+coords <- cbind(coords_df$lon, coords_df$lat)
 
 tmean_extract <- terra::extract(tmean_stack, coords)
-tmean_extract$lon = endo_herb_georef$lon
-tmean_extract$lat = endo_herb_georef$lat
+tmean_extract$lon = coords_df$lon
+tmean_extract$lat = coords_df$lat
 
 
 lag_multiple <- function(x,name, n_vec){
+  #apply lag function across a set of columns
   purrr::map(n_vec, lag, x = x) %>% 
+    # name the columns according to "name" and the number of lag periods
     set_names(paste0(name,"_", "lag", n_vec)) %>% 
     as_tibble()
 }
@@ -1388,11 +1388,11 @@ tmean_longer <- tmean_extract %>%
          mean_annual_temp = rowMeans(select(., temp_lag0:temp_lag11), na.rm = TRUE),
          mean_24month_temp = rowMeans(select(., temp_lag0:temp_lag23), na.rm = TRUE),
          mean_decade_temp = rowMeans(select(., temp_lag0:temp_lag139), na.rm = TRUE)) %>% 
-  select(lat, lon, year, month, value, temp_lag1, temp_lag2, mean_1month_temp, mean_2month_temp, mean_annual_temp, mean_24month_temp, mean_decade_temp)
+  select(lat, lon, year, month, mean_1month_temp, mean_2month_temp, mean_annual_temp, mean_24month_temp, mean_decade_temp)
 
 ppt_extract <- terra::extract(ppt_stack, coords)
-ppt_extract$lon = endo_herb_georef$lon
-ppt_extract$lat = endo_herb_georef$lat
+ppt_extract$lon = coords_df$lon
+ppt_extract$lat = coords_df$lat
 
 ppt_longer <- ppt_extract %>% 
   pivot_longer(cols = c(-lat, -lon)) %>% 
@@ -1416,9 +1416,30 @@ ppt_longer <- ppt_extract %>%
          total_annual_ppt = rowSums(select(., ppt_lag0:ppt_lag11), na.rm = TRUE),
          total_24month_ppt = rowSums(select(., ppt_lag0:ppt_lag23), na.rm = TRUE),
          total_decade_ppt = rowSums(select(., ppt_lag0:ppt_lag139), na.rm = TRUE)) %>% 
-  select(lat, lon, year, month, value, ppt_lag1, ppt_lag2, total_1month_ppt, total_2month_ppt, total_annual_ppt, total_24month_ppt, total_decade_ppt)
+  select(lat, lon, year, month, total_1month_ppt, total_2month_ppt, total_annual_ppt, total_24month_ppt, total_decade_ppt)
+
+test <- tmean_longer %>% 
+  filter(lon == unique(tmean_longer$lon)[1]) %>%    
+  mutate(date = ym(paste0(year,"-",month))) %>% 
+  ggplot() +
+  geom_path(aes(x = date, y = mean_1month_temp))+
+  geom_path(aes(x = date, y = mean_annual_temp), color = "red")+
+  geom_path(aes(x = date, y = mean_decade_temp), color = "purple")
 
 
+test <- ppt_longer %>% 
+  filter(lon == unique(ppt_longer$lon)[1]) %>%    
+  mutate(date = ym(paste0(year,"-",month))) %>% 
+ggplot() +
+  geom_path(aes(x = date, y = total_1month_ppt))+
+  geom_path(aes(x = date, y = total_annual_ppt), color = "blue")+
+  geom_path(aes(x = date, y = total_decade_ppt), color = "purple")
 
+
+# merging the climate data with the herbarium scores
+endo_herb_georef_climate <- endo_herb_georef %>% 
+  left_join(tmean_longer) %>% 
+  left_join(ppt_longer)
+write_csv(endo_herb_georef_climate, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef_climate.csv")
 
 
