@@ -10,7 +10,7 @@ library(readxl)
 library(lubridate)
 library(ggmap)
 library(prism) # to import prism raster files
-
+library(terra)
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
 ################################################################################
@@ -56,6 +56,8 @@ AM_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digiti
                                         !str_detect(primary_collector,"Jr.") | !str_detect(primary_collector, "III") ~ word(str_trim(primary_collector), -1))) %>%
   mutate(collector_lastname = gsub( "[()]", "", collector_lastname)) %>% 
   mutate(year = as.numeric(year), month = as.numeric(month), day = as.numeric(day)) %>% 
+  mutate(year = case_when(grepl("Spring, 1942", VerbatimDateCollected) ~ 1942,
+                          TRUE ~ year)) %>% 
   dplyr::select(-contains("..."))
 
 
@@ -865,12 +867,14 @@ MOBOT_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Dig
                                            `sourcePrimaryKey-dbpk` = col_logical(),
                                            collID = col_double(),
                                            recordID = col_character(),
-                                           references = col_character())) %>% 
+                                           references = col_character()))  %>% 
   mutate(primary_collector = recordedBy,
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
-  mutate(new_id = paste0(collector_lastname, recordNumber)) %>% 
+  mutate(new_id = case_when(collector_lastname == "Shimek" ~ paste0(collector_lastname, year),
+                            primary_collector == "Edith C. Bicknell" ~ paste0("EdithCBicknell", catalogNumber), 
+                            TRUE ~ paste0(collector_lastname, recordNumber))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
                               genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
@@ -898,7 +902,7 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
   left_join(AGPE_meta, by = c("Specimen_id")) %>% 
   mutate(year = case_when(Spp_code != "AGPE" ~ year.x,
                           Spp_code == "AGPE" & is.na(year.y) ~ year.x,
-                          Spp_code == "AGPE" & is.na(year.x) ~ year.y)) %>% 
+                          Spp_code == "AGPE" & is.na(year.x) ~ year.y, TRUE ~ year.x)) %>% 
   mutate(hand_georef_lon = case_when(as.numeric(decimalLongitude)>0 ~ (as.numeric(decimalLongitude))*-1,TRUE ~ as.numeric(decimalLongitude)),
          hand_georef_lat = as.numeric(decimalLatitude)) %>%
   mutate(primary_collector = case_when(str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, end = 2, sep = fixed(",")),
@@ -986,27 +990,27 @@ matches <- BRIT_matches %>%
 endo_herb1 <- endo_herb %>% 
   left_join(AM_records, by = c( "new_id" = "Institution_specimen_id")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
-                            is.na(county) ~ County)) %>% 
+                            is.na(county) ~ County, TRUE ~ county)) %>% 
   mutate(State = case_when(is.na(State) ~ state,
-                           is.na(state) ~ State)) %>% 
+                           is.na(state) ~ State, TRUE ~ state)) %>% 
   mutate(Country = case_when(is.na(Country.x) ~ Country.y,
-                             is.na(Country.y) ~ Country.x)) %>% 
+                             is.na(Country.y) ~ Country.x, TRUE ~ Country.y)) %>% 
   mutate(Municipality = case_when(is.na(Municipality) ~ Municpality,
-                                  is.na(Municpality) ~ Municipality)) %>% 
+                                  is.na(Municpality) ~ Municipality, TRUE ~ Municpality)) %>% 
   mutate(Locality = case_when(is.na(Locality_info) ~ Locality,
-                              is.na(Locality) ~ Locality_info)) %>% 
+                              is.na(Locality) ~ Locality_info, TRUE ~ Locality)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
-                          is.na(year.y) ~ year.x)) %>% 
+                          is.na(year.y) ~ year.x, TRUE ~ year.y)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
-                           is.na(month.y) ~ month.x)) %>% 
+                           is.na(month.y) ~ month.x, TRUE ~ month.y)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
-                         is.na(day.y) ~ day.x)) %>% 
+                         is.na(day.y) ~ day.x, TRUE ~ day.y)) %>% 
   mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
-                                       is.na(primary_collector.y) ~ primary_collector.x),
+                                       is.na(primary_collector.y) ~ primary_collector.x, TRUE ~ primary_collector.y),
          collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
-                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+                                        is.na(collector_lastname.y) ~ collector_lastname.x,TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
-                                        is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+                                        is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
   dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
@@ -1023,9 +1027,9 @@ endo_herb2 <- endo_herb1 %>%
   mutate(Locality = case_when(is.na(Locality) ~ locality,
                               is.na(locality) ~ Locality, TRUE ~ locality)) %>% 
   mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
-                                     is.na(decimalLatitude) ~ hand_georef_lat),
+                                     is.na(decimalLatitude) ~ hand_georef_lat,TRUE ~ decimalLatitude),
          hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
-                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
+                                     is.na(decimalLongitude) ~ hand_georef_lon,TRUE ~ decimalLatitude)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
                           is.na(year.y) ~ year.x, TRUE ~ year.y)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
@@ -1046,33 +1050,33 @@ endo_herb2 <- endo_herb1 %>%
 endo_herb3 <- endo_herb2 %>% 
   left_join(UTAustin_torch, by = c("new_id" = "new_id")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
-                            is.na(county) ~ County)) %>% 
+                            is.na(county) ~ County, TRUE ~ county)) %>% 
   mutate(State = case_when(is.na(State) ~ stateProvince,
-                           is.na(stateProvince) ~ State)) %>% 
+                           is.na(stateProvince) ~ State, TRUE ~ stateProvince)) %>% 
   mutate(Country = case_when(is.na(Country) ~ country,
-                             is.na(country) ~ Country)) %>% 
+                             is.na(country) ~ Country, TRUE ~ country)) %>% 
   mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
-                                  is.na(municipality) ~ Municipality))  %>% 
+                                  is.na(municipality) ~ Municipality, TRUE ~ municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
-                              is.na(locality) ~ Locality)) %>% 
+                              is.na(locality) ~ Locality, TRUE ~ locality)) %>% 
   mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
-                                     is.na(decimalLatitude) ~ hand_georef_lat),
+                                     is.na(decimalLatitude) ~ hand_georef_lat, TRUE ~ decimalLatitude),
          hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
-                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
+                                     is.na(decimalLongitude) ~ hand_georef_lon, TRUE ~ decimalLongitude)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
-                          is.na(year.y) ~ year.x)) %>% 
+                          is.na(year.y) ~ year.x, TRUE ~ year.y)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
-                           is.na(month.y) ~ month.x)) %>% 
+                           is.na(month.y) ~ month.x, TRUE ~ month.y)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
-                         is.na(day.y) ~ day.x)) %>% 
+                         is.na(day.y) ~ day.x, TRUE ~ day.y)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+                              is.na(Spp_code.y) ~ Spp_code.x, TRUE ~ Spp_code.y)) %>% 
   mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
-                                       is.na(primary_collector.y) ~ primary_collector.x),
+                                       is.na(primary_collector.y) ~ primary_collector.x, TRUE ~ primary_collector.y),
          collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
-                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+                                        is.na(collector_lastname.y) ~ collector_lastname.x, TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
-                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+                                         is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
   dplyr::select(Sample_id, Institution_specimen_id, primary_collector, collector_lastname, collector_firstname, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
@@ -1081,33 +1085,33 @@ endo_herb3 <- endo_herb2 %>%
 endo_herb4 <- endo_herb3 %>% 
   left_join(LSU_records, by = c("new_id" = "catalogNumber")) %>% 
   mutate(County = case_when(is.na(County) ~ county,
-                            is.na(county) ~ County)) %>% 
+                            is.na(county) ~ County, TRUE ~ county)) %>% 
   mutate(State = case_when(is.na(State) ~ stateProvince,
-                           is.na(stateProvince) ~ State)) %>% 
+                           is.na(stateProvince) ~ State, TRUE ~ stateProvince)) %>% 
   mutate(Country = case_when(is.na(Country) ~ country,
-                             is.na(country) ~ Country)) %>%  
+                             is.na(country) ~ Country, TRUE ~ country)) %>%  
   mutate(Municipality = case_when(is.na(Municipality) ~ municipality,
-                                  is.na(municipality) ~ Municipality))  %>% 
+                                  is.na(municipality) ~ Municipality, TRUE ~ municipality))  %>% 
   mutate(Locality = case_when(is.na(Locality) ~ locality,
-                              is.na(locality) ~ Locality)) %>% 
+                              is.na(locality) ~ Locality, TRUE ~ locality)) %>% 
   mutate(hand_georef_lat = case_when(is.na(hand_georef_lat) ~ decimalLatitude,
-                                     is.na(decimalLatitude) ~ hand_georef_lat),
+                                     is.na(decimalLatitude) ~ hand_georef_lat, TRUE ~ decimalLatitude),
          hand_georef_lon = case_when(is.na(hand_georef_lon) ~ decimalLongitude,
-                                     is.na(decimalLongitude) ~ hand_georef_lon)) %>% 
+                                     is.na(decimalLongitude) ~ hand_georef_lon, TRUE ~ decimalLongitude)) %>% 
   mutate(year = case_when(is.na(year.x) ~ year.y,
-                          is.na(year.y) ~ year.x)) %>% 
+                          is.na(year.y) ~ year.x, TRUE ~ year.y)) %>% 
   mutate(month = case_when(is.na(month.x) ~ month.y,
-                           is.na(month.y) ~ month.x)) %>% 
+                           is.na(month.y) ~ month.x, TRUE ~ month.y)) %>% 
   mutate(day = case_when(is.na(day.x) ~ day.y,
-                         is.na(day.y) ~ day.x)) %>% 
+                         is.na(day.y) ~ day.x, TRUE ~ day.y)) %>% 
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
-                              is.na(Spp_code.y) ~ Spp_code.x)) %>% 
+                              is.na(Spp_code.y) ~ Spp_code.x, TRUE ~ Spp_code.y)) %>% 
   mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
-                                       is.na(primary_collector.y) ~ primary_collector.x),
+                                       is.na(primary_collector.y) ~ primary_collector.x, TRUE ~ primary_collector.y),
          collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
-                                        is.na(collector_lastname.y) ~ collector_lastname.x),
+                                        is.na(collector_lastname.y) ~ collector_lastname.x, TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
-                                         is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
+                                         is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
   dplyr::select(Sample_id, Institution_specimen_id, Spp_code,  primary_collector, collector_lastname, collector_firstname, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
   filter(!duplicated(Sample_id))
 
@@ -1294,9 +1298,9 @@ endo_herb_georef <-endo_herb8 %>%
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
   filter(Endo_status_liberal_1 <= 1) %>%
   mutate_geocode(location_string) # Uncomment this to run the geocoding.
-# write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
+write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
-  filter(Country != "Canada") %>%
+  # filter(Country != "Canada") %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE")) 
@@ -1353,6 +1357,55 @@ get_prism_monthlys(type = "ppt", years = 1895:2019, mon = 1:12, keepZip = FALSE)
 
 tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:2019)))
 ppt_stack <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:2019)))
+
+# pulling out values to get normals for old and new time periods
+tmean_annual_recent <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1989:2019)))
+tmean_annual_old <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925)))
+
+tmean_spring_recent <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1989:2019, mon = 1:3)))
+tmean_spring_old <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:3)))
+
+
+ppt_annual_recent <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1989:2019)))
+ppt_annual_old <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:1925)))
+
+
+# ppt isn't right as is, need to get cumulative values for year or for season
+ppt_spring_recent <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1989:2019, mon = 1:3)))
+ppt_spring_old <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:1925, mon = 1:3)))
+
+
+# calculating the change in annual values
+tmean_annual_recent_avg <- terra::mean(tmean_annual_recent)
+tmean_annual_old_avg <- terra::mean(tmean_annual_old)
+tmean_spring_recent_avg <- terra::mean(tmean_spring_recent)
+tmean_spring_old_avg <- terra::mean(tmean_spring_old)
+
+
+ppt_annual_recent_avg <- terra::mean(ppt_annual_recent)
+ppt_annual_old_avg <- terra::mean(ppt_annual_old)
+ppt_spring_recent_avg <- terra::mean(ppt_spring_recent)
+ppt_spring_old_avg <- terra::mean(ppt_spring_old)
+
+tmean_spring_change_stack <- terra::rast(list(tmean_spring_old_avg, tmean_spring_recent_avg))
+tmean_annual_change_stack <- terra::rast(list(tmean_annual_old_avg, tmean_annual_recent_avg))
+
+ppt_spring_change_stack <- terra::rast(list(ppt_spring_old_avg, ppt_spring_recent_avg))
+ppt_annual_change_stack <- terra::rast(list(ppt_annual_old_avg, ppt_annual_recent_avg))
+
+
+tmean_spring_change <- terra::diff(tmean_spring_change_stack)
+tmean_annual_change <- terra::diff(tmean_annual_change_stack)
+
+ppt_spring_change <- terra::diff(ppt_spring_change_stack)
+ppt_annual_change <- terra::diff(ppt_annual_change_stack)
+
+plot(tmean_spring_change)
+plot(tmean_annual_change)
+
+plot(ppt_spring_change)
+plot(ppt_annual_change)
+
 
 # extracting the values at our herbarium specimens' coordinates
 coords_df <- endo_herb_georef %>% 
