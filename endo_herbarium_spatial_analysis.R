@@ -376,7 +376,7 @@ pred_relative_change_df <- pred_change_df %>%
 write_csv(pred_relative_change_df, "pred_change_df.csv")
 
 
-register_google(key = "AIzaSyDuAdpozRqmb8Sms-XfivxLi3tzlifJdMw")
+register_google(key = "")
 map <- ggmap::get_map(zoom = 4, maptype = c("satellite"))
 
 ggmap(map)+
