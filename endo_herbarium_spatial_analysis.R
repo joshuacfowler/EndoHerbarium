@@ -4,7 +4,10 @@
 
 library(tidyverse) # for data manipulation and ggplot
 library(INLA) # for fitting integrated nested Laplace approximation models
+library(inlabru)
 library(sf)
+library(patchwork)
+library(ggmap)
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
 
@@ -19,26 +22,30 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
                               grepl("AGPE", Sample_id) ~ "AGPE"))
 
 endo_herb_AGHY <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGHY") %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
   filter(lon>-110)
 endo_herb_AGPE <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGPE") %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
   filter(lon>-110)
 
 endo_herb_ELVI <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "ELVI") %>% 
   filter(!is.na(lon) & !is.na(year)) 
 
 endo_herb <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>%
+  filter(!is.na(Endo_status_liberal)) %>%
   filter(!is.na(Spp_code)) %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lon>-110)
+  filter(lon>-110) 
+
+endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "�", " ")
+endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
+
 
 endo_herb <- endo_herb_AGHY
 endo_herb <- endo_herb_AGPE
@@ -55,6 +62,7 @@ endo_herb <- endo_herb_ELVI
 #   filter(year>1910)
 
 
+summary(lm(formula(Endo_status_liberal_1 ~ 0 + Spp_code + Spp_code:year + Spp_code:year:lat + Spp_code:year:lon + Spp_code:year:lat:lon), data = endo_herb))
 ################################################################################
 ############ Setting up and running INLA model ############################### 
 ################################################################################
@@ -101,14 +109,16 @@ spde <- inla.spde2.pcmatern(mesh = mesh5,
 spde.index <- inla.spde.make.index(name = "spatial.field", n.spde = spde$n.spde)
 
   
-stack.fit <- inla.stack(data = list(Endo_status_liberal_1 = endo_herb$Endo_status_liberal_1),
+stack.fit <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_liberal),
                     A = list(A,1),
                     effects = list(s = spde.index$spatial.field, 
                                    data.frame(Intercept = rep(1, nrow(endo_herb)),
                                               year = endo_herb$year,
+                                              year2 = endo_herb$year^2,
                                               lat = endo_herb$lat,
                                               lon = endo_herb$lon,
                                               species = endo_herb$Spp_code,
+                                              county = endo_herb$County,
                                               collector = endo_herb$collector_lastname)),
                     
                     tag = 'fit')
@@ -117,10 +127,13 @@ stack.fit <- inla.stack(data = list(Endo_status_liberal_1 = endo_herb$Endo_statu
 
 # this is the set of data for which we want predictions
 pred_data <- data.frame(expand.grid(Intercept = 1, 
-                        lon = seq(min(coords[,1]),max(coords[,1]), length.out = 100),
-                        lat = seq(min(coords[,2]),max(coords[,2]), length.out = 100),
+                        lon = seq(min(coords[,1]),max(coords[,1]), length.out = 75),
+                        lat = seq(min(coords[,2]),max(coords[,2]), length.out = 75),
                         year = c(1920, 1970, 2020), 
-                        species = c("AGHY")))
+                        year2 = c(1920^2, 1970^2, 2020^2),
+                        species = c("AGHY", "ELVI", "AGPE"),
+                        county = NA,
+                        collector = NA))
 
 # keeping just the points that are part of the mesh's boundary
 ind <- point.in.polygon(
@@ -138,7 +151,7 @@ A_pred <- inla.spde.make.A(mesh = mesh5, loc = coords_pred)
 
 
 
-stack.pred <- inla.stack(data = list(Endo_status_liberal_1 = NA),
+stack.pred <- inla.stack(data = list(Endo_status_liberal = NA),
                         A = list(A_pred,1),
                         effects = list(s = spde.index$spatial.field, 
                                        pred_data),
@@ -150,7 +163,10 @@ pred.y_data <- data.frame(expand.grid(Intercept = 1,
                                     lon = mean(endo_herb$lon),
                                     lat = mean(endo_herb$lat),
                                     year = min(endo_herb$year):max(endo_herb$year), 
-                                    species = c("AGHY", "AGPE", "ELVI")))
+                                    year = (min(endo_herb$year):max(endo_herb$year))^2,
+                                    species = c("AGHY", "AGPE", "ELVI"),
+                                    county = NA,
+                                    collector = NA))
 
 # keeping just the points that are part of the mesh's boundary
 ind.y <- point.in.polygon(
@@ -167,7 +183,7 @@ pred.y_data <- pred.y_data[which(ind.y ==1),]
 A_pred.y <- inla.spde.make.A(mesh = mesh5, loc = coords_pred.y)
 
 
-stack.pred.y <- inla.stack(data = list(Endo_status_liberal_1 = NA),
+stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
                          A = list(A_pred.y,1),
                          effects = list(s = spde.index$spatial.field, 
                                         pred.y_data),
@@ -177,7 +193,7 @@ stack.pred.y <- inla.stack(data = list(Endo_status_liberal_1 = NA),
 
 #
 full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y)
-# full_stack <- inla.stack(stack.fit, stack.pred.y)
+full_stack <- inla.stack(stack.fit, stack.pred.y)
 
 # full_stack <- inla.stack(stack.fit)
 
@@ -191,21 +207,44 @@ full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y)
 #                    + f(s, model = spde))
 
 
-formula <- formula(Endo_status_liberal_1 ~ 0 + species + year  + species:year + species:year:lat + species:year:lon + species:year:lat:lon
-                  + f(s, model = spde))
+formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
+                  + f(s, model = spde))# + f(collector, model = "iid"))
+formula2 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
+                    + f(s, model = spde) + f(collector, model = "iid"))
+
+formula3 <- formula(Endo_status_liberal ~ 0 + species + species:year +species:year:lat + species:year:lon + species:year:lat:lon + species:year2 + species:year2:lat + species:year2:lon + species:year2:lat:lon +
+                    + f(s, model = spde) + f(collector, model = "iid"))
+                    
+                    
 
 # formula <- formula(Endo_status_liberal_1 ~ 0 + species + year  + species:year + species:year:lat + species:year:lon + species:year:lat:lon
 #                    + f(collector, model = "iid") + f(s, model = spde))
 
-
-I <- inla(formula = formula, family = "binomial", Ntrials = 1,
+inla.setOption(inla.mode="experimental") 
+I1 <- inla(formula = formula1, family = "binomial", Ntrials = 1,
           data = inla.stack.data(full_stack), 
           control.predictor = list(A = inla.stack.A(full_stack),
                                    link=1,compute=TRUE),
           control.family = list(link = "logit"),
-          control.compute = list(config = TRUE),
-          verbose = FALSE)
+          control.compute = list(config = TRUE, dic = TRUE),
+          verbose = TRUE)
 
+I2 <- inla(formula = formula2, family = "binomial", Ntrials = 1,
+           data = inla.stack.data(full_stack), 
+           control.predictor = list(A = inla.stack.A(full_stack),
+                                    link=1,compute=TRUE),
+           control.family = list(link = "logit"),
+           control.compute = list(config = TRUE, dic = TRUE),
+           verbose = TRUE)
+I3 <- inla(formula = formula3, family = "binomial", Ntrials = 1,
+           data = inla.stack.data(full_stack), 
+           control.predictor = list(A = inla.stack.A(full_stack),
+                                    link=1,compute=TRUE),
+           control.family = list(link = "logit"),
+           control.compute = list(config = TRUE, dic = TRUE),
+           verbose = TRUE)
+I <- I2
+saveRDS(I, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/inla_spde.rds")
 # improve estimates of hyper-parameters by running the following
 I <- inla.hyperpar(I)
 
@@ -215,14 +254,26 @@ I$summary.random
 
 # pulling out the predicted values from the model and attaching them to our pred_data
 index <- inla.stack.index(full_stack, tag = "pred")$data
-pred_data$pred_mean <- I$summary.fitted.values[index, "mean"]
-pred_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
-pred_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
+pred_data$pred_mean <- I2$summary.fitted.values[index, "mean"]
+pred_data$pred_lwr <- I2$summary.fitted.values[index, "0.025quant"]
+pred_data$pred_upr <- I2$summary.fitted.values[index, "0.975quant"]
+
+write_csv(pred_data, file = "pred_data.csv")
 
 pred_data_long <- pred_data %>% 
   pivot_longer(cols = c(pred_mean, pred_lwr, pred_upr), names_to = "variable")
 
-ggplot(data = pred_data_long)+
+endo_herb_neat <- endo_herb %>% 
+  mutate(binned_year= case_when(year<=1920))) %>% 
+  rename(species = Spp_code) %>% 
+  group_by(species, binned_year) %>% 
+    summarize(mean = mean(year))
+  mutate(year = case_when(binned_year == "(1.82e+03,1.92e+03]" ~ 1920,
+                          binned_year == "(1.97e+03,2.02e+03]" ~ 1970,
+                          binned_year == "(1.82e+03,1.92e+03]" ~ 2020))
+  
+write_csv(pred_data)
+ggplot(data = filter(pred_data_long, variable == "pred_mean"))+
   geom_tile(aes(x = lon, y = lat, fill = value))+
   facet_wrap(variable~year+species)+
   scale_fill_gradient(
@@ -238,13 +289,20 @@ ggplot(data = pred_data_long)+
 # Binning the data by year for plotting
 
 endo_herb_binned <- endo_herb %>% 
-  mutate(binned_lat = cut(lat, breaks = 10), binned_year = cut(year, breaks = 12)) %>%  
+  mutate(binned_year = cut(year, breaks = 12)) %>%
   rename(species = Spp_code) %>% 
-  group_by(species, binned_lat, binned_year) %>%   
-  summarise(mean_lat = mean(lat),
-            mean_year = mean(year),
-            mean_endo = mean(Endo_status_liberal_1),
+  group_by(species,binned_year) %>%   
+  summarise(mean_year = mean(year),
+            mean_endo = mean(Endo_status_liberal),
             sample = n())
+  
+  # mutate(binned_lat = cut(lat, breaks = 1), binned_year = cut(year, breaks = 12)) %>%  
+  # rename(species = Spp_code) %>% 
+  # group_by(species, binned_lat, binned_year) %>%   
+  # summarise(mean_lat = mean(lat),
+  #           mean_year = mean(year),
+  #           mean_endo = mean(Endo_status_liberal_1),
+  #           sample = n())
 
 endo_herb_nice <- endo_herb %>% 
   rename(species = Spp_code) 
@@ -255,31 +313,147 @@ mean_lat <- min(endo_herb$lat)
 
 # pulling out the predicting effect across time
 index <- inla.stack.index(full_stack, tag = "pred.y")$data
-pred.y_data$pred_mean <- I$summary.fitted.values[index, "mean"]
-pred.y_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
-pred.y_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
+pred.y_data$pred_mean <- I1$summary.fitted.values[index, "mean"]
+pred.y_data$pred_lwr <- I1$summary.fitted.values[index, "0.025quant"]
+pred.y_data$pred_upr <- I1$summary.fitted.values[index, "0.975quant"]
 
-ggplot()+
-  geom_point(data = endo_herb_nice, aes(x = year, y = Endo_status_liberal_1), pch = "|", alpha = .7)+
-  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species, lwd = sample))+
+year_trend <- ggplot()+
   geom_ribbon(data = pred.y_data, aes(x = year, ymin = pred_lwr, ymax = pred_upr, group = species, fill = species), alpha = .2)+
-  geom_line( data = pred.y_data, aes(x = year, y = pred_mean, group = species, col = species))+
-  # # facet_wrap(~species)+
+  geom_line( data = pred.y_data, aes(x = year, y = pred_mean, group = species, col = species), linewidth = 1)+
+  geom_point(data = endo_herb_nice, aes(x = year, y = Endo_status_liberal), pch = "|", alpha = .7)+
+  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species, lwd = sample))+
+  # facet_wrap(~species)+
   # scale_color_viridis_b()+
   # geom_ribbon(aes(x = year, ymin = lwr, ymax = upr))+
   # lims(y = c(0,1))+
-  theme_classic()
+  theme_classic()+
+  labs(y = "Endophyte Prevalence", x = "Year", lwd = "# of Specimens", color = "Species", fill = "Species")
+
+year_trend
+
+year_hist <- ggplot()+
+  geom_histogram(data = endo_herb_nice, aes(x = year, fill = species, group = species), bins = 150, alpha = .4)+
+  # facet_wrap(~species)+
+  # scale_color_viridis_b()+
+  # geom_ribbon(aes(x = year, ymin = lwr, ymax = upr))+
+  # lims(y = c(0,1))+
+  theme_classic()+
+  theme(axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())+
+  guides(fill = "none")+
+year_hist
 
 
 
-#
+year_plot <- year_hist + year_trend + plot_layout(ncol = 1, heights = c(1,2), guides = "collect")
+
+year_plot
+
+####################################################################################################################
+############ Mapping the rate of change ############################### 
+####################################################################################################################
+
+
+pred_change <- pred_data %>% 
+  distinct(lon,lat,species) 
+
+pred_change$year_slope <- ifelse(pred_change$species == "AGPE", I$summary.fixed["speciesAGPE:year", "mean"], ifelse(pred_change$species == "ELVI", I$summary.fixed["speciesELVI:year", "mean"], ifelse(pred_change$species == "AGHY", I$summary.fixed["speciesAGHY:year", "mean"], NA)))
+pred_change$year.lat_slope <- ifelse(pred_change$species == "AGPE", I$summary.fixed["speciesAGPE:year:lat", "mean"], ifelse(pred_change$species == "ELVI", I$summary.fixed["speciesELVI:year:lat", "mean"], ifelse(pred_change$species == "AGHY", I$summary.fixed["speciesAGHY:year:lat", "mean"], NA)))
+pred_change$year.lon_slope <- ifelse(pred_change$species == "AGPE", I$summary.fixed["speciesAGPE:year:lon", "mean"], ifelse(pred_change$species == "ELVI", I$summary.fixed["speciesELVI:year:lon", "mean"], ifelse(pred_change$species == "AGHY", I$summary.fixed["speciesAGHY:year:lon", "mean"], NA)))
+pred_change$year.lat.lon_slope <- ifelse(pred_change$species == "AGPE", I$summary.fixed["speciesAGPE:year:lat:lon", "mean"], ifelse(pred_change$species == "ELVI", I$summary.fixed["speciesELVI:year:lat:lon", "mean"], ifelse(pred_change$species == "AGHY", I$summary.fixed["speciesAGHY:year:lat:lon", "mean"], NA)))
+
+pred_change_df <- pred_change %>% 
+  mutate(change = year_slope + year.lat_slope*lat + year.lon_slope*lon + year.lat.lon_slope*lat*lon) 
+
+pred_change_means <- pred_change_df %>% 
+  summarize(mean_change =  mean(change),
+         sd_change = sd(change))
+pred_relative_change_df <- pred_change_df %>% 
+  mutate(relative_change = (change-pred_change_means$mean_change)/pred_change_means$sd_change)
+
+write_csv(pred_relative_change_df, "pred_change_df.csv")
+
+
+register_google(key = "AIzaSyDuAdpozRqmb8Sms-XfivxLi3tzlifJdMw")
+map <- ggmap::get_map(zoom = 4, maptype = c("satellite"))
+
+ggmap(map)+
+  geom_tile(data = pred_change_df, aes(x = lon, y = lat, fill = change), alpha = .3)+
+  facet_wrap(~species)+
+  scale_fill_gradient(
+    name = "Temporal Trend",
+    low = "blue", high = "orange")+
+  theme_bw()
 
 
 
+####################################################################################################################
+############ correlating the temporal trend with the change in climate ############################### 
+####################################################################################################################
+
+pred_change_df <- read_csv(file = "pred_change_df.csv") %>% 
+  mutate(lat = as.character(round(lat, digits = 3)), lon = as.character(round(lon, digits = 3)))
+prism_diff_pred_df <- read_csv(file = "prism_diff_pred_df.csv") %>% 
+  mutate(lat = as.character(round(lat, digits = 3)), lon = as.character(round(lon, digits = 3)))
 
 
 
+pred_change_merge <- pred_change_df %>% 
+  left_join(prism_diff_pred_df) %>% 
+  distinct() %>% 
+  na.omit() %>% 
+  mutate(lat = as.numeric(lat), lon = as.numeric(lon)) %>% 
+  select(-contains("_slope"))
 
+ggplot(pred_change_merge) +
+  geom_point(aes(x = lon, y = lat))
+
+pred_change_merge_long <- pred_change_merge %>% 
+  pivot_longer(cols = contains("_diff"))
+
+ggplot(pred_change_merge_long)+
+  geom_point(aes(x = value, y = relative_change, color = species))+
+  geom_smooth(aes(x = value, y = relative_change, fill = species), method = "glm")+
+  facet_wrap(~name, scales = "free")
+
+summary(lm(formula = formula(relative_change ~ 0 + ppt_annual_diff + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_annual_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff +  tmean_winter_diff), filter(pred_change_merge,species == "AGHY")))
+summary(lm(formula = formula(relative_change ~  0 + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff + tmean_winter_diff), filter(pred_change_merge,species == "ELVI")))
+
+hist(pred_change_merge$tmean_annual_diff)
+cor.test(filter(pred_change_merge, species == "AGPE")$relative_change, filter(pred_change_merge, species == "AGPE")$tmean_annual_diff, method = c("pearson"))
+####################################################################################################################
+############ Getting the posterior estimates for the temporal trend at each location ############################### 
+####################################################################################################################
+
+# we can sample from the posterior for the different variables
+post_samp <- inla.posterior.sample(n = 1000, result = I)
+
+AGHY_post_samps <- inla.posterior.sample.eval(c("speciesAGHY", "speciesAGHY:year", "speciesAGHY:year:lon", "speciesAGHY:year:lat", "speciesAGHY:year:lat:lon"), post_samp)
+
+
+rownames(AGHY_post_samps) <- c("speciesAGHY", "speciesAGHY:year", "speciesAGHY:year:lon", "speciesAGHY:year:lat", "speciesAGHY:year:lat:lon") 
+
+AGHY_post_df <- as_tibble(t(AGHY_post_samps)) %>% 
+  pivot_longer(cols = everything(), names_to = "parameter")
+
+ggplot(data = AGHY_post_df)+
+  geom_histogram(aes(x = value), bins = 300)+
+  geom_blank(aes(x = -value)) +
+  facet_wrap(~parameter, scales = "free", ncol = 1, strip.position = "left")+
+  geom_vline(xintercept = 0)+
+  theme_classic()+
+  theme(strip.background = element_blank(),
+        strip.text.y.left = element_text(size = 8, angle = 0),
+        axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())+
+  # axis.text.x = element_text(vjust = 1.5, hjust = 1.5, angle = 45))+
+  labs(x = "Posterior Estimate",  y = "") + guides(fill = "none")
+
+
+####################################################################################################################
 
 # Plotting the overall trend across time
 year_effect_df <- as_tibble(list(year=seq(from = min(endo_herb$year), to = max(endo_herb$year))))
@@ -340,6 +514,26 @@ index <- inla.stack.index(full_stack, tag = "fit")$data
 fit_mean <- I$summary.fitted.values[index, "mean"]
 fit_lwr <- I$summary.fitted.values[index, "0.025quant"]
 fit_upr <- I$summary.fitted.values[index, "0.975quant"]
+
+yrep <- yrep_lwr <- yrep_upr <- c()
+for(i in 1:length(index)){
+yrep[i] <- rbinom(1,  n = 1, prob = fit_mean[i])
+yrep_lwr[i] <- rbinom(1,  n = 1, prob = fit_lwr[i])
+yrep_upr[i] <- rbinom(1,  n = 1, prob = fit_upr[i])
+}
+
+endo_herb$yrep <- yrep
+endo_herb$yrep_lwr <- yrep_lwr
+endo_herb$yrep_upr <- yrep_upr
+
+# plot to assess model fit
+ggplot(endo_herb)+
+  geom_density(aes((yrep)))+
+  geom_density(aes(yrep_lwr), linetype = "dashed")+
+  geom_density(aes(yrep_upr), linetype = "dashed")+
+  geom_density(aes(Endo_status_liberal), color = "red")+
+  theme_bw()+
+  labs(x = "Observed vs Predicted Density")
 
 
 fit_data <- rbind(
