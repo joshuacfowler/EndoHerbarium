@@ -11,6 +11,8 @@ library(lubridate)
 library(ggmap)
 library(prism) # to import prism raster files
 library(terra)
+library(INLA) # using this here to work with the shape boundary
+
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
 ################################################################################
@@ -920,16 +922,25 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
 # This is the sample info and we will filter for only those that we have scored so far.
 sample_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>%  
   dplyr::select(-contains("...")) %>% 
+  rename(notes_uncertainty_1 = `notes (uncertainty, maturity of seeds, weird fungal morphology)`) %>% 
+  mutate(across(everything(), as.character)) %>% 
+  pivot_longer(cols = c(-Specimen_id, -Sample_id, -tissue_type)) %>% 
+  mutate(score_number = str_sub(name, -1), name = sub("_[^_]+$", "", name)) %>% 
+  filter(score_number == 1 | score_number == 2 & !is.na(value)) %>% 
+  filter(!is.na(Specimen_id)) %>% 
+  pivot_wider(id_cols = c(Specimen_id, Sample_id, tissue_type, score_number), names_from = name, values_from = value) %>%  
+  mutate(across(c(seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative), as.numeric)) %>% 
   mutate(Specimen_id_temp = Specimen_id) %>% 
   separate(Specimen_id_temp, c("Herbarium_id", "Spp_code", "Specimen_no"), "_")
+
 
 testsample_info<- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_Herbarium/Endo_Herbarium_sample.csv") %>% 
   group_by(Specimen_id) %>% 
   summarize(count = n()) %>% 
   filter(count == 2)
 
-endo_scores <- specimen_info %>% 
-  merge(sample_info, by = c("Specimen_id" = "Specimen_id", "Herbarium_id" = "Herbarium_id", "Spp_code" = "Spp_code", "Specimen_no" = "Specimen_no")) %>% 
+endo_scores <- specimen_info  %>% 
+ merge(sample_info, by = c("Specimen_id" = "Specimen_id", "Herbarium_id" = "Herbarium_id", "Spp_code" = "Spp_code", "Specimen_no" = "Specimen_no")) %>% 
   mutate(Specimen_no = as.numeric(Specimen_no)) %>% 
   dplyr::select(-contains("X1"),-contains("X2"))
 
@@ -1011,7 +1022,7 @@ endo_herb1 <- endo_herb %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x,TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                         is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the BRIT records that we have so far
 endo_herb2 <- endo_herb1 %>% 
@@ -1044,7 +1055,7 @@ endo_herb2 <- endo_herb1 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x, TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the UT Austin records that we have so far
 endo_herb3 <- endo_herb2 %>% 
@@ -1077,8 +1088,7 @@ endo_herb3 <- endo_herb2 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x, TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, primary_collector, collector_lastname, collector_firstname, Spp_code, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 
 # Merge in the LSU records that we have so far
@@ -1112,8 +1122,7 @@ endo_herb4 <- endo_herb3 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x, TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code,  primary_collector, collector_lastname, collector_firstname, new_id, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the OKL records that we have so far. This one is weird, and need to figure out which column to match on.
 endo_herb5 <- endo_herb4 %>% 
@@ -1146,8 +1155,7 @@ endo_herb5 <- endo_herb4 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, Date_scored_2, scorer_id_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>%
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 # Merge in the OKLA records that we have so far
 endo_herb6 <- endo_herb5 %>% 
@@ -1180,8 +1188,7 @@ endo_herb6 <- endo_herb5 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 
 # Merge in the KANU records that we have so far
@@ -1215,8 +1222,7 @@ endo_herb7 <- endo_herb6 %>%
                                         is.na(collector_lastname.y) ~ collector_lastname.x),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id,  primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 
 
@@ -1253,14 +1259,13 @@ endo_herb8 <- endo_herb7 %>%
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
                                          is.na(collector_firstname.y) ~ collector_firstname.x, TRUE ~ collector_firstname.y)) %>% 
   mutate(new_id = new_id.x) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality,hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored_1, seed_eplus_1, Endo_status_liberal_1, Endo_status_conservative_1, Date_scored_1, scorer_id_1, seed_scored_2, seed_eplus_2, Endo_status_liberal_2, Endo_status_conservative_2, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count) %>% 
-  filter(!duplicated(Sample_id))
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, surface_area_cm2, mean_infl_length, mean_inflplusawn_length, infl_count)
 
 
 endo_herb_checking <- endo_herb8 %>% 
   filter(tissue_type == "seed") %>% 
-  filter(!is.na(Endo_status_liberal_1) & is.na(year)) %>% 
-  dplyr::select(Sample_id, primary_collector, collector_lastname, collector_firstname, County, year, month, day, County, seed_scored_1)
+  filter(!is.na(Endo_status_liberal) & is.na(year)) %>% 
+  dplyr::select(Sample_id, primary_collector, collector_lastname, collector_firstname, County, year, month, day, County, seed_scored, score_number)
 
 specimen_counts <- endo_herb8 %>% 
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
@@ -1296,7 +1301,7 @@ string_dist_matrix <- adist(collector_count$collector_string, collector_count$co
 register_google()
 endo_herb_georef <-endo_herb8 %>%
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-  filter(Endo_status_liberal_1 <= 1) %>%
+  filter(Endo_status_liberal <= 1) %>%
   mutate_geocode(location_string) # Uncomment this to run the geocoding.
 write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
@@ -1304,7 +1309,6 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE")) 
-  mutate(collector_string_dist = )
 
 
            
@@ -1352,26 +1356,154 @@ prism_set_dl_dir(paste0(getwd(),"/prism_download"))
 
 # getting monthly data for mean temp and precipitation
 # takes a long time the first time, but can skip when you have raster files saved on your computer.
-get_prism_monthlys(type = "tmean", years = 1895:2019, mon = 1:12, keepZip = FALSE)
-get_prism_monthlys(type = "ppt", years = 1895:2019, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "tmean", years = 1895:2020, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "ppt", years = 1895:2020, mon = 1:12, keepZip = FALSE)
 
-tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:2019)))
-ppt_stack <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:2019)))
 
 # pulling out values to get normals for old and new time periods
-tmean_annual_recent <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1989:2019)))
-tmean_annual_old <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925)))
+tmean_annual_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020))))
+tmean_spring_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 3:5))))
+tmean_summer_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 6:8))))
+tmean_autumn_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
+tmean_winter_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:2))))
 
-tmean_spring_recent <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1989:2019, mon = 1:3)))
-tmean_spring_old <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:3)))
+
+tmean_annual_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925))))
+tmean_spring_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 3:5))))
+tmean_summer_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 6:8))))
+tmean_autumn_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 9:12))))
+tmean_winter_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:2))))
+
+# calculating the cumulative preciptation for each year and for each season within the year
+ppt_annual_recent <- ppt_spring_recent <- ppt_summer_recent <- ppt_autumn_recent <- ppt_winter_recent<- list()
+for(y in 1990:2020){
+ppt_annual_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
+ppt_spring_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 3:5))))
+ppt_summer_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 6:8))))
+ppt_autumn_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
+ppt_winter_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:2))))
+}
+
+ppt_annual_old <- ppt_spring_old <- ppt_summer_old <- ppt_autumn_old <- ppt_winter_old<- list()
+for(y in 1895:1925){
+  ppt_annual_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
+  ppt_spring_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 3:5))))
+  ppt_summer_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 6:8))))
+  ppt_autumn_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
+  ppt_winter_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:2))))
+}
 
 
-ppt_annual_recent <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1989:2019)))
+# Taking the mean of the cumulative precipation values
+ppt_annual_recent_norm <- terra::mean(terra::rast(unlist(ppt_annual_recent)))
+ppt_spring_recent_norm <- terra::mean(terra::rast(unlist(ppt_spring_recent)))
+ppt_summer_recent_norm <- terra::mean(terra::rast(unlist(ppt_summer_recent)))
+ppt_autumn_recent_norm <- terra::mean(terra::rast(unlist(ppt_autumn_recent)))
+ppt_winter_recent_norm <- terra::mean(terra::rast(unlist(ppt_winter_recent)))
+
+ppt_annual_old_norm <- terra::mean(terra::rast(unlist(ppt_annual_old)))
+ppt_spring_old_norm <- terra::mean(terra::rast(unlist(ppt_spring_old)))
+ppt_summer_old_norm <- terra::mean(terra::rast(unlist(ppt_summer_old)))
+ppt_autumn_old_norm <- terra::mean(terra::rast(unlist(ppt_autumn_old)))
+ppt_winter_old_norm <- terra::mean(terra::rast(unlist(ppt_winter_old)))
+
+
+# calculating the difference over time
+tmean_annual_difference <- terra::diff(terra::rast(list(tmean_annual_old_norm, tmean_annual_recent_norm)))
+tmean_spring_difference <- terra::diff(terra::rast(list(tmean_spring_old_norm, tmean_spring_recent_norm)))
+tmean_summer_difference <- terra::diff(terra::rast(list(tmean_summer_old_norm, tmean_summer_recent_norm)))
+tmean_autumn_difference <- terra::diff(terra::rast(list(tmean_autumn_old_norm, tmean_autumn_recent_norm)))
+tmean_winter_difference <- terra::diff(terra::rast(list(tmean_winter_old_norm, tmean_winter_recent_norm)))
+
+
+ppt_annual_difference <- terra::diff(terra::rast(list(ppt_annual_old_norm, ppt_annual_recent_norm)))
+ppt_spring_difference <- terra::diff(terra::rast(list(ppt_spring_old_norm, ppt_spring_recent_norm)))
+ppt_summer_difference <- terra::diff(terra::rast(list(ppt_summer_old_norm, ppt_summer_recent_norm)))
+ppt_autumn_difference <- terra::diff(terra::rast(list(ppt_autumn_old_norm, ppt_autumn_recent_norm)))
+ppt_winter_difference <- terra::diff(terra::rast(list(ppt_winter_old_norm, ppt_winter_recent_norm)))
+
+
+######### Next extracting these climate values at our points. ####
+# we can extract them at the georeferenced coordinates and also across the grid of points we are using for prediction
+
+# this is the coordinates of our samples
+coords_df <- endo_herb_georef %>% 
+  distinct(lat,lon) %>% 
+  filter(!is.na(lat), !is.na(lon))
+coords <- cbind(coords_df$lon, coords_df$lat)
+
+prism_diff_df <- tibble(lon = coords[,1], lat = coords[,2],
+                        tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, coords)),
+                        tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords)),
+                        tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords)),
+                        tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords)),
+                        tmean_winter_diff = unlist(terra::extract(tmean_winter_difference, coords)),
+                        ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, coords)),
+                        ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, coords)),
+                        ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, coords)),
+                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords)),
+                        ppt_winter_diff = unlist(terra::extract(ppt_winter_difference, coords)))
+write_csv(prism_diff_df, file = "prism_diff_df.csv")
+
+
+# this is the coordinates we are using for the spatial model prediction currently
+# this is the set of data for which we want predictions
+pred_data <- data.frame(expand.grid(Intercept = 1, 
+                                    lon = seq(min(coords[,1]),max(coords[,1]), length.out = 75),
+                                    lat = seq(min(coords[,2]),max(coords[,2]), length.out = 75),
+                                    year = c(1920, 1970, 2020), 
+                                    year2 = c(1920^2, 1970^2, 2020^2),
+                                    species = c("AGHY", "ELVI", "AGPE"),
+                                    county = NA,
+                                    collector = NA))
+ggplot(prism_diff_df)+
+  geom_point(aes(x = lon, y = lat, color = ppt_annual_diff))
+
+
+
+# keeping just the points that are part of the mesh's boundary
+non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.05, resolution = c(100, 100))
+
+ind <- point.in.polygon(
+  pred_data$lon, pred_data$lat,
+  non_convex_bdry$loc[, 1], non_convex_bdry$loc[, 2]
+)
+coords_pred <- pred_data %>% 
+  select(lon, lat)
+coords_pred <- as.matrix(coords_pred[which(ind == 1),])
+
+pred_data <- pred_data[which(ind ==1),]
+
+
+prism_diff_pred_df <- tibble(lon = coords_pred[,1], lat = coords_pred[,2],
+                        tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, coords_pred)),
+                        tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords_pred)),
+                        tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords_pred)),
+                        tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords_pred)),
+                        tmean_winter_diff = unlist(terra::extract(tmean_winter_difference, coords_pred)),
+                        ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, coords_pred)),
+                        ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, coords_pred)),
+                        ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, coords_pred)),
+                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords_pred)),
+                        ppt_winter_diff = unlist(terra::extract(ppt_winter_difference, coords_pred))) %>% 
+  na.omit()
+write_csv(prism_diff_pred_df, file = "prism_diff_pred_df.csv")
+
+ggplot(prism_diff_pred_df)+
+  geom_point(aes(x = lon, y = lat, color = ppt_annual_diff))
+
+
+
+
+###
+
+
+
+  
 ppt_annual_old <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:1925)))
 
 
 # ppt isn't right as is, need to get cumulative values for year or for season
-ppt_spring_recent <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1989:2019, mon = 1:3)))
 ppt_spring_old <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:1925, mon = 1:3)))
 
 
@@ -1407,9 +1539,15 @@ plot(ppt_spring_change)
 plot(ppt_annual_change)
 
 
-# extracting the values at our herbarium specimens' coordinates
+# extracting the climate values at our herbarium specimens' coordinates for each year
+
+tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:2020)))
+ppt_stack <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:2019)))
+
+
 coords_df <- endo_herb_georef %>% 
-  distinct(lat,lon)
+  distinct(lat,lon) %>% 
+  filter(!is.na(lat), !is.na(lon))
 coords <- cbind(coords_df$lon, coords_df$lat)
 
 tmean_extract <- terra::extract(tmean_stack, coords)
