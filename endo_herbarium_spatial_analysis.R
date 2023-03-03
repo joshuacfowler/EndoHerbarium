@@ -48,9 +48,13 @@ endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "ï
 endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
 
 
-endo_herb <- endo_herb_AGHY
-endo_herb <- endo_herb_AGPE
-endo_herb <- endo_herb_ELVI
+# endo_herb <- endo_herb_AGHY
+# endo_herb <- endo_herb_AGPE
+# endo_herb <- endo_herb_ELVI
+
+# Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
+contemp_surveys <- read_csv(file = "contemp_surveys.csv")
+
 
 
 
@@ -62,15 +66,15 @@ endo_herb <- endo_herb_ELVI
 #   filter(lon>-110) %>% 
 #   filter(year>1910)
 
-summary_endo_herb <- endo_herb %>% 
-  mutate(score_match = case_when(Endo_status_conservative == Endo_status_liberal ~ 1,
-                                 Endo_status_conservative != Endo_status_liberal ~ 0)) %>% 
-  group_by(Spp_code) %>%
-  summarize(n  = n(),
-            n_match = sum(score_match),
-            percent_match = n_match/n)
-
-summary(lm(formula(Endo_status_liberal_1 ~ 0 + Spp_code + Spp_code:year + Spp_code:year:lat + Spp_code:year:lon + Spp_code:year:lat:lon), data = endo_herb))
+# summary_endo_herb <- endo_herb %>% 
+#   mutate(score_match = case_when(Endo_status_conservative == Endo_status_liberal ~ 1,
+#                                  Endo_status_conservative != Endo_status_liberal ~ 0)) %>% 
+#   group_by(Spp_code) %>%
+#   summarize(n  = n(),
+#             n_match = sum(score_match),
+#             percent_match = n_match/n)
+# 
+# summary(lm(formula(Endo_status_liberal_1 ~ 0 + Spp_code + Spp_code:year + Spp_code:year:lat + Spp_code:year:lon + Spp_code:year:lat:lon), data = endo_herb))
 ################################################################################
 ############ Setting up and running INLA model ############################### 
 ################################################################################
@@ -104,16 +108,16 @@ mesh1 <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/2/2),
                         boundary = non_convex_bdry,
                         offset = c(1,4),
                         cutoff = max.edge/(10))
-# plot(mesh1)
+plot(mesh1)
 # points(coords, col = "red")
 mesh5$n # the number of mesh vertices
 
 
 # defining the spatial random effect
-A <- inla.spde.make.A(mesh5, loc = coords)
+A <- inla.spde.make.A(mesh1, loc = coords)
 
 
-spde <- inla.spde2.pcmatern(mesh = mesh5,
+spde <- inla.spde2.pcmatern(mesh = mesh1,
                             prior.range = c(.05, 0.01), # P(practic.range < 0.05) = 0.01
                             prior.sigma = c(1, 0.01)) # P(sigma > 1) = 0.01
 spde.index <- inla.spde.make.index(name = "spatial.field", n.spde = spde$n.spde)
@@ -136,7 +140,7 @@ stack.fit <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_
 # making a data stack for the predicted value of endophyte prevalence
 # need an even  grid of coordinates
 
-# this is the set of data for which we want predictions
+# this is the set of data for which we want predictions across the whole space
 pred_data <- data.frame(expand.grid(Intercept = 1, 
                         lon = seq(min(endo_herb$lon),max(endo_herb$lon), length.out = 75),
                         lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 75),
@@ -159,7 +163,7 @@ coords_pred <- as.matrix(coords_pred[which(ind == 1),])
 pred_data <- pred_data[which(ind ==1),]
   
 #Making a projection matrix for the predicted values
-A_pred <- inla.spde.make.A(mesh = mesh5, loc = coords_pred)
+A_pred <- inla.spde.make.A(mesh = mesh1, loc = coords_pred)
 
 
 
@@ -187,7 +191,7 @@ coords_pred.y <- pred.y_data %>%
   as.matrix()
 
 #Making a projection matrix for the predicted values
-A_pred.y <- inla.spde.make.A(mesh = mesh5, loc = coords_pred.y)
+A_pred.y <- inla.spde.make.A(mesh = mesh1, loc = coords_pred.y)
 
 
 stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
@@ -198,9 +202,34 @@ stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
 
 
 
+# this is the data from contemporary surveys for model validation
+pred.test_data <- data.frame(Intercept = 1, 
+                                      lon = contemp_surveys$lon,
+                                      lat = contemp_surveys$lat,
+                                      year = contemp_surveys$Year, 
+                                      species = contemp_surveys$SpeciesID,
+                                      county = NA,
+                                      collector = NA)
+
+coords_pred.test <- pred.test_data %>% 
+  select(lon, lat) %>% 
+  as.matrix()
+
+#Making a projection matrix for the predicted values
+A_pred.test <- inla.spde.make.A(mesh = mesh1, loc = coords_pred.test)
+
+
+stack.pred.test <- inla.stack(data = list(Endo_status_liberal = NA),
+                           A = list(A_pred.test,1),
+                           effects = list(s = spde.index$spatial.field, 
+                                          pred.test_data),
+                           tag = 'test')
+
+
+
 #
-full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y)
-full_stack <- inla.stack(stack.fit, stack.pred.y)
+full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y, stack.pred.test)
+# full_stack <- inla.stack(stack.fit, stack.pred.y)
 
 # full_stack <- inla.stack(stack.fit)
 
@@ -215,8 +244,6 @@ full_stack <- inla.stack(stack.fit, stack.pred.y)
 formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
                     + f(s, model = spde))# + f(collector, model = "iid"))
 
-formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
-                  + f(s, model = spde))# + f(collector, model = "iid"))
 formula2 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
                     + f(s, model = spde) + f(collector, model = "iid"))
 
@@ -313,7 +340,39 @@ pred_data_change <- pred_data %>%
 ggplot(data = pred_data_change)+
   geom_tile(aes(x = lon, y = lat, fill = mean_change))+
   facet_wrap(~species)
-  
+######################################################################################################
+############ Comparing the contemporary survey prevalence to predicted ############################### 
+######################################################################################################
+# pulling out the predicted values from the model and attaching them to our pred_data
+index <- inla.stack.index(full_stack, tag = "test")$data
+pred.test_data$pred_mean <- I$summary.fitted.values[index, "mean"]
+pred.test_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
+pred.test_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
+
+
+pred.test_data$obs_prev <- contemp_surveys$endo_prev
+pred.test_data$sample_size <- contemp_surveys$sample_size
+
+
+
+ggplot(data = pred.test_data)+
+  geom_point(aes(x = lat, y = lon, color = species))
+
+ggplot(data = pred.test_data)+
+  geom_point(aes(x = pred_mean, y = obs_prev, color = species, lwd = sample_size, shape = as.factor(year)))+
+  geom_errorbar(aes(xmin = pred_lwr, xmax = pred_upr, y = obs_prev, col = species))+
+  geom_abline(aes(intercept = 0, slope = 1))+
+  lims(x = c(0,1), y = c(0,1))
+
+
+ggplot(data = pred.test_data)+
+  geom_point(aes(x = lat, y = pred_mean))+
+  geom_point(aes(x = lat, y = obs_prev), col = "red")
+
+ggplot(data = pred.test_data)+
+  geom_point(aes(x = lon, y = pred_mean))+
+  geom_point(aes(x = lon, y = obs_prev), col = "red")
+
 ################################################################################
 ############ Plotting the overall trend over time ############################### 
 ################################################################################
@@ -531,7 +590,7 @@ cor.test(filter(pred_change_merge, species == "AGPE")$relative_change, filter(pr
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_spring_diff + species*ppt_summer_diff + species*ppt_autumn_diff + species*ppt_winter_diff + species*tmean_spring_diff + species*tmean_summer_diff + species*tmean_autumn_diff + species*tmean_winter_diff)
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff + species*ppt_spring_diff + species*ppt_summer_diff + species*ppt_autumn_diff + species*ppt_winter_diff + species*tmean_annual_diff + species*tmean_spring_diff + species*tmean_summer_diff + species*tmean_autumn_diff + species*tmean_winter_diff)
 climate_formula <- formula(mean_change ~ 0 + ppt_spring_diff*ppt_summer_diff*ppt_autumn_diff*ppt_winter_diff*tmean_spring_diff*tmean_summer_diff*tmean_autumn_diff*tmean_winter_diff)
-climate_formula <- formula(mean_change ~ 0 + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff+ppt_winter_diff+tmean_spring_diff+tmean_summer_diff+tmean_autumn_diff+tmean_winter_diff)
+climate_formula <- formula(mean_change ~ 1 + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff+ppt_winter_diff+tmean_spring_diff+tmean_summer_diff+tmean_autumn_diff+tmean_winter_diff)
 climate_formula <- formula(mean_change ~ 0 + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff+ppt_winter_diff)
 
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff*tmean_annual_diff)
