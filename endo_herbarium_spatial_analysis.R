@@ -54,7 +54,7 @@ endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "x
 
 # Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
 contemp_surveys <- read_csv(file = "contemp_surveys.csv")
-
+contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
 
 
 
@@ -108,18 +108,26 @@ mesh1 <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/2/2),
                         boundary = non_convex_bdry,
                         offset = c(1,4),
                         cutoff = max.edge/(10))
-plot(mesh1)
+# plot(mesh1)
+
+mesh <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/2/2),
+                      boundary = non_convex_bdry,
+                      offset = c(1,4),
+                      cutoff = max.edge/(20))
+plot(mesh)
+
+mesh <- mesh
 # points(coords, col = "red")
-mesh5$n # the number of mesh vertices
+mesh$n # the number of mesh vertices
 
 
 # defining the spatial random effect
-A <- inla.spde.make.A(mesh1, loc = coords)
+A <- inla.spde.make.A(mesh, loc = coords)
 
 
-spde <- inla.spde2.pcmatern(mesh = mesh1,
-                            prior.range = c(.05, 0.01), # P(practic.range < 0.05) = 0.01
-                            prior.sigma = c(1, 0.01)) # P(sigma > 1) = 0.01
+spde <- inla.spde2.pcmatern(mesh = mesh,
+                            prior.range = c(100, 0.01), # P(practic.range < 0.05) = 0.01
+                            prior.sigma = c(100, 0.01)) # P(sigma > 1) = 0.01
 spde.index <- inla.spde.make.index(name = "spatial.field", n.spde = spde$n.spde)
 
 stack.fit <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_liberal),
@@ -133,6 +141,7 @@ stack.fit <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_
                                               lon = endo_herb$lon,
                                               lon2 = endo_herb$lon^2,
                                               species = endo_herb$Spp_code,
+                                              id = endo_herb$Sample_id,
                                               county = endo_herb$County,
                                               collector = endo_herb$collector_lastname)),
                     
@@ -146,6 +155,7 @@ pred_data <- data.frame(expand.grid(Intercept = 1,
                         lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 75),
                         year = c(1920, 1970, 2020), 
                         species = c("AGHY", "AGPE", "ELVI"),
+                        id = NA,
                         county = NA,
                         collector = NA)) %>% 
   mutate(year2 = year^2, lon2 = lon^2, lat2 = lat^2)
@@ -163,7 +173,7 @@ coords_pred <- as.matrix(coords_pred[which(ind == 1),])
 pred_data <- pred_data[which(ind ==1),]
   
 #Making a projection matrix for the predicted values
-A_pred <- inla.spde.make.A(mesh = mesh1, loc = coords_pred)
+A_pred <- inla.spde.make.A(mesh = mesh, loc = coords_pred)
 
 
 
@@ -183,6 +193,7 @@ pred.y_data <- data.frame(expand.grid(Intercept = 1,
                                     year = min(endo_herb$year):max(endo_herb$year), 
                                     year = (min(endo_herb$year):max(endo_herb$year))^2,
                                     species = c("AGHY", "AGPE", "ELVI"),
+                                    id = NA,
                                     county = NA,
                                     collector = NA))
 
@@ -191,7 +202,7 @@ coords_pred.y <- pred.y_data %>%
   as.matrix()
 
 #Making a projection matrix for the predicted values
-A_pred.y <- inla.spde.make.A(mesh = mesh1, loc = coords_pred.y)
+A_pred.y <- inla.spde.make.A(mesh = mesh, loc = coords_pred.y)
 
 
 stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
@@ -203,20 +214,30 @@ stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
 
 
 # this is the data from contemporary surveys for model validation
+# pred.test_data <- data.frame(Intercept = 1, 
+#                                       lon = contemp_surveys$lon,
+#                                       lat = contemp_surveys$lat,
+#                                       year = contemp_surveys$Year, 
+#                                       species = contemp_surveys$SpeciesID,
+#                                       id = NA,
+#                                       county = NA,
+#                                       collector = NA)
+
 pred.test_data <- data.frame(Intercept = 1, 
-                                      lon = contemp_surveys$lon,
-                                      lat = contemp_surveys$lat,
-                                      year = contemp_surveys$Year, 
-                                      species = contemp_surveys$SpeciesID,
-                                      county = NA,
-                                      collector = NA)
+                             lon = contemp_random_sample$lon,
+                             lat = contemp_random_sample$lat,
+                             year = contemp_random_sample$Year, 
+                             species = contemp_random_sample$SpeciesID,
+                             id = NA,
+                             county = NA,
+                             collector = NA)
 
 coords_pred.test <- pred.test_data %>% 
   select(lon, lat) %>% 
   as.matrix()
 
 #Making a projection matrix for the predicted values
-A_pred.test <- inla.spde.make.A(mesh = mesh1, loc = coords_pred.test)
+A_pred.test <- inla.spde.make.A(mesh = mesh, loc = coords_pred.test)
 
 
 stack.pred.test <- inla.stack(data = list(Endo_status_liberal = NA),
@@ -245,7 +266,7 @@ formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:y
                     + f(s, model = spde))# + f(collector, model = "iid"))
 
 formula2 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
-                    + f(s, model = spde) + f(collector, model = "iid"))
+                    + f(s, model = spde) + f(collector, model = "iid") + f(county, model = "iid") + f(id, model = "iid"))
 
 formula3 <- formula(Endo_status_liberal ~ 0 + species + species:year +species:year:lat + species:year:lon + species:year:lat:lon + species:year2 + species:year2:lat + species:year2:lon + species:year2:lat:lon +
                     + f(s, model = spde) + f(collector, model = "iid"))
@@ -262,7 +283,7 @@ formula4 <- formula(Endo_status_liberal ~ 0 + species + species:year +species:ye
 #                    + f(collector, model = "iid") + f(s, model = spde))
 
 inla.setOption(inla.mode="experimental") 
-I <- inla(formula = formula1, family = "binomial", Ntrials = 1,
+I1 <- inla(formula = formula1, family = "binomial", Ntrials = 1,
           data = inla.stack.data(full_stack), 
           control.predictor = list(A = inla.stack.A(full_stack),
                                    link=1,compute=TRUE),
@@ -291,7 +312,8 @@ I4 <- inla(formula = formula4, family = "binomial", Ntrials = 1,
            control.family = list(link = "logit"),
            control.compute = list(config = TRUE, dic = TRUE),
            verbose = TRUE)
-I <- I4
+I1 <- I
+I <- I1
 saveRDS(I, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/inla_spde.rds")
 # improve estimates of hyper-parameters by running the following
 # I2 <- inla.hyperpar(I2)
@@ -350,19 +372,31 @@ pred.test_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
 pred.test_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
 
 
-pred.test_data$obs_prev <- contemp_surveys$endo_prev
-pred.test_data$sample_size <- contemp_surveys$sample_size
+pred.test_data$obs_prev <- contemp_random_sample$endo_status
 
+contemp_binned <- contemp_random_sample %>% 
+  mutate(lon_bin = cut(lon, breaks = 25)) %>% 
+  group_by(lon_bin) %>% 
+  summarize(mean_lon = mean(lon),
+            mean_prev = mean(endo_status))
 
+ggplot(data = contemp_binned)+
+  geom_point(data = contemp_random_sample, aes(x = lon, y = endo_status), col = "purple")+
+  geom_point(aes(x = mean_lon, y = mean_prev), col = "red", lwd = 2)+
+  geom_point(data = pred.test_data, aes(x = lon, y = pred_mean)) +
+  geom_errorbar(data = pred.test_data, aes(x = lon, ymin = pred_lwr, ymax = pred_upr))+
+  geom_point(data = filter(contemp_surveys, SpeciesID == "AGHY"), aes(x = lon, y = endo_prev), col = "blue")
+  
 
 ggplot(data = pred.test_data)+
   geom_point(aes(x = lat, y = lon, color = species))
 
 ggplot(data = pred.test_data)+
-  geom_point(aes(x = pred_mean, y = obs_prev, color = species, lwd = sample_size, shape = as.factor(year)))+
+  geom_point(aes(x = pred_mean, y = obs_prev, color = species, shape = as.factor(year)))+
   geom_errorbar(aes(xmin = pred_lwr, xmax = pred_upr, y = obs_prev, col = species))+
-  geom_abline(aes(intercept = 0, slope = 1))+
+  # geom_abline(aes(intercept = 0, slope = 1))+
   lims(x = c(0,1), y = c(0,1))
+
 
 
 ggplot(data = pred.test_data)+
