@@ -1362,17 +1362,15 @@ get_prism_monthlys(type = "ppt", years = 1895:2020, mon = 1:12, keepZip = FALSE)
 
 # pulling out values to get normals for old and new time periods
 tmean_annual_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020))))
-tmean_spring_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 3:5))))
-tmean_summer_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 6:8))))
+tmean_spring_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:4))))
+tmean_summer_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 5:8))))
 tmean_autumn_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
-tmean_winter_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:2))))
 
 
 tmean_annual_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925))))
-tmean_spring_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 3:5))))
-tmean_summer_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 6:8))))
+tmean_spring_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:4))))
+tmean_summer_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 5:8))))
 tmean_autumn_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 9:12))))
-tmean_winter_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:2))))
 
 # calculating the cumulative preciptation for each year and for each season within the year
 ppt_annual_recent <- ppt_spring_recent <- ppt_summer_recent <- ppt_autumn_recent <- ppt_winter_recent<- list()
