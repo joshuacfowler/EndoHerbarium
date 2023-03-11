@@ -98,8 +98,28 @@ contemp_surveys <- ecolab_prevalence %>%
   full_join(sneck_surveys)
 
 write_csv(contemp_surveys, file = "contemp_surveys.csv")
-  
 
+
+ecolab_random_sample <- ecolab %>% 
+  filter(SpeciesID == "AGHY") %>% 
+  filter(!is.na(seeds.scored) & seeds.scored>0) %>% 
+  filter(!is.na(lat)) %>% 
+  group_by(SiteID) %>% 
+  slice_sample(n = 1) 
+write_csv(ecolab_random_sample, file = "contemp_random_sample.csv")
+
+ggplot(ecolab_random_sample)+
+  geom_point(aes(x = lon, y = endo_status))
+
+
+# getting the county for each survey
+library(ggmap)
+register_google(key = "AIzaSyDuAdpozRqmb8Sms-XfivxLi3tzlifJdMw")
+contemp_surveys_county <- ecolab_prevalence %>% 
+  mutate(coords = as.character(paste(lat, lon))) %>% 
+  geocode(coords, output = "more")
+  
+str(geocode("33.683441 -93.987111", output = "more")$address)
   
 
 
