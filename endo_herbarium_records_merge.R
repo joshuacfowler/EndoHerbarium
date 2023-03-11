@@ -1376,19 +1376,17 @@ tmean_autumn_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(t
 ppt_annual_recent <- ppt_spring_recent <- ppt_summer_recent <- ppt_autumn_recent <- ppt_winter_recent<- list()
 for(y in 1990:2020){
 ppt_annual_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
-ppt_spring_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 3:5))))
-ppt_summer_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 6:8))))
-ppt_autumn_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
-ppt_winter_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:2))))
+ppt_spring_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:4))))
+ppt_summer_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 5:8))))
+ppt_autumn_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) 
 }
 
 ppt_annual_old <- ppt_spring_old <- ppt_summer_old <- ppt_autumn_old <- ppt_winter_old<- list()
 for(y in 1895:1925){
   ppt_annual_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
-  ppt_spring_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 3:5))))
-  ppt_summer_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 6:8))))
+  ppt_spring_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:4))))
+  ppt_summer_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 5:8))))
   ppt_autumn_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
-  ppt_winter_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:2))))
 }
 
 
@@ -1397,13 +1395,11 @@ ppt_annual_recent_norm <- terra::mean(terra::rast(unlist(ppt_annual_recent)))
 ppt_spring_recent_norm <- terra::mean(terra::rast(unlist(ppt_spring_recent)))
 ppt_summer_recent_norm <- terra::mean(terra::rast(unlist(ppt_summer_recent)))
 ppt_autumn_recent_norm <- terra::mean(terra::rast(unlist(ppt_autumn_recent)))
-ppt_winter_recent_norm <- terra::mean(terra::rast(unlist(ppt_winter_recent)))
 
 ppt_annual_old_norm <- terra::mean(terra::rast(unlist(ppt_annual_old)))
 ppt_spring_old_norm <- terra::mean(terra::rast(unlist(ppt_spring_old)))
 ppt_summer_old_norm <- terra::mean(terra::rast(unlist(ppt_summer_old)))
 ppt_autumn_old_norm <- terra::mean(terra::rast(unlist(ppt_autumn_old)))
-ppt_winter_old_norm <- terra::mean(terra::rast(unlist(ppt_winter_old)))
 
 
 # calculating the difference over time
@@ -1411,21 +1407,27 @@ tmean_annual_difference <- terra::diff(terra::rast(list(tmean_annual_old_norm, t
 tmean_spring_difference <- terra::diff(terra::rast(list(tmean_spring_old_norm, tmean_spring_recent_norm)))
 tmean_summer_difference <- terra::diff(terra::rast(list(tmean_summer_old_norm, tmean_summer_recent_norm)))
 tmean_autumn_difference <- terra::diff(terra::rast(list(tmean_autumn_old_norm, tmean_autumn_recent_norm)))
-tmean_winter_difference <- terra::diff(terra::rast(list(tmean_winter_old_norm, tmean_winter_recent_norm)))
 
 
 ppt_annual_difference <- terra::diff(terra::rast(list(ppt_annual_old_norm, ppt_annual_recent_norm)))
 ppt_spring_difference <- terra::diff(terra::rast(list(ppt_spring_old_norm, ppt_spring_recent_norm)))
 ppt_summer_difference <- terra::diff(terra::rast(list(ppt_summer_old_norm, ppt_summer_recent_norm)))
 ppt_autumn_difference <- terra::diff(terra::rast(list(ppt_autumn_old_norm, ppt_autumn_recent_norm)))
-ppt_winter_difference <- terra::diff(terra::rast(list(ppt_winter_old_norm, ppt_winter_recent_norm)))
 
 
 ######### Next extracting these climate values at our points. ####
 # we can extract them at the georeferenced coordinates and also across the grid of points we are using for prediction
 
 # this is the coordinates of our samples
-coords_df <- endo_herb_georef %>% 
+
+endo_herb <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal)) %>%
+  filter(!is.na(Spp_code)) %>% 
+  filter(!is.na(lon) & !is.na(year)) %>% 
+  filter(lon>-110 ) %>% 
+  filter(Country != "Canada" & !is.na(County)) 
+  
+coords_df <- endo_herb %>% 
   distinct(lat,lon) %>% 
   filter(!is.na(lat), !is.na(lon))
 coords <- cbind(coords_df$lon, coords_df$lat)
@@ -1435,42 +1437,61 @@ prism_diff_df <- tibble(lon = coords[,1], lat = coords[,2],
                         tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords)),
                         tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords)),
                         tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords)),
-                        tmean_winter_diff = unlist(terra::extract(tmean_winter_difference, coords)),
                         ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, coords)),
                         ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, coords)),
                         ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, coords)),
-                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords)),
-                        ppt_winter_diff = unlist(terra::extract(ppt_winter_difference, coords)))
+                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords)))
 write_csv(prism_diff_df, file = "prism_diff_df.csv")
 
 
 # this is the coordinates we are using for the spatial model prediction currently
 # this is the set of data for which we want predictions
-pred_data <- data.frame(expand.grid(Intercept = 1, 
-                                    lon = seq(min(coords[,1]),max(coords[,1]), length.out = 75),
-                                    lat = seq(min(coords[,2]),max(coords[,2]), length.out = 75),
-                                    year = c(1920, 1970, 2020), 
-                                    year2 = c(1920^2, 1970^2, 2020^2),
-                                    species = c("AGHY", "ELVI", "AGPE"),
-                                    county = NA,
-                                    collector = NA))
-ggplot(prism_diff_df)+
-  geom_point(aes(x = lon, y = lat, color = ppt_annual_diff))
 
+
+non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.05, resolution = c(100, 100))
+sf::sf_use_s2(FALSE)
+bdry_st <- st_make_valid(as_tibble(non_convex_bdry$loc)  %>% 
+                           mutate(lon = V1,  lat = V2) %>% 
+                           st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+                           summarise(geometry = st_combine(geometry)) %>% 
+                           st_cast("POLYGON"))
+
+coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE)))
+# plot(coastline)
+
+bdry <- st_intersection(coastline$geom, bdry_st)
+
+bdry_polygon <- st_cast(st_sf(bdry), "POLYGON") %>% st_union() %>% 
+  as("Spatial")
+
+
+# this is the set of data for which we want predictions across the whole space
+pred_data <- data.frame(expand.grid(Intercept = 1, 
+                                    lon = seq(min(endo_herb$lon),max(endo_herb$lon), length.out = 100),
+                                    lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 100),
+                                    year = c(1820, 1870, 1895, 1920, 1970, 1990, 2020), 
+                                    species = c("AGHY", "AGPE", "ELVI"),
+                                    id = NA,
+                                    county = NA,
+                                    collector = NA,
+                                    scorer = NA)) %>% 
+  mutate(year2 = year^2, lon2 = lon^2, lat2 = lat^2)
 
 
 # keeping just the points that are part of the mesh's boundary
-non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.05, resolution = c(100, 100))
-
+simple_bdry <- st_as_sf(bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
+# plot(simple_bdry)
 ind <- point.in.polygon(
   pred_data$lon, pred_data$lat,
-  non_convex_bdry$loc[, 1], non_convex_bdry$loc[, 2]
+  raster::geom(simple_bdry)[,5], raster::geom(simple_bdry)[,6] 
 )
-coords_pred <- pred_data %>% 
-  select(lon, lat)
-coords_pred <- as.matrix(coords_pred[which(ind == 1),])
 
+coords_pred <- pred_data %>% 
+  select(lon, lat) 
+coords_pred <- as.matrix(coords_pred[which(ind == 1),])
+# plot(coords_pred)
 pred_data <- pred_data[which(ind ==1),]
+
 
 
 prism_diff_pred_df <- tibble(lon = coords_pred[,1], lat = coords_pred[,2],
@@ -1478,12 +1499,10 @@ prism_diff_pred_df <- tibble(lon = coords_pred[,1], lat = coords_pred[,2],
                         tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords_pred)),
                         tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords_pred)),
                         tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords_pred)),
-                        tmean_winter_diff = unlist(terra::extract(tmean_winter_difference, coords_pred)),
                         ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, coords_pred)),
                         ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, coords_pred)),
                         ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, coords_pred)),
-                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords_pred)),
-                        ppt_winter_diff = unlist(terra::extract(ppt_winter_difference, coords_pred))) %>% 
+                        ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords_pred))) %>% 
   na.omit()
 write_csv(prism_diff_pred_df, file = "prism_diff_pred_df.csv")
 
