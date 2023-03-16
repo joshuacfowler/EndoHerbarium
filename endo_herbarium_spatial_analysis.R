@@ -27,23 +27,33 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   # filter(Country != "Canada") %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
-                              grepl("AGPE", Sample_id) ~ "AGPE"))
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  mutate(species = case_when(Spp_code == "AGHY" ~ "A. hyemalis",
+                             Spp_code == "AGPE" ~ "A. perennans",
+                             Spp_code == "ELVI" ~ "E. virginicus")) 
 
 endo_herb_AGHY <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGHY") %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lon>-110)
+  filter(lon>-110) %>% 
+  filter(Country != "Canada" & !is.na(County)) 
+  
 endo_herb_AGPE <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGPE") %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lon>-110)
+  filter(lon>-110) %>% 
+  filter(Country != "Canada" & !is.na(County))  
+  
 
 endo_herb_ELVI <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "ELVI") %>% 
-  filter(!is.na(lon) & !is.na(year)) 
+  filter(!is.na(lon) & !is.na(year)) %>% 
+  filter(lon>-110) %>% 
+  filter(Country != "Canada" & !is.na(County))
+  
 
 endo_herb <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal)) %>%
@@ -51,13 +61,17 @@ endo_herb <- endo_herb_georef %>%
   filter(!is.na(lon) & !is.na(year)) %>% 
   filter(lon>-110 ) %>% 
   filter(Country != "Canada" & !is.na(County)) %>% 
-  mutate(species = case_when(Spp_code == "AGHY" ~ "A. hyemalis",
-                              Spp_code == "AGPE" ~ "A. perennans",
-                              Spp_code == "ELVI" ~ "E. virginicus")) %>% 
   mutate(year_bin = case_when(year<1970 ~ "pre-1970",
                               year>=1970 ~ "post-1970")) %>% 
   mutate(endo_status_text = case_when(Endo_status_liberal == 0 ~ "E-",
-                                      Endo_status_liberal == 1 ~ "E+"))
+                                      Endo_status_liberal == 1 ~ "E+"))  
+  # mutate(Endo_status_liberal = case_when(Spp_code == "AGPE" & Endo_status_liberal ==0 ~ 1,
+  #                                         Spp_code == "AGPE" & Endo_status_liberal == 1~ 0, TRUE ~ Endo_status_liberal))
+
+
+# endo_herb <- endo_herb_AGHY
+# endo_herb <- endo_herb_AGPE
+# endo_herb <- endo_herb_ELVI
 
 endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "�", " ")
 endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
@@ -66,6 +80,9 @@ map <- ggmap::get_map(zoom = 3, source = "google", maptype = c("satellite"))
 
 outline_map <- map_data("world")
 states_shape <- map_data("state")
+counties_shape <- map_data("county")
+# ggplot()+
+#   geom_map(data = counties_shape, map = counties_shape, aes(long, lat, map_id = region))
 
 collections_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
@@ -95,9 +112,6 @@ endo_status_map
 
 ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5)
 
-# endo_herb <- endo_herb_AGHY
-# endo_herb <- endo_herb_AGPE
-# endo_herb <- endo_herb_ELVI
 
 # Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
 contemp_surveys <- read_csv(file = "contemp_surveys.csv")
@@ -143,10 +157,10 @@ coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "c
 
 bdry <- st_intersection(coastline$geom, bdry_st)
 
-bdry_polygon <- st_cast(st_sf(bdry), "POLYGON") %>% st_union() %>% 
+bdry_polygon <- st_cast(st_sf(bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
   as("Spatial")
 
-plot(bdry_polygon)
+# plot(bdry_polygon)
 
 max.edge = diff(range(coords[,2]))/(10)
 mesh10 <- inla.mesh.2d(loc = coords, max.edge = c(1,2)*max.edge,
@@ -177,12 +191,12 @@ mesh <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/2/2),
                       offset = c(1,4),
                       cutoff = max.edge/(20))
 
-mesh_plot <- ggplot()+
-  gg(mesh, exterior = FALSE, edge.color = "grey25", alpha = .1 )+
-  geom_point(data = endo_herb, aes(x = lon, y = lat), lwd = .5, color = "red")+
-  coord_sf()+
-  theme_minimal()
-ggsave(mesh_plot, filename = "mesh_plot.png", width = 7, height = 4)
+# mesh_plot <- ggplot()+
+#   gg(mesh, exterior = FALSE, edge.color = "grey25", alpha = .1 )+
+#   geom_point(data = endo_herb, aes(x = lon, y = lat), lwd = .5, color = "red")+
+#   coord_sf()+
+#   theme_minimal()
+# ggsave(mesh_plot, filename = "mesh_plot.png", width = 7, height = 4)
 
 
 mesh <- mesh
@@ -224,6 +238,7 @@ pred_data <- data.frame(expand.grid(Intercept = 1,
                         lon = seq(min(endo_herb$lon),max(endo_herb$lon), length.out = 100),
                         lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 100),
                         year = c(1870, 1895, 1920, 1925, 1970, 1990, 2020), 
+                        # species = c("ELVI"),
                         species = c("AGHY", "AGPE", "ELVI"),
                         id = NA,
                         county = NA,
@@ -259,18 +274,29 @@ stack.pred <- inla.stack(data = list(Endo_status_liberal = NA),
 
 
 # this is the data to make a plot for the effect of year at the average lat/lon
+# These are the mean locations for each species
+mean_loc <- endo_herb %>% 
+  group_by(Spp_code, species) %>% 
+  summarize(#min_lon = min(lon) - .1*min(lon),
+            mean_lon = mean(lon),
+           # max_lon = max(lon) + .1*max(lon),
+            min_lat = min(lat) + .1*min(lat),
+            mean_lat = mean(lat),
+            max_lat = max(lat) - .1*max(lat)) %>% 
+  pivot_longer(cols = c(-Spp_code, -species, -mean_lon)) %>% 
+  rename(lon = mean_lon,lat = value)
+  # pivot_longer(cols = c(-Spp_code, -species), names_to = c("level", "coord"), names_sep = "_") %>% 
+  # pivot_wider(names_from = coord, values_from = value)
+
 pred.y_data <- data.frame(expand.grid(Intercept = 1, 
-                                    lon = mean(endo_herb$lon),
-                                    lon2 = mean(endo_herb$lon)^2,
-                                    lat = mean(endo_herb$lat),
-                                    lat2 = mean(endo_herb$lat)^2,
-                                    year = min(endo_herb$year):max(endo_herb$year), 
-                                    year = (min(endo_herb$year):max(endo_herb$year))^2,
-                                    species = c("AGHY", "AGPE", "ELVI"),
-                                    id = NA,
-                                    county = NA,
-                                    collector = NA,
-                                    scorer = NA))
+                                      # species = c("ELVI"),
+                          species = c("AGHY", "AGPE", "ELVI"),
+                          year = min(endo_herb$year):max(endo_herb$year), 
+                          id = NA,
+                          county = NA,
+                          collector = NA,
+                          scorer = NA)) %>% 
+  full_join(mean_loc, by = c("species" = "Spp_code" ))
 
 coords_pred.y <- pred.y_data %>% 
   select(lon, lat) %>% 
@@ -330,8 +356,12 @@ full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y, stack.pred.test)
 
 # full_stack <- inla.stack(stack.fit)
 
-# formula <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
-                    # + f(s, model = spde))
+formula1 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+                    + f(s, model = spde) + f(collector, model = "iid") + f(scorer, model = "iid"))
+formula2 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+                    + f(s, model = spde) + f(county, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
+formula3 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+                    + f(s, model = spde) + f(county,year, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
 # 
 # formula <- formula(Endo_status_liberal_1 ~ 0 + year + year:lat + year:lon + year:lat:lon 
 #                    + f(s, model = spde))
@@ -342,7 +372,7 @@ formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:y
                     + f(s, model = spde) + f(collector, model = "iid") + f(scorer, model = "iid"))
 
 formula2 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
-                    + f(s, model = spde) + f(collector, model = "iid") + f(county, model = "iid") + f(id, model = "iid") + f(scorer, model = "iid"))
+                    + f(s, model = spde) + f(county, year, model = "iid", const = TRUE) +  f(collector, model = "iid") + f(scorer, model = "iid"))
 
 formula3 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
                     + f(s, model = spde) + f(collector, model = "iid") + f(id, model = "iid") + f(scorer, model = "iid"))
@@ -353,7 +383,18 @@ formula4 <- formula(Endo_status_liberal ~ 0 + species + species:year +species:ye
 formula5 <- formula(Endo_status_liberal ~ 0 + species + species:year +species:year:lat + species:year:lon + species:year:lat:lon  + species:year:lat2 + species:year:lon2 + species:year:lat2:lon2 +
                       + f(s, model = spde) )
 
-                    
+formula6 <- formula(Endo_status_liberal ~ 0 + species + f(year, model = "iid")
+                      + f(s, model = spde) )
+
+formula7 <- formula(Endo_status_liberal ~ 0 + species + species:year+
+                    + f(s, model = spde) + f(county, year, model = "iid") +  f(collector, model = "iid") + f(scorer, model = "iid"))
+formula8 <- formula(Endo_status_liberal ~ 0 + species*year*lat*lon)
+
+formula9 <- formula(Endo_status_liberal ~ 0 + species*year*lat*lon + f(county, model = "iid"))
+
+formula10 <- formula(Endo_status_liberal ~ 0 + species*year + f(county,year, model = "iid") +f(collector, model = "iid") + f(scorer, model = "iid"))
+
+
 
 # formula <- formula(Endo_status_liberal_1 ~ 0 + species + year  + species:year + species:year:lat + species:year:lon + species:year:lat:lon
 #                    + f(collector, model = "iid") + f(s, model = spde))
@@ -388,10 +429,30 @@ I4 <- inla(formula = formula4, family = "binomial", Ntrials = 1,
            control.family = list(link = "logit"),
            control.compute = list(config = TRUE, dic = TRUE),
            verbose = TRUE)
+I6 <- inla(formula = formula6, family = "binomial", Ntrials = 1,
+           data = inla.stack.data(full_stack), 
+           control.predictor = list(A = inla.stack.A(full_stack),
+                                    link=1,compute=TRUE),
+           control.family = list(link = "logit"),
+           control.compute = list(config = TRUE, dic = TRUE),
+           verbose = TRUE)
+I10 <- inla(formula = formula10, family = "binomial", Ntrials = 1,
+           data = inla.stack.data(full_stack), 
+           control.predictor = list(A = inla.stack.A(full_stack),
+                                    link=1,compute=TRUE),
+           control.family = list(link = "logit"),
+           control.compute = list(config = TRUE, dic = TRUE),
+           verbose = TRUE)
 I1$dic$dic
 I2$dic$dic
 I3$dic$dic
 I4$dic$dic
+I7$dic$dic
+I8$dic$dic
+I9$dic$dic
+I10$dic$dic
+
+
 
 I <- I1
 saveRDS(I, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/inla_spde.rds")
@@ -408,7 +469,7 @@ pred_data$pred_mean <- I$summary.fitted.values[index, "mean"]
 pred_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
 pred_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
 
-write_csv(pred_data, file = "pred_data.csv")
+# write_csv(pred_data, file = "pred_data.csv")
 
 pred_data_long <- pred_data %>% 
   pivot_longer(cols = c(pred_mean, pred_lwr, pred_upr), names_to = "variable") %>% 
@@ -416,20 +477,12 @@ pred_data_long <- pred_data %>%
                              species == "AGPE" ~ "A. perennans",
                              species == "ELVI" ~ "E. virginicus"))
 
-# endo_herb_neat <- endo_herb %>% 
-#   mutate(binned_year= case_when(year<=1920))) %>% 
-#   rename(species = Spp_code) %>% 
-#   group_by(species, binned_year) %>% 
-#     summarize(mean = mean(year))
-#   mutate(year = case_when(binned_year == "(1.82e+03,1.92e+03]" ~ 1920,
-#                           binned_year == "(1.97e+03,2.02e+03]" ~ 1970,
-#                           binned_year == "(1.82e+03,1.92e+03]" ~ 2020))
-  
+
 ggplot()+
-  geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  # geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
   geom_tile(data = filter(pred_data_long, variable == "pred_mean" & year == 1920 | variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
-  facet_wrap(variable~year+species, strip.position = "left")+
+  facet_wrap(variable~year+species)+
   scale_fill_gradient(
     name = "Endophyte Prevalence",
     low = "blue", high = "orange",
@@ -497,16 +550,30 @@ pred_data_change <- pred_data %>%
   dplyr::select(lon, lat, year, species,pred_mean, pred_lwr, pred_upr) %>% 
   ungroup() %>% 
   pivot_wider(names_from = year, values_from = c(pred_mean, pred_lwr, pred_upr)) %>% 
-  mutate(mean_change = pred_mean_2020-pred_mean_1925)
+  mutate(mean_change = pred_mean_2020-pred_mean_1925,
+         rel_change = mean_change/pred_mean_1925,
+         log_1925 = log(pred_mean_1925),
+         log_2020 = log(pred_mean_2020))
 write_csv(pred_data_change, file = "pred_data_change.csv")
 
-
 ggplot(data = filter(pred_data_change, species == "ELVI"))+
-  geom_tile(aes(x = lon, y = lat, fill = mean_change))+
+  geom_tile(aes(x = lon, y = lat, fill = log_2020))+
   facet_wrap(~species)
 
 ggplot(data = prism_diff_pred_df)+
   geom_tile(aes(x = lon, y = lat, fill = tmean_spring_diff))
+
+pred_change_summary <- pred_data_change %>% 
+  group_by(species) %>% 
+  summarize(avg_1920 = mean(pred_mean_1920),
+            ave_2020 = mean(pred_mean_2020),
+            avg_change = mean(mean_change),
+            max_1920 = max(pred_mean_1920),
+            max_2020 = max(pred_mean_2020),
+            max_change = max(mean_change),
+            min_1920 = min(pred_mean_1920),
+            min_2020 = min(pred_mean_2020),
+            min_change = min(mean_change))
 ######################################################################################################
 ############ Comparing the contemporary survey prevalence to predicted ############################### 
 ######################################################################################################
@@ -559,12 +626,17 @@ ggplot(data = pred.test_data)+
 
 endo_herb_binned <- endo_herb %>% 
   mutate(binned_year = cut(year, breaks = 20)) %>%
-  group_by(species,binned_year) %>%   
+  group_by(Spp_code, species,binned_year) %>%   
   summarise(mean_year = mean(year),
             mean_endo = mean(Endo_status_liberal),
+            mean_lon = mean(lon),
+            mean_lat = mean(lat),
             sample = n())
   
-
+# mean_loc <- endo_herb_binned %>% 
+#   group_by(Spp_code, species) %>% 
+#   summarize(lon = mean(mean_lon),
+#             lat = mean(mean_lat))
 
 # pulling out the predicting effect across time
 index <- inla.stack.index(full_stack, tag = "pred.y")$data
@@ -573,27 +645,35 @@ pred.y_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
 pred.y_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
 
 pred.y_data_neat <- pred.y_data %>% 
-  mutate(species = case_when(species == "AGHY" ~ "A. hyemalis",
-                             species == "AGPE" ~ "A. perennans",
-                             species == "ELVI" ~ "E. virginicus"))
+  mutate(species = species.y) %>% 
+  filter(name != "min_lat") %>% 
+  mutate(name  = case_when(name == "mean_lat" ~ paste("35"),
+                           name == "max_lat" ~ paste("43"),
+                           TRUE ~ name))
 
 year_trend <- ggplot()+
-  geom_ribbon(data = pred.y_data_neat, aes(x = year, ymin = pred_lwr, ymax = pred_upr, group = species, fill = species), alpha = .2)+
-  geom_line( data = pred.y_data_neat, aes(x = year, y = pred_mean, group = species, col = species), linewidth = 1)+
+  geom_ribbon(data = pred.y_data_neat, aes(x = year, ymin = pred_lwr, ymax = pred_upr, group = name, linetype = name), color = "grey40", fill = "grey", alpha = .1)+
+  geom_line( data = pred.y_data_neat, aes(x = year, y = pred_mean, group = name, linetype = name), color = "black", linewidth = 1, alpha = .8)+
   geom_point(data = endo_herb, aes(x = year, y = Endo_status_liberal), pch = "|", alpha = .7)+
-  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species, lwd = sample))+
-  scale_color_manual(values = species_colors)+
-  scale_fill_manual(values = species_colors)+
+  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species , size = sample), alpha = .9)+
+  scale_color_manual(values = species_colors, guide = "none")+
+  # scale_fill_manual(values = species_colors)+
+  scale_linetype_manual(values = c("dotted", "solid"))+
+  facet_wrap(~species, nrow = 1)+
   theme_classic()+
-  labs(y = "Endophyte Prevalence", x = "Year", lwd = "# of Specimens", color = "Species", fill = "Species")
-
+  theme(strip.background = element_blank(),
+        strip.text = element_blank())+
+  labs(y = "Endophyte Prevalence", x = "Year", color = "Species", fill = "Species", size = "Specimen Count", linetype = "Latitude")
 year_trend
   
 year_hist <- ggplot()+
   geom_histogram(data = filter(endo_herb, species == "A. hyemalis"), aes(x = year), fill = species_colors[1], bins = 120, alpha = .6)+
   geom_histogram(data = filter(endo_herb, species == "E. virginicus"), aes(x = year), fill = species_colors[3], bins = 120, alpha = .6)+
   geom_histogram(data = filter(endo_herb, species == "A. perennans"), aes(x = year),fill = species_colors[2],  bins = 120, alpha = .6)+
+  facet_wrap(~species)+
   theme_classic()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(face = "italic"))+
   theme(axis.line = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -604,10 +684,11 @@ year_hist
 
 
 year_plot <- year_hist + year_trend + 
-  plot_layout(ncol = 1, heights = c(1,2), guides = "collect") + plot_annotation(tag_levels = "A")
+  plot_layout(ncol = 1, heights = c(1,2)) + plot_annotation(tag_levels = "A") &
+  theme(plot.tag = element_text( size = 8))
 
 year_plot
-ggsave(year_plot, filename = "year_plot.png", width = 7, height = 5)
+ggsave(year_plot, filename = "year_plot.png", width = 7, height = 4)
 
 year_trend_summary <- pred.y_data %>% 
   group_by(species) %>% 
@@ -727,8 +808,32 @@ ggmap(map)+
 
 # reading in the change in climate normals (1895-1925 and 1990-2020)
 prism_diff_pred_df <- read_csv(file = "prism_diff_pred_df.csv") %>% 
-  mutate(across(contains("ppt_"), ~.x*.1)) # changing the units of the change in precip. to be 10ths of millimeters
+  distinct() 
+  # mutate(across(contains("ppt_"), ~.x*.1)) # changing the units of the change in precip. to be 10ths of millimeters
 
+#testing out pc's as a way to simplify the interpretation
+# prism_pc <- prcomp(prism_diff_pred_df[,c(4,5,6,8,9,10)], scale = TRUE)
+# summary(prism_pc)
+# 
+# prism_loadings <- as_tibble(cbind(rownames(prism_pc$rotation), prism_pc$rotation)) %>% 
+#   rename(parameter = V1) %>% 
+#   pivot_longer(-parameter) %>% 
+#   mutate(value = as.numeric(value))
+# 
+# ggplot(prism_loadings)+
+#   geom_bar(aes(x = name, y = value, fill = parameter), position = "dodge", stat = "identity") +
+#   theme_light()
+# 
+# prism_pc_df <- as_tibble(cbind(prism_diff_pred_df$lon, prism_diff_pred_df$lat, prism_pc$x)) %>% 
+#   rename(lon = V1, lat = V2)
+# 
+# pred_change_pc_merge <- pred_data_change %>% 
+#   left_join(prism_pc_df) %>% 
+#   filter(!is.na(PC1))
+# ggplot(data = pred_change_pc_merge) +
+#   geom_point(aes(x = lon, y = lat, color = PC3))
+# 
+# summary(lm(formula = formula(mean_change ~ 1 + PC1 + PC2 + PC3 + PC4), filter(pred_change_pc_merge,species == "AGHY")))
 
 # Merging the climate date with our predicted change in mean prevalence across 1925 and 2020
 # pred_change_merge <- pred_ %>% 
@@ -743,14 +848,134 @@ ggplot(pred_change_merge) +
   geom_point(aes(x = lon, y = lat))
 
 pred_change_merge_long <- pred_change_merge %>% 
-  pivot_longer(cols = contains("_diff"))
+  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) %>% 
+  pivot_longer(cols = contains("_diff")) %>% 
+  filter(grepl("annual", name))
 
-ggplot(pred_change_merge_long)+
-  geom_point(aes(x = value, y = mean_change, color = species))+
-  geom_smooth(aes(x = value, y = mean_change, fill = species), method = "glm")+
-  facet_wrap(~species+name, scales = "free")
+ppt_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("ppt", name)))+
+  geom_point(aes(x = value, y = rel_change, color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = rel_change), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~name+species, scales = "free", nrow = 3) +
+  theme_light()+
+  labs(y = "Change in Endophyte Prevalence (%)", x = expression("Change in Precip. (mm"^-1*")"))
+ppt_regression_plot
+
+tmean_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("tmean", name)))+
+  geom_point(aes(x = value, y = rel_change, color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = rel_change), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~name+species, scales = "free", nrow = 3) +
+  theme_light()+
+  labs(y = "Change in Endophyte Prevalence (%)", x = expression("Change in mean temp. ("*degree*"C)"))
+tmean_regression_plot
+
+climate_regression_plot <- ppt_regression_plot + tmean_regression_plot +
+  plot_layout(nrow = 1, guides = "collect") 
+climate_regression_plot
+
+climate_correlations <- pred_change_merge %>% 
+  select(-contains("pred"), -lat, -lon) %>% 
+  group_by(species) %>% 
+  summarize(rel.ppt_annual_cor = cor(rel_change, ppt_annual_diff),
+            rel.ppt_spring_cor = cor(rel_change, ppt_spring_diff),
+            rel.ppt_summer_cor = cor(rel_change, ppt_summer_diff),
+            rel.ppt_autumn_cor = cor(rel_change, ppt_autumn_diff),
+            rel.tmean_annual_cor = cor(rel_change, tmean_annual_diff),
+            rel.tmean_spring_cor = cor(rel_change, tmean_spring_diff),
+            rel.tmean_summer_cor = cor(rel_change, tmean_summer_diff),
+            rel.tmean_autumn_cor = cor(rel_change, tmean_autumn_diff),
+            
+            rel.ppt_annual_sd_cor = cor(rel_change, ppt_annual_sd_diff),
+            rel.ppt_spring_sd_cor = cor(rel_change, ppt_spring_sd_diff),
+            rel.ppt_summer_sd_cor = cor(rel_change, ppt_summer_sd_diff),
+            rel.ppt_autumn_sd_cor = cor(rel_change, ppt_autumn_sd_diff),
+            rel.tmean_annual_sd_cor = cor(rel_change, tmean_annual_sd_diff),
+            rel.tmean_spring_sd_cor = cor(rel_change, tmean_spring_sd_diff),
+            rel.tmean_summer_sd_cor = cor(rel_change, tmean_summer_sd_diff),
+            rel.tmean_autumn_sd_cor = cor(rel_change, tmean_autumn_sd_diff),
+            
+            rel.ppt_annual_cv_cor = cor(rel_change, ppt_annual_cv_diff),
+            rel.ppt_spring_cv_cor = cor(rel_change, ppt_spring_cv_diff),
+            rel.ppt_summer_cv_cor = cor(rel_change, ppt_summer_cv_diff),
+            rel.ppt_autumn_cv_cor = cor(rel_change, ppt_autumn_cv_diff),
+            rel.tmean_annual_cv_cor = cor(rel_change, tmean_annual_cv_diff),
+            rel.tmean_spring_cv_cor = cor(rel_change, tmean_spring_cv_diff),
+            rel.tmean_summer_cv_cor = cor(rel_change, tmean_summer_cv_diff),
+            rel.tmean_autumn_cv_cor = cor(rel_change, tmean_autumn_cv_diff),
+            
+            mean.ppt_annual_cor = cor(mean_change, ppt_annual_diff),
+            mean.ppt_spring_cor = cor(mean_change, ppt_spring_diff),
+            mean.ppt_summer_cor = cor(mean_change, ppt_summer_diff),
+            mean.ppt_autumn_cor = cor(mean_change, ppt_autumn_diff),
+            mean.tmean_annual_cor = cor(mean_change, tmean_annual_diff),
+            mean.tmean_spring_cor = cor(mean_change, tmean_spring_diff),
+            mean.tmean_summer_cor = cor(mean_change, tmean_summer_diff),
+            mean.tmean_autumn_cor = cor(mean_change, tmean_autumn_diff),
+            
+            mean.ppt_annual_sd_cor = cor(mean_change, ppt_annual_sd_diff),
+            mean.ppt_spring_sd_cor = cor(mean_change, ppt_spring_sd_diff),
+            mean.ppt_summer_sd_cor = cor(mean_change, ppt_summer_sd_diff),
+            mean.ppt_autumn_sd_cor = cor(mean_change, ppt_autumn_sd_diff),
+            mean.tmean_annual_sd_cor = cor(mean_change, tmean_annual_sd_diff),
+            mean.tmean_spring_sd_cor = cor(mean_change, tmean_spring_sd_diff),
+            mean.tmean_summer_sd_cor = cor(mean_change, tmean_summer_sd_diff),
+            mean.tmean_autumn_sd_cor = cor(mean_change, tmean_autumn_sd_diff),
+            
+            mean.ppt_annual_cv_cor = cor(mean_change, ppt_annual_cv_diff),
+            mean.ppt_spring_cv_cor = cor(mean_change, ppt_spring_cv_diff),
+            mean.ppt_summer_cv_cor = cor(mean_change, ppt_summer_cv_diff),
+            mean.ppt_autumn_cv_cor = cor(mean_change, ppt_autumn_cv_diff),
+            mean.tmean_annual_cv_cor = cor(mean_change, tmean_annual_cv_diff),
+            mean.tmean_spring_cv_cor = cor(mean_change, tmean_spring_cv_diff),
+            mean.tmean_summer_cv_cor = cor(mean_change, tmean_summer_cv_diff),
+            mean.tmean_autumn_cv_cor = cor(mean_change, tmean_autumn_cv_diff),
+            ) %>%  
+  pivot_longer(cols = c( -species)) %>% 
+  separate_wider_delim(name, ".", names = c("change", "name")) %>% 
+  mutate(change = case_when(change == "mean" ~ "Change",
+                            change == "rel" ~ "Relative Change")) %>% 
+  mutate(parameter_name = factor(case_when(name == "ppt_annual_cor" ~ "Annual Precip.", name == "ppt_spring_cor" ~ "Spring Precip.",name == "ppt_summer_cor" ~ "Summer Precip.",name == "ppt_autumn_cor" ~ "Autumn Precip.",
+                                           name == "ppt_annual_sd_cor" ~ "Annual Precip. SD", name == "ppt_spring_sd_cor" ~ "Spring Precip. SD",name == "ppt_summer_sd_cor" ~ "Summer Precip. SD",name == "ppt_autumn_sd_cor" ~ "Autumn Precip. SD",
+                                           name == "ppt_annual_cv_cor" ~ "Annual Precip. CV", name == "ppt_spring_cv_cor" ~ "Spring Precip. CV",name == "ppt_summer_cv_cor" ~ "Summer Precip. CV",name == "ppt_autumn_cv_cor" ~ "Autumn Precip. CV",
+                                           
+                                           name == "tmean_annual_cor" ~ "Avg. Annual Temp.", name == "tmean_spring_cor" ~ "Avg. Spring Temp.",name == "tmean_summer_cor" ~ "Avg. Summer Temp.",name == "tmean_autumn_cor" ~ "Avg. Autumn Temp.",  
+                                           name == "tmean_annual_sd_cor" ~ "Avg. Annual Temp. SD", name == "tmean_spring_sd_cor" ~ "Avg. Spring Temp. SD",name == "tmean_summer_sd_cor" ~ "Avg. Summer Temp. SD",name == "tmean_autumn_sd_cor" ~ "Avg. Autumn Temp. SD",  
+                                           name == "tmean_annual_cv_cor" ~ "Avg. Annual Temp. CV", name == "tmean_spring_cv_cor" ~ "Avg. Spring Temp. CV",name == "tmean_summer_cv_cor" ~ "Avg. Summer Temp. CV",name == "tmean_autumn_cv_cor" ~ "Avg. Autumn Temp. CV",  
+                                           TRUE ~ name),
+                                 levels = c("Avg. Annual Temp.", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Annual Precip.", "Autumn Precip.", "Summer Precip.", "Spring Precip.", 
+                                            "Avg. Annual Temp. SD", "Avg. Autumn Temp. SD", "Avg. Summer Temp. SD", "Avg. Spring Temp. SD",  "Annual Precip. SD", "Autumn Precip. SD", "Summer Precip. SD", "Spring Precip. SD",
+                                            "Avg. Annual Temp. CV", "Avg. Autumn Temp. CV", "Avg. Summer Temp. CV", "Avg. Spring Temp. CV",  "Annual Precip. CV", "Autumn Precip. CV", "Summer Precip. CV", "Spring Precip. CV"))) %>% 
+  mutate(species = case_when(species == "AGHY" ~ "A. hyemalis",
+                             species == "AGPE" ~ "A. perennans",
+                             species == "ELVI" ~ "E. virginicus")) %>% 
+  filter(change == "Change") %>% 
+  filter(grepl("Precip", parameter_name) | grepl("Annual Temp.", parameter_name)) %>% 
+  filter(!grepl("SD", parameter_name))
+
+
+
+climate_corr_heatmap <- ggplot(data = climate_correlations)+
+  geom_tile(aes(x = species, y = fct_rev(parameter_name), fill = value))+
+  scale_fill_distiller(palette = "RdBu", direction = "reverse", type = "div")+
+  facet_wrap(~change)+
+  theme_minimal()+
+  theme(strip.text = element_blank(),
+        axis.text.x = element_text(face = "italic")) +
+  labs(x = "Species", y = "", fill = "Correlation Coefficient")
+climate_corr_heatmap
+ggsave(climate_corr_heatmap, filename = "climate_corr_heatmap.png", width = 6, height = 7)
+# climate_corr_plot <- ggplot(data = climate_correlations)+
+#   geom_vline(aes(xintercept = value, color = species)) +
+#   facet_wrap(~parameter_name, ncol = 1)
+# climate_corr_plot
+
+plot(filter(pred_change_merge, species == "AGHY")[,25:33])
 
 summary(lm(formula = formula(mean_change ~ 0 + ppt_annual_diff + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_annual_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff +  tmean_winter_diff), filter(pred_change_merge,species == "AGPE")))
+car::vif(lm(formula = formula(mean_change ~ 1 + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff), filter(pred_change_merge,species == "AGPE")))
+car::vif(lm(formula = formula(mean_change ~ 1 + ppt_spring_diff * ppt_summer_diff * ppt_autumn_diff *tmean_spring_diff * tmean_summer_diff * tmean_autumn_diff), filter(pred_change_merge,species == "AGPE")), type = "predictor")
+cor(filter(pred_change_merge,species == "AGPE"))
 summary(lm(formula = formula(mean_change ~  0 + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff + tmean_winter_diff), filter(pred_change_merge,species == "AGPE")))
 summary(lm(formula = formula(mean_change ~  0 + ppt_spring_diff*ppt_summer_diff *ppt_autumn_diff* ppt_winter_diff * tmean_spring_diff * tmean_summer_diff *tmean_autumn_diff * tmean_winter_diff), filter(pred_change_merge,species == "AGPE")))
 
@@ -758,21 +983,53 @@ summary(lm(formula = formula(mean_change ~  0 + ppt_annual_diff + tmean_annual_d
 summary(lm(formula = formula(mean_change ~  0 + ppt_annual_diff*tmean_annual_diff), filter(pred_change_merge,species == "AGPE")))
 
 hist(pred_change_merge$tmean_annual_diff)
-cor.test(filter(pred_change_merge, species == "AGPE")$relative_change, filter(pred_change_merge, species == "AGPE")$tmean_annual_diff, method = c("pearson"))
+cor.test(filter(pred_change_merge, species == "AGHY")$mean_change, filter(pred_change_merge, species == "AGHY")$tmean_summer_diff, method = c("pearson"))
+
+
+
+# library(devtools)
+# install_github('timcdlucas/INLAutils')
+# library(INLAutils)
+# stack <- inla.stack(data = list(mean_change = filter(pred_change_merge, species == c("ELVI"))$mean_change),
+#                     A = list(1), effects = list(data.frame(Intercept = 1, filter(pred_change_merge, species == c("ELVI"))[,c(27,28,29,31,32,33)])))
+# 
+# I_step <- INLAstep(fam1 = "gaussian", data.frame(filter(pred_change_merge, species == c("ELVI"))),
+#                    in_stack = stack,
+#                    invariant = "0 + Intercept",
+#                    direction = "backwards",
+#                    include = c(27,28,29,31,32,33),
+#                    inter = 3,
+#                    y = "mean_change")
+# 
+# I_step$best_formula
+# 
+# 
+
 
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_spring_diff + species*ppt_summer_diff + species*ppt_autumn_diff + species*ppt_winter_diff + species*tmean_spring_diff + species*tmean_summer_diff + species*tmean_autumn_diff + species*tmean_winter_diff)
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff + species*ppt_spring_diff + species*ppt_summer_diff + species*ppt_autumn_diff + species*ppt_winter_diff + species*tmean_annual_diff + species*tmean_spring_diff + species*tmean_summer_diff + species*tmean_autumn_diff + species*tmean_winter_diff)
 # climate_formula <- formula(mean_change ~ 0 + ppt_spring_diff*ppt_summer_diff*ppt_autumn_diff*ppt_winter_diff*tmean_spring_diff*tmean_summer_diff*tmean_autumn_diff*tmean_winter_diff)
+# climate_formula <- formula(mean_change ~ 0 + tmean_spring_diff+tmean_summer_diff+tmean_autumn_diff + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff)
 climate_formula <- formula(mean_change ~ 1 + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff+tmean_spring_diff+tmean_summer_diff+tmean_autumn_diff)
+
+climate_formula <- formula(mean_change ~ 1 + (tmean_spring_diff+tmean_summer_diff+tmean_autumn_diff + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff)^3)
+
+
+climate_formula <- formula(mean_change ~ 1 + tmean_spring_diff*tmean_summer_diff*tmean_autumn_diff*ppt_spring_diff*ppt_summer_diff*ppt_autumn_diff)
+climate_formula <- formula(mean_change ~ 1 + tmean_spring_diff)
+
 # climate_formula <- formula(mean_change ~ 0 + ppt_spring_diff+ppt_summer_diff+ppt_autumn_diff+ppt_winter_diff)
 
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff*tmean_annual_diff)
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff + species*tmean_annual_diff)
 # 
 # climate_formula <- formula(mean_change ~ 0 + species + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff + tmean_winter_diff)
+climate_formula <- formula(rel_change ~ 1 + tmean_annual_diff + ppt_spring_diff +ppt_summer_diff + ppt_autumn_diff)
 
-# making a data stack for the predicted value of endophyte 
+climate_formula <- formula(mean_change ~ 1 + pred_mean_1925 + tmean_annual_diff + ppt_spring_diff +ppt_summer_diff + ppt_autumn_diff)
+
 I_climate <- list()
+
 for(s in 1:3){
 I_climate[[s]] <- inla(formula = climate_formula,
            data = filter(pred_change_merge, species == c("AGHY", "AGPE", "ELVI")[s]),
@@ -780,7 +1037,7 @@ I_climate[[s]] <- inla(formula = climate_formula,
            verbose = FALSE)
 }
 
-I_climate[[1]]$summary.fixed
+I_climate[[2]]$summary.fixed
 I_climate[[1]]$dic$dic
 
 post_sampling <- list()
@@ -811,26 +1068,11 @@ climate_post_samps <- aghy_post_samps %>%
 
 
 
-aghy_post_samps <- as_tibble(t(post_samps[[1]])) %>% 
-  pivot_longer(cols = everything(), names_to = "parameter") %>% 
-  mutate(parameter_name = factor(case_when(parameter == "ppt_spring_diff" ~ "Spring Precip.",parameter == "ppt_summer_diff" ~ "Summer Precip.",parameter == "ppt_autumn_diff" ~ "Autumn Precip.",
-                               parameter == "tmean_spring_diff" ~ "Avg. Spring Temp.",parameter == "tmean_summer_diff" ~ "Avg. Summer Temp.",parameter == "tmean_autumn_diff" ~ "Avg. Autumn Temp.",  TRUE ~ parameter),
-                               levels = c("(Intercept)", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Autumn Precip.", "Summer Precip.", "Spring Precip.")))
-agpe_post_samps <- as_tibble(t(post_samps[[2]])) %>% 
-  pivot_longer(cols = everything(), names_to = "parameter") %>% 
-  mutate(parameter_name = factor(case_when(parameter == "ppt_spring_diff" ~ "Spring Precip.",parameter == "ppt_summer_diff" ~ "Summer Precip.",parameter == "ppt_autumn_diff" ~ "Autumn Precip.",
-                               parameter == "tmean_spring_diff" ~ "Avg. Spring Temp.",parameter == "tmean_summer_diff" ~ "Avg. Summer Temp.",parameter == "tmean_autumn_diff" ~ "Avg. Autumn Temp.",TRUE ~ parameter),
-                               levels = c("(Intercept)", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Autumn Precip.", "Summer Precip.", "Spring Precip.")))
-elvi_post_samps <- as_tibble(t(post_samps[[3]])) %>% 
-  pivot_longer(cols = everything(), names_to = "parameter") %>% 
-  mutate(parameter_name = factor(case_when(parameter == "ppt_spring_diff" ~ "Spring Precip.",parameter == "ppt_summer_diff" ~ "Summer Precip.",parameter == "ppt_autumn_diff" ~ "Autumn Precip.",
-                               parameter == "tmean_spring_diff" ~ "Avg. Spring Temp.",parameter == "tmean_summer_diff" ~ "Avg. Summer Temp.",parameter == "tmean_autumn_diff" ~ "Avg. Autumn Temp.", TRUE ~ parameter),
-                               levels = c("(Intercept)", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Autumn Precip.", "Summer Precip.", "Spring Precip.")))
-
 library(ggridges)
 tmean_post_plot <- ggplot()+
   geom_vline(aes(xintercept = 0))+
-  geom_density_ridges(data = filter(climate_post_samps, grepl("Temp.", parameter_name)), aes(y= parameter_name, x = value, fill = species), scale = 1, color = NA, alpha = .7)+
+  geom_density_ridges(data = filter(climate_post_samps, grepl("tmean", parameter)), aes(y= parameter, x = value, fill = species), scale = 1, color = NA, alpha = .7)+
+  # geom_density_ridges(data = filter(climate_post_samps, grepl("Temp.", parameter_name)), aes(y= parameter_name, x = value, fill = species), scale = 1, color = NA, alpha = .7)+
   scale_fill_manual(values = species_colors)+
   theme_classic()+
   theme(panel.grid.major.y = element_line(color = "darkgrey"),
@@ -853,6 +1095,38 @@ ppt_post_plot
 
 climate_plot <- tmean_post_plot + ppt_post_plot + plot_layout(ncol = 1, guides = "collect") + plot_annotation(tag_levels = "A")
 ggsave(climate_plot, filename = "climate_plot.png", height = 5, width = 6)
+
+
+
+####################################################################################################################
+############ Making a plot of the change in climate ############################### 
+####################################################################################################################
+prism_diff_long <- prism_diff_pred_df %>% 
+  pivot_longer(c(-lon, -lat))
+  
+  
+ppt_change_plot <- ggplot(filter(prism_diff_long, grepl("ppt", name) & !grepl("annual", name)))+
+  geom_tile(aes(x = lon, y = lat, fill =  value))+
+  facet_wrap(~name)+
+  coord_sf()+
+  labs(fill = expression("mm"^-1)) +
+  theme_light()
+ppt_change_plot
+
+tmean_change_plot <- ggplot(filter(prism_diff_long, grepl("tmean", name) & !grepl("annual", name)))+
+  geom_tile(aes(x = lon, y = lat, fill =  value))+
+  facet_wrap(~name)+
+  coord_sf()+
+  labs(fill = expression(degree*"C"))+
+  theme_light()
+tmean_change_plot
+  
+
+climate_change_plot <- ppt_change_plot + tmean_change_plot + 
+  plot_layout(ncol = 1) + plot_annotation(title = "Change in climate drivers between 1925 and 2020")
+  
+climate_change_plot
+ggsave(climate_change_plot, filename = "climate_change_plot.png", width = 8, height = 4)
 
 ####################################################################################################################
 ############ Getting the posterior estimates for the temporal trend at each location ############################### 
