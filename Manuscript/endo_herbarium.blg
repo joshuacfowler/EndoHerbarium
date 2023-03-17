@@ -1,7 +1,9 @@
-This is BibTeX, Version 0.99d (TeX Live 2018)
-Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: endo_herbarium.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: plain.bst
+Reallocating 'name_of_file' (item size: 1) to 15 items.
 Database file #1: endo_herbarium.bib
 Repeated entry---line 60 of file endo_herbarium.bib
  : @article{lewontin_population_1969
@@ -20,11 +22,10 @@ Repeated entry---line 1060 of file endo_herbarium.bib
  :                          ,
 I'm skipping whatever remains of this entry
 Warning--I didn't find a database entry for "CookEtAl2015"
-Warning--I didn't find a database entry for "LemKapEx07"
 Warning--empty journal in Rprism2015
 You've used 62 entries,
             2118 wiz_defined-function locations,
-            884 strings with 17908 characters,
+            882 strings with 17888 characters,
 and the built_in function-call counts, 24328 in all, are:
 = -- 2342
 > -- 1495
