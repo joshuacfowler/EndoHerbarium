@@ -63,20 +63,50 @@ endo_herb <- endo_herb_georef %>%
   filter(Country != "Canada" & !is.na(County)) %>% 
   mutate(year_bin = case_when(year<1970 ~ "pre-1970",
                               year>=1970 ~ "post-1970")) %>% 
+  mutate(scorer_id = case_when(scorer_id == "BellaGuttierez" ~ "BellaGutierrez",
+                               TRUE ~ scorer_id)) %>% 
   mutate(endo_status_text = case_when(Endo_status_liberal == 0 ~ "E-",
                                       Endo_status_liberal == 1 ~ "E+"))  
   # mutate(Endo_status_liberal = case_when(Spp_code == "AGPE" & Endo_status_liberal ==0 ~ 1,
   #                                         Spp_code == "AGPE" & Endo_status_liberal == 1~ 0, TRUE ~ Endo_status_liberal))
 
 
+
+
+# updating the scorer labels
+scorer_levels <- levels(as.factor(endo_herb$scorer_id))
+scorer_no <- paste0("Scorer",1:nlevels(as.factor(endo_herb$scorer_id)))
+
+endo_herb$scorer_id <- scorer_no[match(as.factor(endo_herb$scorer_id), scorer_levels)]
+
+# updating the collector labels
+
+endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "�", " ")
+endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
+
+
+collector_levels <- levels(as.factor(endo_herb$collector_lastname))
+collector_no <- paste0("Collector",1:nlevels(as.factor(endo_herb$collector_lastname)))
+
+endo_herb$collector_id <- collector_no[match(as.factor(endo_herb$collector_lastname), collector_levels)]
+
+
 # endo_herb <- endo_herb_AGHY
 # endo_herb <- endo_herb_AGPE
 # endo_herb <- endo_herb_ELVI
 
-endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "�", " ")
-endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
-register_google(key = "")
-map <- ggmap::get_map(zoom = 3, source = "google", maptype = c("satellite"))
+
+
+
+# Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
+contemp_surveys <- read_csv(file = "contemp_surveys.csv")
+contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
+
+
+
+
+# register_google(key = "")
+# map <- ggmap::get_map(zoom = 3, source = "google", maptype = c("satellite"))
 
 outline_map <- map_data("world")
 states_shape <- map_data("state")
@@ -111,11 +141,6 @@ endo_status_map <- ggplot()+
 endo_status_map
 
 ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5)
-
-
-# Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
-contemp_surveys <- read_csv(file = "contemp_surveys.csv")
-contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
 
 
 
@@ -226,7 +251,7 @@ stack.fit <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_
                                               species = endo_herb$Spp_code,
                                               id = endo_herb$Sample_id,
                                               county = endo_herb$County,
-                                              collector = endo_herb$collector_lastname,
+                                              collector = endo_herb$collector_id,
                                               scorer = endo_herb$scorer_id)),
                     
                     tag = 'fit')
@@ -356,12 +381,12 @@ full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y, stack.pred.test)
 
 # full_stack <- inla.stack(stack.fit)
 
-formula1 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
-                    + f(s, model = spde) + f(collector, model = "iid") + f(scorer, model = "iid"))
-formula2 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
-                    + f(s, model = spde) + f(county, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
-formula3 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
-                    + f(s, model = spde) + f(county,year, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
+# formula1 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+#                     + f(s, model = spde) + f(collector, model = "iid") + f(scorer, model = "iid"))
+# formula2 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+#                     + f(s, model = spde) + f(county, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
+# formula3 <- formula(Endo_status_liberal ~ 1 + year + year:lat + year:lon + year:lat:lon
+                    # + f(s, model = spde) + f(county,year, model = "iid") + f(collector, model = "iid") + f(scorer, model = "iid"))
 # 
 # formula <- formula(Endo_status_liberal_1 ~ 0 + year + year:lat + year:lon + year:lat:lon 
 #                    + f(s, model = spde))
@@ -556,8 +581,8 @@ pred_data_change <- pred_data %>%
          log_2020 = log(pred_mean_2020))
 write_csv(pred_data_change, file = "pred_data_change.csv")
 
-ggplot(data = filter(pred_data_change, species == "ELVI"))+
-  geom_tile(aes(x = lon, y = lat, fill = log_2020))+
+ggplot(data = filter(pred_data_change, species == "AGHY"))+
+  geom_tile(aes(x = lon, y = lat, fill = mean_change))+
   facet_wrap(~species)
 
 ggplot(data = prism_diff_pred_df)+
@@ -1127,6 +1152,80 @@ climate_change_plot <- ppt_change_plot + tmean_change_plot +
   
 climate_change_plot
 ggsave(climate_change_plot, filename = "climate_change_plot.png", width = 8, height = 4)
+
+
+####################################################################################################################
+############ Plotting the posterior estimates for the scorer and collector random effects ############################### 
+####################################################################################################################
+# we can sample from the posterior for the different variables
+post_samp <- inla.posterior.sample(n = 500, result = I)
+
+scorer_samps <- inla.posterior.sample.eval("scorer", post_samp)
+rownames(scorer_samps) <- I$summary.random$scorer[,"ID"]
+scorer_samps_df <- as_tibble(t(scorer_samps)) %>% 
+  pivot_longer(cols = everything(), names_to = "Scorer")
+  
+collector_samps <- inla.posterior.sample.eval("collector", post_samp)
+rownames(collector_samps) <- I$summary.random$collector[,"ID"]
+collector_samps_df <- as_tibble(t(collector_samps)) %>% 
+  pivot_longer(cols = everything(), names_to = "Collector")
+
+scorer_summary <- scorer_samps_df %>% 
+  group_by(Scorer) %>% 
+  summarize(par_mean = mean(value), 
+            par_lwr = quantile(value, probs = c(.025)),
+            par_upr = quantile(value, probs = c(.975))) %>% 
+  mutate(Scorer_fct = as.factor(Scorer))
+         
+levels(scorer_summary$Scorer_fct) <- scorer_no
+
+collector_summary <- collector_samps_df %>% 
+  group_by(Collector) %>% 
+  summarize(par_mean = mean(value), 
+            par_lwr = quantile(value, probs = c(.025)),
+            par_upr = quantile(value, probs = c(.975))) %>% 
+  mutate(Collector_fct = as.factor(Collector))
+
+levels(collector_summary$Collector_fct) <- collector_no
+
+
+# hist(scorer_samps_df$value)
+# 
+# plot(inla.smarginal(I$marginals.random$scorer$index.1))
+
+
+scorer_plot <- ggplot(scorer_summary)+
+  geom_point(aes(x = par_mean,y = Scorer_fct))+
+  geom_errorbarh(aes(xmin = par_lwr, xmax = par_upr, height = 0, y = Scorer_fct))+
+  theme_light()
+scorer_plot
+
+collector_plot <- ggplot(collector_summary)+
+  geom_point(aes(x = par_mean,y = Collector_fct), size = .3)+
+  geom_errorbarh(aes(xmin = par_lwr, xmax = par_upr, y = Collector_fct), height = 0, alpha = .6)+
+  theme_light()+
+  theme(axis.text.y = element_blank())
+collector_plot
+
+
+# calculating summary overall posterior summary stuff for the manuscript
+
+plot(I$marginals.fixed$`speciesAGHY:year`)
+plot(I$marginals.fixed$`speciesAGPE:year`)
+plot(I$marginals.fixed$`speciesELVI:year`)
+
+
+year_samps <-inla.posterior.sample.eval(rownames(I$summary.fixed)[4:6], post_samp)
+rownames(year_samps) <- rownames(I$summary.fixed)[4:6]
+year_samps_df <- as_tibble(t(year_samps)) %>% 
+  pivot_longer(cols = everything(), names_to = "Species") %>% 
+  filter()
+
+year_post_summary <- year_samps_df %>% 
+  group_by(Species) %>% 
+  summarize(mean_trend = mean(value),
+            n_draws = n(),
+            prop_pos = sum(value>0)/n_draws)
 
 ####################################################################################################################
 ############ Getting the posterior estimates for the temporal trend at each location ############################### 
