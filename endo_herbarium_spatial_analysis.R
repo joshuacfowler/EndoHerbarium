@@ -103,9 +103,6 @@ endo_herb$collector_id <- collector_no[match(as.factor(endo_herb$collector_lastn
 contemp_surveys <- read_csv(file = "contemp_surveys.csv")
 contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
 
-contemp_random_sample <- contemp_random_sample %>% 
-  left_join(contemp_surveys)
-
 
 # register_google(key = "")
 # map <- ggmap::get_map(zoom = 3, source = "google", maptype = c("satellite"))
@@ -604,19 +601,17 @@ pred_data_long <- pred_data %>%
                              species == "ELVI" ~ "E. virginicus"))
 
 
-ggplot()+
-  geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+prevalence_map_CI <- ggplot()+
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
-  geom_tile(data = filter(pred_data_long, variable == "pred_mean" & year == 1920 | variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
-  facet_wrap(variable~year+species)+
-  scale_fill_gradient(
-    name = "Endophyte Prevalence",
-    low = "blue", high = "orange",
-    breaks = c(0,.25,.5,.75,1),
-    limits = c(0,1)) +
+  geom_tile(data = filter(pred_data_long, variable == "pred_lwr" & year == 1925 | variable == "pred_lwr" & year == 2020 | variable == "pred_upr" & year == 1925 | variable == "pred_upr" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
+  facet_wrap(species~year+variable, ncol = 4)+
+  scale_fill_viridis_c(limits = c(0,1))+
   theme_light()+
   # theme(strip.background = element_blank())+
-  labs(x = "Longitude", y = "Latitude")
+  labs(x = "Longitude", y = "Latitude") 
+# prevalence_map_CI
+ggsave(prevalence_map_CI, filename = "prevalence_map_CI.png", width = 15, height = 10)
   
 # making maps for each species for manuscript
 AGHY_prevalence <- ggplot()+
@@ -818,13 +813,15 @@ ggsave(test_data_map, filename = "test_data_map.png", width = 10, height = 8)
 # Binning the data by year for plotting
 
 endo_herb_binned <- endo_herb %>% 
-  mutate(binned_year = cut(year, breaks = 20)) %>%
+  mutate(binned_year = cut(year, breaks = 30)) %>%
   group_by(Spp_code, species,binned_year) %>%   
   summarise(mean_year = mean(year),
             mean_endo = mean(Endo_status_liberal),
             mean_lon = mean(lon),
             mean_lat = mean(lat),
-            sample = n())
+            sample = n()) %>% 
+  mutate(lat_bin = case_when(mean_lat>=35 ~ paste("43"),
+                             mean_lat<35 ~ paste("35")))
   
 # mean_loc <- endo_herb_binned %>% 
 #   group_by(Spp_code, species) %>% 
@@ -848,15 +845,16 @@ year_trend <- ggplot()+
   geom_ribbon(data = pred.y_data_neat, aes(x = year, ymin = pred_lwr, ymax = pred_upr, group = name, linetype = name), color = "grey40", fill = "grey", alpha = .1)+
   geom_line( data = pred.y_data_neat, aes(x = year, y = pred_mean, group = name, linetype = name), color = "black", linewidth = 1, alpha = .8)+
   geom_point(data = endo_herb, aes(x = year, y = Endo_status_liberal), pch = "|", alpha = .7)+
-  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species , size = sample), alpha = .9)+
+  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species , size = sample, pch = lat_bin), alpha = .9)+
   scale_color_manual(values = species_colors, guide = "none")+
   # scale_fill_manual(values = species_colors)+
+  scale_shape_manual(values = c(1,19))+
   scale_linetype_manual(values = c("dotted", "solid"))+
   facet_wrap(~species, nrow = 1)+
   theme_classic()+
   theme(strip.background = element_blank(),
         strip.text = element_blank())+
-  labs(y = "Endophyte Prevalence", x = "Year", color = "Species", fill = "Species", size = "Specimen Count", linetype = "Latitude")
+  labs(y = "Endophyte Prevalence", x = "Year", color = "Species", fill = "Species", size = "Specimen Count", shape = "Latitude", linetype = "Latitude")
 year_trend
   
 year_hist <- ggplot()+
@@ -1590,7 +1588,7 @@ fixed_samps <-inla.posterior.sample.eval(rownames(I$summary.fixed), post_samp)
 rownames(fixed_samps) <- rownames(I$summary.fixed)
 fixed_samps_df <- as_tibble(t(fixed_samps)) %>% 
   pivot_longer(cols = everything(), names_to = "parameter") %>% 
-  filter()
+  mutate(score = "Liberal")
 
 # getting just the main year effects
 year_samps <-inla.posterior.sample.eval(rownames(I$summary.fixed)[4:6], post_samp)
@@ -1599,6 +1597,8 @@ year_samps_df <- as_tibble(t(year_samps)) %>%
   pivot_longer(cols = everything(), names_to = "Species") %>% 
   filter()
 
+
+
 year_post_summary <- year_samps_df %>% 
   group_by(Species) %>% 
   summarize(mean_trend = mean(value),
@@ -1606,6 +1606,7 @@ year_post_summary <- year_samps_df %>%
             prop_pos = sum(value>0)/n_draws)
 
 
+# summary of spatial trends
 
 
 ####################################################################################################################
@@ -1632,6 +1633,7 @@ stack.cons <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status
                                                             scorer = endo_herb$scorer_id)),
                                   
                                   tag = 'fit')
+
 I_cons <- inla(formula = formula1, family = "binomial", Ntrials = 1,
            data = inla.stack.data(stack.cons), 
            control.predictor = list(A = inla.stack.A(stack.cons),
@@ -1649,8 +1651,32 @@ fixed_samps.cons <-inla.posterior.sample.eval(rownames(I_cons$summary.fixed), po
 rownames(fixed_samps.cons) <- rownames(I_cons$summary.fixed)
 fixed_samps.cons_df <- as_tibble(t(fixed_samps.cons)) %>% 
   pivot_longer(cols = everything(), names_to = "parameter") %>% 
-  filter()
+  mutate(score = "Conservative")
 
+
+fixed_cons_lib_summary <- rbind(fixed_samps_df, fixed_samps.cons_df) %>% 
+  group_by(score, parameter) %>% 
+  summarize(par_mean = mean(value), 
+            par_lwr = quantile(value, probs = c(.025)),
+            par_upr = quantile(value, probs = c(.975))) %>% 
+  mutate(intercept = case_when(!grepl(":", parameter) ~ "Intercept",
+                               grepl("lon", parameter) | grepl("lat", parameter) ~ "Interaction",
+                               TRUE ~ "Slope"))
+
+
+fixed_plot <- ggplot(fixed_cons_lib_summary)+
+  geom_vline(xintercept = 0, lwd = .2)+
+  geom_point(aes(x = par_mean,y = parameter, color = score), position = position_dodge(width = .3), size = .3)+
+  geom_errorbarh(aes(xmin = par_lwr, xmax = par_upr, y = parameter, color = score), position = position_dodge(width = .3), height = 0, alpha = .6)+
+  scale_color_manual(values = c("grey25", "deeppink1"))+
+  facet_wrap(~factor(intercept, levels = c("Intercept", "Slope", "Interaction")), ncol = 1, scales = "free")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_blank())+
+  labs(y = "", x = "Posterior Estimate", color = "Scoring Certainty")
+
+fixed_plot
+ggsave(fixed_plot, filename = "fixed_plot.png", width = 5, height = 5)
 ####################################################################################################################
 ############ Getting the posterior estimates for the temporal trend at each location ############################### 
 ####################################################################################################################
