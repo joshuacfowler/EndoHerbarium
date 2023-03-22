@@ -12,6 +12,19 @@ Michelle~E Afkhami, Patrick~J McIntyre, and Sharon~Y Strauss.
   geographic scales.
 \newblock {\em Ecology letters}, 17(10):1265--1273, 2014.
 
+\bibitem{afkhami2008symbiosis}
+Michelle~E Afkhami and Jennifer~A Rudgers.
+\newblock Symbiosis lost: imperfect vertical transmission of fungal endophytes
+  in grasses.
+\newblock {\em The American Naturalist}, 172(3):405--416, 2008.
+
+\bibitem{aitken2008adaptation}
+Sally~N Aitken, Sam Yeaman, Jason~A Holliday, Tongli Wang, and Sierra
+  Curtis-McLane.
+\newblock Adaptation, migration or extirpation: climate change outcomes for
+  tree populations.
+\newblock {\em Evolutionary applications}, 1(1):95--111, 2008.
+
 \bibitem{aslan2013mutualism}
 Clare~E Aslan, Erika~S Zavaleta, Bernie Tershy, and Donald Croll.
 \newblock Mutualism disruption threatens global plant biodiversity: a
@@ -44,6 +57,12 @@ Dawn~R Bazely, John~P Ball, Mark Vicari, Andrew~J Tanentzap, Myrtille
   grasses in sweden.
 \newblock {\em Ecography}, 30(3):367--374, 2007.
 
+\bibitem{beguin2012hierarchical}
+Julien Beguin, Sara Martino, H{\aa}vard Rue, and Steven~G Cumming.
+\newblock Hierarchical analysis of spatially autocorrelated ecological data
+  using integrated nested laplace approximation.
+\newblock {\em Methods in Ecology and Evolution}, 3(5):921--929, 2012.
+
 \bibitem{berg2019examination}
 Colette~S Berg, Jason~L Brown, and Jennifer~J Weber.
 \newblock An examination of climate-driven flowering-time shifts at large
@@ -56,6 +75,12 @@ Vanessa~C Bieker, F{\'a}tima S{\'a}nchez~Barreiro, Jacob~A Rasmussen, Marie
 \newblock Metagenomic analysis of historical herbarium specimens reveals a
   postmortem microbial community.
 \newblock {\em Molecular ecology resources}, 20(5):1206--1219, 2020.
+
+\bibitem{blois2013climate}
+Jessica~L Blois, Phoebe~L Zarnetske, Matthew~C Fitzpatrick, and Seth Finnegan.
+\newblock Climate change and the past, present, and future of biotic
+  interactions.
+\newblock {\em Science}, 341(6145):499--504, 2013.
 
 \bibitem{bradshaw2021global}
 Michael Bradshaw, Uwe Braun, Marianne Elliott, Julia Kruse, Shu-Yan Liu,
@@ -81,6 +106,24 @@ Shen Cheng, Ying-Ning Zou, Kamil Ku{\v{c}}a, Abeer Hashem, Elsayed~Fathi
 \newblock Elucidating the mechanisms underlying enhanced drought tolerance in
   plants mediated by arbuscular mycorrhizal fungi.
 \newblock {\em Frontiers in Microbiology}, 12:4029, 2021.
+
+\bibitem{clay2002evolutionary}
+Keith Clay and Christopher Schardl.
+\newblock Evolutionary origins and ecological consequences of endophyte
+  symbiosis with grasses.
+\newblock {\em the american naturalist}, 160(S4):S99--S127, 2002.
+
+\bibitem{craven2001multigene}
+KD~Craven, PTW Hsiau, A~Leuchtmann, W~Hollin, and CL~Schardl.
+\newblock Multigene phylogeny of epichlo{\"e} species, fungal symbionts of
+  grasses.
+\newblock {\em Annals of the Missouri Botanical Garden}, pages 14--34, 2001.
+
+\bibitem{crawford2010fungal}
+Kerri~M Crawford, John~M Land, and Jennifer~A Rudgers.
+\newblock Fungal endophytes of native grasses decrease insect herbivore
+  preference and performance.
+\newblock {\em Oecologia}, 164:431--444, 2010.
 
 \bibitem{daly2013prism}
 Christopher Daly and Kirk Bryant.
@@ -142,11 +185,24 @@ Yuan-Wen Duan, Haibao Ren, Tao Li, Lin-Lin Wang, Zhi-Qiang Zhang, Yan-Li Tu,
   seed pods.
 \newblock {\em New Phytologist}, 224(4):1512--1517, 2019.
 
+\bibitem{engel2022spatial}
+Markus Engel, Tobias Mette, and Wolfgang Falk.
+\newblock Spatial species distribution models: Using bayes inference with inla
+  and spde to improve the tree species choice for important european tree
+  species.
+\newblock {\em Forest Ecology and Management}, 507:119983, 2022.
+
 \bibitem{fine1975vectors}
 Paul~EM Fine.
 \newblock Vectors and vertical transmission: an epidemiologic perspective.
 \newblock {\em Annals of the New York Academy of Sciences}, 266(1):173--194,
   1975.
+
+\bibitem{frade2008variation}
+PR~Frade, F~De~Jongh, F~Vermeulen, J~Van~Bleijswijk, and RPM Bak.
+\newblock Variation in symbiont distribution between closely related coral
+  species over large depth ranges.
+\newblock {\em Molecular Ecology}, 17(2):691--703, 2008.
 
 \bibitem{gilman2010framework}
 Sarah~E Gilman, Mark~C Urban, Joshua Tewksbury, George~W Gilchrist, and
@@ -181,12 +237,17 @@ J~Mason Heberling and David~J Burke.
   communities.
 \newblock {\em Applications in plant sciences}, 7(4):e01223, 2019.
 
-\bibitem{IPCC2012managing}
+\bibitem{hillerislambers2013will}
+Janneke HilleRisLambers, Melanie~A Harsch, Ailene~K Ettinger, Kevin~R Ford, and
+  Elinore~J Theobald.
+\newblock How will biotic interactions influence climate change--induced range
+  shifts?
+\newblock {\em Annals of the New York Academy of Sciences}, 1297(1):112--125,
+  2013.
+
+\bibitem{ipcc_2021}
 IPCC.
-\newblock {\em Managing the risks of extreme events and disasters to advance
-  climate change adaptation: special report of the intergovernmental panel on
-  climate change. Special Report.}
-\newblock Cambridge University Press, 2012.
+\newblock Climate change 2021: The physical science basis, 2021.
 
 \bibitem{kahle2019package}
 David Kahle, Hadley Wickham, and Maintainer~David Kahle.
@@ -201,6 +262,14 @@ Melanie~R Kazenel, Catherine~L Debban, Luciana Ranelli, Will~Q Hendricks,
   plant.
 \newblock {\em AoB plants}, 7:plv005, 2015.
 
+\bibitem{knapp2016large}
+Roland~A Knapp, Gary~M Fellers, Patrick~M Kleeman, David~AW Miller, Vance~T
+  Vredenburg, Erica~Bree Rosenblum, and Cheryl~J Briggs.
+\newblock Large-scale recovery of an endangered amphibian despite ongoing
+  exposure to multiple stressors.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  113(42):11889--11894, 2016.
+
 \bibitem{lendemer2020extended}
 James Lendemer, Barbara Thiers, Anna~K Monfils, Jennifer Zaspel, Elizabeth~R
   Ellwood, Andrew Bentley, Katherine LeVan, John Bates, David Jennings, Dori
@@ -213,6 +282,13 @@ James Lendemer, Barbara Thiers, Anna~K Monfils, Jennifer Zaspel, Elizabeth~R
 A~Leuchtmann.
 \newblock Systematics, distribution, and host specificity of grass endophytes.
 \newblock {\em Natural toxins}, 1(3):150--162, 1992.
+
+\bibitem{leuchtmann2014nomenclatural}
+Adrian Leuchtmann, Charles~W Bacon, Christopher~L Schardl, James~F White~Jr,
+  and Mariusz Tadych.
+\newblock Nomenclatural realignment of neotyphodium species with genus
+  epichlo{\"e}.
+\newblock {\em Mycologia}, 106(2):202--215, 2014.
 
 \bibitem{lewontin_population_1969}
 R.~C. Lewontin and D.~Cohen.
@@ -279,6 +355,20 @@ Anton Pauw and Julie~A Hawkins.
   declines of pollinators and plants.
 \newblock {\em Oikos}, 120(3):344--349, 2011.
 
+\bibitem{piao2019plant}
+Shilong Piao, Qiang Liu, Anping Chen, Ivan~A Janssens, Yongshuo Fu, Junhu Dai,
+  Lingli Liu, XU~Lian, Miaogen Shen, and Xiaolin Zhu.
+\newblock Plant phenology and global climate change: Current progresses and
+  challenges.
+\newblock {\em Global change biology}, 25(6):1922--1940, 2019.
+
+\bibitem{poisot2021global}
+Timoth{\'e}e Poisot, Gabriel Bergeron, Kevin Cazelles, Tad Dallas, Dominique
+  Gravel, Andrew MacDonald, Benjamin Mercier, Cl{\'e}ment Violet, and Steve
+  Vissault.
+\newblock Global knowledge gaps in species interaction networks data.
+\newblock {\em Journal of Biogeography}, 48(7):1552--1563, 2021.
+
 \bibitem{rafferty2015phenological}
 Nicole~E Rafferty, Paul~J CaraDonna, and Judith~L Bronstein.
 \newblock Phenological shifts and the fate of mutualisms.
@@ -307,6 +397,13 @@ RJ~Rodriguez, JF~White~Jr, Anne~E Arnold, and a~RS~and Redman.
 \newblock Fungal endophytes: diversity and functional roles.
 \newblock {\em New phytologist}, 182(2):314--330, 2009.
 
+\bibitem{rolshausen2018quantifying}
+Gregor Rolshausen, Francesco Dal~Grande, Anna~D Sadowska-De{\'s}, J{\"u}rgen
+  Otte, and Imke Schmitt.
+\newblock Quantifying the climatic niche of symbiont partners in a lichen
+  symbiosis indicates mutualist-mediated niche expansions.
+\newblock {\em Ecography}, 41(8):1380--1392, 2018.
+
 \bibitem{rudgers2009fungus}
 Jennifer~A Rudgers, Michelle~E Afkhami, Megan~A R{\'u}a, Andrew~J Davitt,
   Samantha Hammer, and Val{\'e}rie~M Huguet.
@@ -319,6 +416,20 @@ Jennifer~A Rudgers and Angela~L Swafford.
 \newblock Benefits of a fungal endophyte in elymus virginicus decline under
   drought stress.
 \newblock {\em Basic and Applied Ecology}, 10(1):43--51, 2009.
+
+\bibitem{rue2009approximate}
+H{\aa}vard Rue, Sara Martino, and Nicolas Chopin.
+\newblock Approximate bayesian inference for latent gaussian models by using
+  integrated nested laplace approximations.
+\newblock {\em Journal of the royal statistical society: Series b (statistical
+  methodology)}, 71(2):319--392, 2009.
+
+\bibitem{sadykova2017bayesian}
+Dinara Sadykova, Beth~E Scott, Michela De~Dominicis, Sarah~L Wakelin, Alexander
+  Sadykov, and Judith Wolf.
+\newblock Bayesian joint models with inla exploring marine mobile
+  predator--prey and competitor species habitat overlap.
+\newblock {\em Ecology and Evolution}, 7(14):5212--5226, 2017.
 
 \bibitem{saikkonen2013chemical}
 Kari Saikkonen, Pedro~E Gundel, and Marjo Helander.
@@ -349,10 +460,22 @@ E~Toby~Kiers, Todd~M Palmer, Anthony~R Ives, John~F Bruno, and Judith~L
 \newblock Mutualisms in a changing world: an evolutionary perspective.
 \newblock {\em Ecology letters}, 13(12):1459--1474, 2010.
 
+\bibitem{tredennick2021practical}
+Andrew~T Tredennick, Giles Hooker, Stephen~P Ellner, and Peter~B Adler.
+\newblock A practical guide to selecting models for exploration, inference, and
+  prediction in ecology.
+\newblock {\em Ecology}, 102(6):e03336, 2021.
+
 \bibitem{truitt2019wolbachia}
 Amy~M Truitt, Martin Kapun, Rupinder Kaur, and Wolfgang~J Miller.
 \newblock Wolbachia modifies thermal preference in drosophila melanogaster.
 \newblock {\em Environmental microbiology}, 21(9):3259--3268, 2019.
+
+\bibitem{tuljapurkar_population_1982}
+Shripad~D. Tuljapurkar.
+\newblock Population dynamics in variable environments. {III}. {Evolutionary}
+  dynamics of r-selection.
+\newblock {\em Theoretical Population Biology}, 21(1):141--165, February 1982.
 
 \bibitem{wang2020effects}
 Zhengfeng Wang, Chunjie Li, and James White.
@@ -365,6 +488,11 @@ Robert~J Warren and Mark~A Bradford.
 \newblock Mutualism fails when climate response differs between interacting
   species.
 \newblock {\em Global Change Biology}, 20(2):466--474, 2014.
+
+\bibitem{webster2008temperature}
+Nicole~S Webster, Rose~E Cobb, and Andrew~P Negri.
+\newblock Temperature thresholds for bacterial symbiosis with a sponge.
+\newblock {\em The ISME journal}, 2(8):830--842, 2008.
 
 \bibitem{white1985endophyte}
 James~F White and Garry~T Cole.
@@ -385,6 +513,12 @@ Charles~G Willis, Elizabeth~R Ellwood, Richard~B Primack, Charles~C Davis,
 \newblock Old plants, new tricks: Phenological research using herbarium
   specimens.
 \newblock {\em Trends in ecology \& evolution}, 32(7):531--546, 2017.
+
+\bibitem{xia2018role}
+Chao Xia, Nana Li, Yawen Zhang, Chunjie Li, Xingxu Zhang, and Zhibiao Nan.
+\newblock Role of epichlo{\"e} endophytes in defense responses of cool-season
+  grasses to pathogens: A review.
+\newblock {\em Plant disease}, 102(11):2061--2073, 2018.
 
 \bibitem{yoshida2015computational}
 Kentaro Yoshida, Eriko Sasaki, and Sophien Kamoun.
