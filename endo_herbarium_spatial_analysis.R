@@ -15,7 +15,7 @@ library(ROCR)
 
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
-species_colors <- c("#66c2a5", "#fc8d62", "#8da0cb")
+species_colors <- c("#1b9e77","#d95f02","#7570b3")
 endophyte_colors <- c("#fdedd3","#f3c8a8", "#5a727b", "#4986c7", "#181914",  "#163381")
 
 
@@ -43,7 +43,7 @@ endo_herb_AGPE <- endo_herb_georef %>%
   filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGPE") %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lon>-110) %>% 
+  filter(lon>-100) %>% 
   filter(Country != "Canada" & !is.na(County))  
   
 
@@ -60,7 +60,8 @@ endo_herb <- endo_herb_georef %>%
   filter(!is.na(Spp_code)) %>% 
   filter(!is.na(lon) & !is.na(year)) %>% 
   filter(lon>-110 ) %>% 
-  filter(Country != "Canada" & !is.na(County)) %>% 
+  filter(Country != "Canada" ) %>% 
+  filter(!is.na(County) | is.na(Municipality)) %>% 
   mutate(year_bin = case_when(year<1970 ~ "pre-1970",
                               year>=1970 ~ "post-1970")) %>% 
   mutate(scorer_id = case_when(scorer_id == "BellaGuttierez" ~ "BellaGutierrez",
@@ -102,7 +103,8 @@ endo_herb$collector_id <- collector_no[match(as.factor(endo_herb$collector_lastn
 contemp_surveys <- read_csv(file = "contemp_surveys.csv")
 contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
 
-
+contemp_random_sample <- contemp_random_sample %>% 
+  left_join(contemp_surveys)
 
 
 # register_google(key = "")
@@ -160,6 +162,21 @@ ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5
 #             n_match = sum(score_match),
 #             percent_match = n_match/n)
 # 
+mode <- function(codes){
+  which.max(tabulate(codes))
+}
+
+summary_endo_herb <- endo_herb %>% 
+  mutate(Sample_id_temp = Sample_id) %>% 
+  separate(Sample_id_temp, sep = "_", into = c("herbarium", "spp_code", "plant_no")) %>% select(-spp_code, -plant_no) %>% 
+  # filter(seed_scored>0) %>% 
+  filter(month<=12&month>0) %>% 
+  group_by(species) %>% 
+  summarize(n(),
+            avg_seed = mean(seed_scored, na.rm = T),
+            avg_month = mode(as.numeric(month)))
+
+
 # summary(lm(formula(Endo_status_liberal_1 ~ 0 + Spp_code + Spp_code:year + Spp_code:year:lat + Spp_code:year:lon + Spp_code:year:lat:lon), data = endo_herb))
 ################################################################################
 ############ Setting up and running INLA model ############################### 
@@ -168,8 +185,15 @@ ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5
 # generate mesh, which is used to fit the spatial effects
 # using a coarser mesh to start out as this is easier computation and sufficient to capture spatial effects
 coords <- cbind(endo_herb$lon, endo_herb$lat)
+AGHY_coords <- cbind(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
+AGPE_coords <- cbind(endo_herb_AGPE$lon, endo_herb_AGPE$lat)
+ELVI_coords <- cbind(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
 
 non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.05, resolution = c(100, 100))
+AGHY_non_convex_bdry <- inla.nonconvex.hull(AGHY_coords, -0.03, -0.05, resolution = c(100, 100))
+AGPE_non_convex_bdry <- inla.nonconvex.hull(AGPE_coords, -0.04, -0.05, resolution = c(100, 100))
+ELVI_non_convex_bdry <- inla.nonconvex.hull(ELVI_coords, -0.03, -0.05, resolution = c(100, 100))
+
 sf::sf_use_s2(FALSE)
 bdry_st <- st_make_valid(as_tibble(non_convex_bdry$loc)  %>% 
   mutate(lon = V1,  lat = V2) %>% 
@@ -177,14 +201,38 @@ bdry_st <- st_make_valid(as_tibble(non_convex_bdry$loc)  %>%
   summarise(geometry = st_combine(geometry)) %>% 
   st_cast("POLYGON"))
 
+AGHY_bdry_st <- st_make_valid(as_tibble(AGHY_non_convex_bdry$loc)  %>% 
+                           mutate(lon = V1,  lat = V2) %>% 
+                           st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+                           summarise(geometry = st_combine(geometry)) %>% 
+                           st_cast("POLYGON"))
+AGPE_bdry_st <- st_make_valid(as_tibble(AGPE_non_convex_bdry$loc)  %>% 
+                                mutate(lon = V1,  lat = V2) %>% 
+                                st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+                                summarise(geometry = st_combine(geometry)) %>% 
+                                st_cast("POLYGON"))
+ELVI_bdry_st <- st_make_valid(as_tibble(ELVI_non_convex_bdry$loc)  %>% 
+                                mutate(lon = V1,  lat = V2) %>% 
+                                st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
+                                summarise(geometry = st_combine(geometry)) %>% 
+                                st_cast("POLYGON"))
+
 coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE)))
 # plot(coastline)
 
 bdry <- st_intersection(coastline$geom, bdry_st)
+AGHY_bdry <- st_intersection(coastline$geom, AGHY_bdry_st)
+AGPE_bdry <- st_intersection(coastline$geom, AGPE_bdry_st)
+ELVI_bdry <- st_intersection(coastline$geom, ELVI_bdry_st)
 
 bdry_polygon <- st_cast(st_sf(bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
   as("Spatial")
-
+AGHY_bdry_polygon <- st_cast(st_sf(AGHY_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
+  as("Spatial")
+AGPE_bdry_polygon <- st_cast(st_sf(AGPE_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
+  as("Spatial")
+ELVI_bdry_polygon <- st_cast(st_sf(ELVI_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
+  as("Spatial")
 # plot(bdry_polygon)
 
 max.edge = diff(range(coords[,2]))/(10)
@@ -273,29 +321,69 @@ pred_data <- data.frame(expand.grid(Intercept = 1,
 
 
 # keeping just the points that are part of the mesh's boundary
-simple_bdry <- st_as_sf(bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
+AGHY_simple_bdry <- st_as_sf(AGHY_bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
+AGPE_simple_bdry <- st_as_sf(AGPE_bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
+ELVI_simple_bdry <- st_as_sf(ELVI_bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
+
 # plot(simple_bdry)
-ind <- point.in.polygon(
+aghy_ind <- point.in.polygon(
   pred_data$lon, pred_data$lat,
-  raster::geom(simple_bdry)[,5], raster::geom(simple_bdry)[,6] 
+  raster::geom(AGHY_simple_bdry)[,5], raster::geom(AGHY_simple_bdry)[,6] 
+)
+agpe_ind <- point.in.polygon(
+  pred_data$lon, pred_data$lat,
+  raster::geom(AGPE_simple_bdry)[,5], raster::geom(AGPE_simple_bdry)[,6] 
+)
+elvi_ind <- point.in.polygon(
+  pred_data$lon, pred_data$lat,
+  raster::geom(ELVI_simple_bdry)[,5], raster::geom(ELVI_simple_bdry)[,6] 
 )
 
-coords_pred <- pred_data %>% 
+aghy_pred_data <- pred_data %>% 
+  filter(species == "AGHY")
+aghy_coords_pred <- aghy_pred_data %>% 
   select(lon, lat) 
-coords_pred <- as.matrix(coords_pred[which(ind == 1),])
+aghy_coords_pred <- as.matrix(aghy_coords_pred[which(aghy_ind == 1),])
 # plot(coords_pred)
-pred_data <- pred_data[which(ind ==1),]
+AGHY_pred_data <- aghy_pred_data[which(aghy_ind ==1),]
+
+agpe_pred_data <- pred_data %>% 
+  filter(species == "AGPE")
+agpe_coords_pred <- agpe_pred_data %>% 
+  select(lon, lat) 
+agpe_coords_pred <- as.matrix(agpe_coords_pred[which(agpe_ind == 1),])
+# plot(coords_pred)
+AGPE_pred_data <- agpe_pred_data[which(agpe_ind ==1),]
+
+elvi_pred_data <- pred_data %>% 
+  filter(species == "ELVI")
+elvi_coords_pred <- elvi_pred_data %>% 
+  select(lon, lat) 
+elvi_coords_pred <- as.matrix(elvi_coords_pred[which(elvi_ind == 1),])
+# plot(coords_pred)
+ELVI_pred_data <- elvi_pred_data[which(elvi_ind ==1),]
   
 #Making a projection matrix for the predicted values
-A_pred <- inla.spde.make.A(mesh = mesh, loc = coords_pred)
+A_pred.aghy <- inla.spde.make.A(mesh = mesh, loc = aghy_coords_pred)
+A_pred.agpe <- inla.spde.make.A(mesh = mesh, loc = agpe_coords_pred)
+A_pred.elvi <- inla.spde.make.A(mesh = mesh, loc = elvi_coords_pred)
 
 
-
-stack.pred <- inla.stack(data = list(Endo_status_liberal = NA),
-                        A = list(A_pred,1),
+stack.pred.aghy <- inla.stack(data = list(Endo_status_liberal = NA),
+                        A = list(A_pred.aghy,1),
                         effects = list(s = spde.index$spatial.field, 
-                                       pred_data),
-                        tag = 'pred')
+                                       AGHY_pred_data),
+                        tag = 'pred.aghy')
+stack.pred.agpe <- inla.stack(data = list(Endo_status_liberal = NA),
+                              A = list(A_pred.agpe,1),
+                              effects = list(s = spde.index$spatial.field, 
+                                             AGPE_pred_data),
+                              tag = 'pred.agpe')
+stack.pred.elvi <- inla.stack(data = list(Endo_status_liberal = NA),
+                              A = list(A_pred.elvi,1),
+                              effects = list(s = spde.index$spatial.field, 
+                                             ELVI_pred_data),
+                              tag = 'pred.elvi')
 
 
 # this is the data to make a plot for the effect of year at the average lat/lon
@@ -350,14 +438,14 @@ stack.pred.y <- inla.stack(data = list(Endo_status_liberal = NA),
 #                                       collector = NA)
 
 pred.test_data <- data.frame(Intercept = 1, 
-                             lon = contemp_random_sample$lon,
-                             lat = contemp_random_sample$lat,
-                             year = contemp_random_sample$Year, 
-                             species = contemp_random_sample$SpeciesID,
-                             id = NA,
+                             lon = contemp_surveys$lon,
+                             lat = contemp_surveys$lat,
+                             year = contemp_surveys$Year, 
+                             species = contemp_surveys$SpeciesID,
+                             id = "new",
                              county = NA,
-                             collector = NA,
-                             scorer = NA)
+                             collector = "new",
+                             scorer = "new")
 
 coords_pred.test <- pred.test_data %>% 
   select(lon, lat) %>% 
@@ -376,7 +464,7 @@ stack.pred.test <- inla.stack(data = list(Endo_status_liberal = NA),
 
 
 #
-full_stack <- inla.stack(stack.fit, stack.pred, stack.pred.y, stack.pred.test)
+full_stack <- inla.stack(stack.fit, stack.pred.aghy, stack.pred.agpe, stack.pred.elvi, stack.pred.y, stack.pred.test)
 # full_stack <- inla.stack(stack.fit, stack.pred.y)
 
 # full_stack <- inla.stack(stack.fit)
@@ -477,7 +565,7 @@ I8$dic$dic
 I9$dic$dic
 I10$dic$dic
 
-
+I1$mode$mode.status # a 0 or low value indicates "convergence"
 
 I <- I1
 saveRDS(I, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/inla_spde.rds")
@@ -489,10 +577,23 @@ I$summary.random
 
 
 # pulling out the predicted values from the model and attaching them to our pred_data
-index <- inla.stack.index(full_stack, tag = "pred")$data
-pred_data$pred_mean <- I$summary.fitted.values[index, "mean"]
-pred_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
-pred_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
+
+AGHY_index <- inla.stack.index(full_stack, tag = "pred.aghy")$data
+AGHY_pred_data$pred_mean <- I$summary.fitted.values[AGHY_index, "mean"]
+AGHY_pred_data$pred_lwr <- I$summary.fitted.values[AGHY_index, "0.025quant"]
+AGHY_pred_data$pred_upr <- I$summary.fitted.values[AGHY_index, "0.975quant"]
+
+AGPE_index <- inla.stack.index(full_stack, tag = "pred.agpe")$data
+AGPE_pred_data$pred_mean <- I$summary.fitted.values[AGPE_index, "mean"]
+AGPE_pred_data$pred_lwr <- I$summary.fitted.values[AGPE_index, "0.025quant"]
+AGPE_pred_data$pred_upr <- I$summary.fitted.values[AGPE_index, "0.975quant"]
+
+ELVI_index <- inla.stack.index(full_stack, tag = "pred.elvi")$data
+ELVI_pred_data$pred_mean <- I$summary.fitted.values[ELVI_index, "mean"]
+ELVI_pred_data$pred_lwr <- I$summary.fitted.values[ELVI_index, "0.025quant"]
+ELVI_pred_data$pred_upr <- I$summary.fitted.values[ELVI_index, "0.975quant"]
+
+pred_data <- rbind(filter(AGHY_pred_data,!is.na(Intercept)), filter(AGPE_pred_data, !is.na(Intercept)), filter(ELVI_pred_data, !is.na(Intercept)))
 
 # write_csv(pred_data, file = "pred_data.csv")
 
@@ -504,7 +605,7 @@ pred_data_long <- pred_data %>%
 
 
 ggplot()+
-  # geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
   geom_tile(data = filter(pred_data_long, variable == "pred_mean" & year == 1920 | variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
   facet_wrap(variable~year+species)+
@@ -521,55 +622,58 @@ ggplot()+
 AGHY_prevalence <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
-  geom_tile(data = filter(pred_data_long, species == "A. hyemalis" & variable == "pred_mean" & year == 1920 | species == "A. hyemalis" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
+  geom_tile(data = filter(pred_data_long, species == "A. hyemalis" & variable == "pred_mean" & year == 1925 | species == "A. hyemalis" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
   facet_wrap(~year, ncol = 1)+
-  scale_fill_gradient(
-    name = "Endophyte Prevalence",
-    low = "blue", high = "orange",
-    breaks = c(0,.25,.5,.75,1),
-    limits = c(0,1)) +
+  scale_fill_viridis_c(limits = c(0,1))+
+  # scale_fill_gradient(
+  #   name = "Endophyte Prevalence",
+  #   low = endophyte_colors[1], high = endophyte_colors[6],
+  #   breaks = c(0,.25,.5,.75,1),
+  #   limits = c(0,1)) +
   theme_light()+
   theme(strip.background = element_blank(),
         strip.text = element_text(colour = "black"))+
-  labs(title = expression(italic("A. hyemalis")), x = "Longitude", y = "Latitude")
+  labs(title = expression(italic("A. hyemalis")), x = "Longitude", y = "Latitude", fill = "Endophyte Prevalence")
 AGHY_prevalence
 
 AGPE_prevalence <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
-  geom_tile(data = filter(pred_data_long, species == "A. perennans" & variable == "pred_mean" & year == 1920 | species == "A. perennans" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
+  geom_tile(data = filter(pred_data_long, species == "A. perennans" & variable == "pred_mean" & year == 1925 | species == "A. perennans" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
   facet_wrap(~year, ncol = 1)+
-  scale_fill_gradient(
-    name = "Endophyte Prevalence",
-    low = "blue", high = "orange",
-    breaks = c(0,.25,.5,.75,1),
-    limits = c(0,1)) +
+  scale_fill_viridis_c(limits = c(0,1))+
+  # scale_fill_gradient(
+  #   name = "Endophyte Prevalence",
+  #   low = "blue", high = "orange",
+  #   breaks = c(0,.25,.5,.75,1),
+  #   limits = c(0,1)) +
   theme_light()+
   theme(strip.background = element_blank(),
         strip.text = element_text(colour = "black"))+
-  labs(title = expression(italic("A. perennans")), x = "Longitude", y = "")
+  labs(title = expression(italic("A. perennans")), x = "Longitude", y = "", fill = "Endophyte Prevalence")
 AGPE_prevalence
 
 ELVI_prevalence <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(long, lat, map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
-  geom_tile(data = filter(pred_data_long, species == "E. virginicus" & variable == "pred_mean" & year == 1920 | species == "E. virginicus" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
+  geom_tile(data = filter(pred_data_long, species == "E. virginicus" & variable == "pred_mean" & year == 1925 | species == "E. virginicus" & variable == "pred_mean" & year == 2020), aes(x = lon, y = lat, fill = value), alpha = .8)+
   facet_wrap(~year, ncol = 1)+
-  scale_fill_gradient(
-    name = "Endophyte Prevalence",
-    low = "blue", high = "orange",
-    breaks = c(0,.25,.5,.75,1),
-    limits = c(0,1)) +
+  scale_fill_viridis_c(limits = c(0,1))+
+  # scale_fill_gradient(
+  #   name = "Endophyte Prevalence",
+  #   low = "blue", high = "orange",
+  #   breaks = c(0,.25,.5,.75,1),
+  #   limits = c(0,1)) +
   theme_light()+
   theme(strip.background = element_blank(),
         strip.text = element_text(colour = "black"))+
-  labs(title = expression(italic("E. virginicus")), x = "Longitude", y = "")
+  labs(title = expression(italic("E. virginicus")), x = "Longitude", y = "", fill = "Endophyte Prevalence")
 ELVI_prevalence
 
 
 prevalence_map <- AGHY_prevalence + AGPE_prevalence + ELVI_prevalence + plot_layout(nrow = 1, guides = "collect")
 prevalence_map
-ggsave(prevalence_map, filename = "prevalence_map.png", width = 12, height = 5)
+ggsave(prevalence_map, filename = "prevalence_map.png", width = 11, height = 5)
 
 pred_data_change <- pred_data %>% 
   dplyr::select(lon, lat, year, species,pred_mean, pred_lwr, pred_upr) %>% 
@@ -578,15 +682,27 @@ pred_data_change <- pred_data %>%
   mutate(mean_change = pred_mean_2020-pred_mean_1925,
          rel_change = mean_change/pred_mean_1925,
          log_1925 = log(pred_mean_1925),
-         log_2020 = log(pred_mean_2020))
+         log_2020 = log(pred_mean_2020)) %>% 
+  mutate(species_name = case_when(species == "AGHY" ~ "A. hyemalis",
+                             species == "AGPE" ~ "A. perennans",
+                             species == "ELVI" ~ "E. virginicus"))
 write_csv(pred_data_change, file = "pred_data_change.csv")
 
-ggplot(data = filter(pred_data_change, species == "AGHY"))+
-  geom_tile(aes(x = lon, y = lat, fill = mean_change))+
-  facet_wrap(~species)
+rel_change_plot <- ggplot(data = pred_data_change)+
+  geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49)) +
+  geom_tile( aes(x = lon, y = lat, fill = rel_change))+
+  scale_fill_viridis_c(name = "Relative Change", option = "plasma")+
+  facet_wrap(~species_name, ncol = 1)+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(colour = "black", face = "italic"))
+rel_change_plot
 
-ggplot(data = prism_diff_pred_df)+
-  geom_tile(aes(x = lon, y = lat, fill = tmean_spring_diff))
+ggsave(rel_change_plot, filename = "rel_change_plot.png", width = 10, height = 15)
+
+# ggplot(data = prism_diff_pred_df)+
+#   geom_tile(aes(x = lon, y = lat, fill = tmean_spring_diff))
 
 pred_change_summary <- pred_data_change %>% 
   group_by(species) %>% 
@@ -608,31 +724,62 @@ pred.test_data$pred_mean <- I$summary.fitted.values[index, "mean"]
 pred.test_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
 pred.test_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
 
+# pred.test_data$obs_endo <- contemp_random_sample$endo_status
+pred.test_data$obs_prev <- contemp_surveys$endo_prev
+pred.test_data$sample_size <- contemp_surveys$sample_size
 
-pred.test_data$obs_prev <- contemp_random_sample$endo_status
+# contemp_binned <- contemp_random_sample %>% 
+#   mutate(lon_bin = cut(lon, breaks = 25)) %>% 
+#   group_by(lon_bin) %>% 
+#   summarize(mean_lon = mean(lon),
+#             mean_prev = mean(endo_status))
 
-contemp_binned <- contemp_random_sample %>% 
-  mutate(lon_bin = cut(lon, breaks = 25)) %>% 
-  group_by(lon_bin) %>% 
-  summarize(mean_lon = mean(lon),
-            mean_prev = mean(endo_status))
 
-ggplot(data = contemp_binned)+
-  geom_point(data = contemp_random_sample, aes(x = lon, y = endo_status), col = "purple")+
-  geom_point(aes(x = mean_lon, y = mean_prev), col = "red", lwd = 2)+
-  geom_point(data = pred.test_data, aes(x = lon, y = pred_mean)) +
-  geom_errorbar(data = pred.test_data, aes(x = lon, ymin = pred_lwr, ymax = pred_upr))+
-  geom_point(data = filter(contemp_surveys, SpeciesID == "AGHY"), aes(x = lon, y = endo_prev), col = "blue")
-  
+obs_pred_plot <- ggplot(data = pred.test_data)+
+  geom_abline(aes(intercept = 0, slope = 1))+
+  geom_errorbar(aes(xmin = pred_lwr, xmax = pred_upr, y = obs_prev, col = species), width = .02, alpha = .9)+
+  geom_point(aes(x = pred_mean, y = obs_prev, color = species), alpha = .9)+
+  lims(x = c(0,1), y = c(0,1))+
+  coord_sf()+
+  scale_color_manual(values = species_colors)+
+  labs(y = "Observed Prevalence", x = "Predicted Prevalence", color = "Species") +
+  theme_light()+
+  guides(color = "none")
 
-ggplot(data = pred.test_data)+
-  geom_point(aes(x = lat, y = lon, color = species))
+obs_pred_plot
+# ggsave(obs_pred_plot, filename = "obs_pred_plot_IDfx.png", width = 4, height = 4)
 
-ggplot(data = pred.test_data)+
-  geom_point(aes(x = pred_mean, y = obs_prev, color = species, shape = as.factor(year)))+
-  geom_errorbar(aes(xmin = pred_lwr, xmax = pred_upr, y = obs_prev, col = species))+
-  # geom_abline(aes(intercept = 0, slope = 1))+
-  lims(x = c(0,1), y = c(0,1))
+
+
+obs_pred_lon <- ggplot()+
+  geom_point(data = pred.test_data, aes(x = lon, y = obs_prev, col = species, size = sample_size), alpha = .6)+
+  geom_point(data = pred.test_data, aes(x = lon, y = pred_mean, col = species), size = 4, pch = 3) +
+  geom_errorbar(data = pred.test_data, aes(x = lon, ymin = pred_lwr, ymax = pred_upr, col = species), alpha = .9)+
+  scale_color_manual(values = species_colors)+
+  facet_wrap(~species, ncol = 1)+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black"))+
+  labs(x = "Longitude", y = "Endophyte Prevalence", color = "Species") 
+obs_pred_lon
+
+obs_pred_lat <- ggplot()+
+  geom_point(data = pred.test_data, aes(x = lat, y = obs_prev, col = species, size = sample_size), alpha = .6)+
+  geom_point(data = pred.test_data, aes(x = lat, y = pred_mean, col = species),size = 4, pch = 3) +
+  geom_errorbar(data = pred.test_data, aes(x = lat, ymin = pred_lwr, ymax = pred_upr, col = species), alpha = .9)+
+  scale_color_manual(values = species_colors)+
+  facet_wrap(~species, ncol= 1)+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black"))+
+  labs(x = "Latitude", y = "Endophyte Prevalence", color = "Species") 
+obs_pred_lat
+
+
+
+contemp_test_plot <- obs_pred_plot + obs_pred_lon + obs_pred_lat + 
+  plot_layout(guides = "collect") + plot_annotation(tag_levels = "A")
+ggsave(contemp_test_plot, filename = "contemp_test_plot.png", width = 12, height = 8)
 
 
 
@@ -643,6 +790,27 @@ ggplot(data = pred.test_data)+
 ggplot(data = pred.test_data)+
   geom_point(aes(x = lon, y = pred_mean))+
   geom_point(aes(x = lon, y = obs_prev), col = "red")
+
+ggplot(data = pred.test_data)+
+  geom_point(aes(x = obs_prev, y = pred_mean))
+
+# making a map of the contemp surveys vs historical
+test_data_map <- ggplot()+
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_point(data = endo_herb, aes(x = lon, y = lat), color = "black",size = 1, pch = 3)+
+  geom_point(data = contemp_surveys, aes(x = lon, y = lat), color = "red", size = 1)+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
+test_data_map
+
+ggsave(test_data_map, filename = "test_data_map.png", width = 10, height = 8)
+
+
+
 
 ################################################################################
 ############ Plotting the overall trend over time ############################### 
@@ -835,6 +1003,141 @@ ggmap(map)+
 prism_diff_pred_df <- read_csv(file = "prism_diff_pred_df.csv") %>% 
   distinct() 
   # mutate(across(contains("ppt_"), ~.x*.1)) # changing the units of the change in precip. to be 10ths of millimeters
+prism_for_plotting <- prism_diff_pred_df %>% 
+  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2)  
+
+tmean_annual_cv_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = tmean_annual_cv_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in mean annual temperature", x = "Longitude", y = "Latitude", fill = "Change in Coeff. of Var.")
+  
+tmean_annual_cv_map
+
+tmean_annual_mean_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = tmean_annual_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in CV of mean annual temperature", x = "Longitude", y = "Latitude", fill = expression("Change in " *degree*"C"))
+
+tmean_annual_mean_map
+
+ppt_annual_mean_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_annual_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in total annual precipitation",x = "Longitude", y = "Latitude", fill = expression("Change in mm."))
+
+ppt_annual_mean_map
+
+ppt_annual_cv_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_annual_cv_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in CV of total annual precipitation", x = "Longitude", y = "Latitude", fill = expression("Change in CV"))
+
+ppt_annual_cv_map
+
+
+ppt_spring_mean_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_spring_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in total Spring precipitation", x = "Longitude", y = "Latitude", fill = expression("Change in mm."))
+
+ppt_spring_mean_map
+
+ppt_spring_cv_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_spring_cv_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in CV of total Spring precipitation", x = "Longitude", y = "Latitude", fill = expression("Change in mm."))
+
+ppt_spring_cv_map
+
+
+ppt_summer_mean_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_summer_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in total summer precipitation", x = "Longitude", y = "Latitude", fill = expression("Change in CV"))
+
+ppt_summer_mean_map
+
+ppt_summer_cv_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_summer_cv_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in CV of total summer precipitation", x = "Longitude", y = "Latitude", fill = expression("Change in CV"))
+
+ppt_summer_cv_map
+
+ppt_autumn_mean_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_autumn_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in total autumn precipitation",x = "Longitude", y = "Latitude", fill = expression("Change in mm."))
+
+ppt_autumn_mean_map
+
+ppt_autumn_cv_map <- ggplot(prism_for_plotting) +
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_tile(aes(x = lon, y = lat, fill = ppt_autumn_cv_diff))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text  = element_text(face = "italic", color = "black"))+
+  labs(title = "Change in CV of total autumn precipitation",x = "Longitude", y = "Latitude", fill = expression("Change in CV"))
+
+ppt_autumn_cv_map
+
+
+ppt_change_maps <- ppt_annual_mean_map + ppt_annual_cv_map + ppt_spring_mean_map + ppt_spring_cv_map+ ppt_summer_mean_map + ppt_summer_cv_map + ppt_autumn_mean_map + ppt_autumn_cv_map + 
+  plot_layout(ncol = 2) + plot_annotation(tag_levels = "A")
+
+ggsave(ppt_change_maps, filename = "ppt_change_maps.png", width = 15, height = 20)
+
+
+tmean_change_maps <- tmean_annual_mean_map + tmean_annual_cv_map +
+  plot_layout(ncol = 2) + plot_annotation(tag_levels = "A")
+ggsave(tmean_change_maps, filename = "tmean_change_maps.png", width = 15, height = 6)
 
 #testing out pc's as a way to simplify the interpretation
 # prism_pc <- prcomp(prism_diff_pred_df[,c(4,5,6,8,9,10)], scale = TRUE)
@@ -864,18 +1167,20 @@ prism_diff_pred_df <- read_csv(file = "prism_diff_pred_df.csv") %>%
 # pred_change_merge <- pred_ %>% 
 pred_change_merge <- pred_data_change %>% 
   left_join(prism_diff_pred_df) %>% 
+  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) %>% 
   distinct() %>% 
   na.omit() %>% 
   mutate(lat = as.numeric(lat), lon = as.numeric(lon)) %>% 
   select(-contains("_slope"))
 
-ggplot(pred_change_merge) +
-  geom_point(aes(x = lon, y = lat))
+
 
 pred_change_merge_long <- pred_change_merge %>% 
-  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) %>% 
   pivot_longer(cols = contains("_diff")) %>% 
-  filter(grepl("annual", name))
+  filter(!grepl("sd", name)) %>% 
+  filter(!grepl("tmean_spring", name)) %>% 
+  filter(!grepl("tmean_summer", name)) %>% 
+  filter(!grepl("tmean_autumn", name))
 
 ppt_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("ppt", name)))+
   geom_point(aes(x = value, y = rel_change, color = species), alpha = .2)+
@@ -883,7 +1188,7 @@ ppt_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("ppt", name))
   scale_color_manual(values = species_colors) +
   facet_wrap(~name+species, scales = "free", nrow = 3) +
   theme_light()+
-  labs(y = "Change in Endophyte Prevalence (%)", x = expression("Change in Precip. (mm"^-1*")"))
+  labs(y = "Relative Change in Endophyte Prevalence (%)", x = expression("Change in Precip. (mm"^-1*")"))
 ppt_regression_plot
 
 tmean_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("tmean", name)))+
@@ -974,26 +1279,79 @@ climate_correlations <- pred_change_merge %>%
   mutate(species = case_when(species == "AGHY" ~ "A. hyemalis",
                              species == "AGPE" ~ "A. perennans",
                              species == "ELVI" ~ "E. virginicus")) %>% 
-  filter(change == "Change") %>% 
+  mutate(Season = case_when(grepl("annual",name) ~ "Annual",
+                            grepl("spring",name) ~ "Spring",
+                            grepl("summer",name) ~ "Summer",
+                            grepl("autumn",name) ~ "Autumn")) %>% 
+  mutate(mean_or_cv = case_when(grepl("cv", name) ~ "CV",
+                                !grepl("cv", name) ~ "Mean")) %>% 
+  mutate(driver = case_when(grepl("ppt", name) ~ "Precipitation",
+                            grepl("tmean", name) ~ "Temperature")) %>% 
+  mutate(weak = case_when(value > -.3 & value < .3 ~ "",
+                          TRUE ~ ">.3")) %>% 
+  filter(change == "Relative Change") %>% 
   filter(grepl("Precip", parameter_name) | grepl("Annual Temp.", parameter_name)) %>% 
   filter(!grepl("SD", parameter_name))
 
 
-
 climate_corr_heatmap <- ggplot(data = climate_correlations)+
-  geom_tile(aes(x = species, y = fct_rev(parameter_name), fill = value))+
+  geom_tile(aes(y = species, x = as.factor(parameter_name),  fill = value), color = "grey20")+
+  geom_point(aes(y = species, x = as.factor(parameter_name), color = weak, alpha = weak), pch = "*", size = 7)+
+  scale_color_manual(values = c("grey", "grey15"))+
+  scale_alpha_manual(values = c(0,1))+
   scale_fill_distiller(palette = "RdBu", direction = "reverse", type = "div")+
-  facet_wrap(~change)+
+  facet_wrap(factor(Season, levels = c("Annual", "Spring", "Summer", "Autumn")) ~ factor(driver, levels = c("Temperature", "Precipitation")), scales = "free_x", nrow = 1)+
   theme_minimal()+
-  theme(strip.text = element_blank(),
-        axis.text.x = element_text(face = "italic")) +
-  labs(x = "Species", y = "", fill = "Correlation Coefficient")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(face = "italic")) +
+  labs(x = "Observed change in...", y = "", fill = "Correlation Coefficient", color = "", alpha = "")
 climate_corr_heatmap
-ggsave(climate_corr_heatmap, filename = "climate_corr_heatmap.png", width = 6, height = 7)
+ggsave(climate_corr_heatmap, filename = "climate_corr_heatmap.png", width = 10, height = 7)
 # climate_corr_plot <- ggplot(data = climate_correlations)+
 #   geom_vline(aes(xintercept = value, color = species)) +
 #   facet_wrap(~parameter_name, ncol = 1)
 # climate_corr_plot
+
+aghy_pred_change_merge <- pred_change_merge %>% filter(species == "AGHY")
+agpe_pred_change_merge <- pred_change_merge %>% filter(species == "AGPE")
+elvi_pred_change_merge <- pred_change_merge %>% filter(species == "ELVI")
+
+# bonferonni correction p value would be .005
+
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_diff)$p.value
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_cv_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_cv_diff)$p.value 
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_cv_diff)$p.value # marginal
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_cv_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_diff)$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_cv_diff)$p.value
+
+
+
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_diff)$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_diff)$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_diff)$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_diff)$p.value#*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_cv_diff)$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_cv_diff)$p.value 
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_cv_diff)$p.value # 
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_cv_diff)$p.value
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_diff)$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_cv_diff)$p.value#*
+
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_diff)$p.value#*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_cv_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_cv_diff)$p.value 
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_cv_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_cv_diff)$p.value #
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_diff)$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_cv_diff)$p.value#*
 
 plot(filter(pred_change_merge, species == "AGHY")[,25:33])
 
@@ -1130,7 +1488,7 @@ prism_diff_long <- prism_diff_pred_df %>%
   pivot_longer(c(-lon, -lat))
   
   
-ppt_change_plot <- ggplot(filter(prism_diff_long, grepl("ppt", name) & !grepl("annual", name)))+
+ppt_change_plot <- ggplot(filter(prism_diff_long, grepl("ppt", name) & grepl("annual", name)))+
   geom_tile(aes(x = lon, y = lat, fill =  value))+
   facet_wrap(~name)+
   coord_sf()+
@@ -1138,7 +1496,7 @@ ppt_change_plot <- ggplot(filter(prism_diff_long, grepl("ppt", name) & !grepl("a
   theme_light()
 ppt_change_plot
 
-tmean_change_plot <- ggplot(filter(prism_diff_long, grepl("tmean", name) & !grepl("annual", name)))+
+tmean_change_plot <- ggplot(filter(prism_diff_long, grepl("tmean", name) & grepl("annual", name) & grepl("cv", name)))+
   geom_tile(aes(x = lon, y = lat, fill =  value))+
   facet_wrap(~name)+
   coord_sf()+
@@ -1175,8 +1533,9 @@ scorer_summary <- scorer_samps_df %>%
   summarize(par_mean = mean(value), 
             par_lwr = quantile(value, probs = c(.025)),
             par_upr = quantile(value, probs = c(.975))) %>% 
-  mutate(Scorer_fct = as.factor(Scorer))
-         
+  filter(Scorer != "new") %>% 
+  mutate(Scorer_fct = as.factor(Scorer)) 
+
 levels(scorer_summary$Scorer_fct) <- scorer_no
 
 collector_summary <- collector_samps_df %>% 
@@ -1184,7 +1543,9 @@ collector_summary <- collector_samps_df %>%
   summarize(par_mean = mean(value), 
             par_lwr = quantile(value, probs = c(.025)),
             par_upr = quantile(value, probs = c(.975))) %>% 
-  mutate(Collector_fct = as.factor(Collector))
+  filter(Collector != "new") %>% 
+  mutate(Collector_fct = as.factor(Collector)) 
+
 
 levels(collector_summary$Collector_fct) <- collector_no
 
@@ -1195,26 +1556,43 @@ levels(collector_summary$Collector_fct) <- collector_no
 
 
 scorer_plot <- ggplot(scorer_summary)+
+  geom_vline(xintercept = 0, lwd = .2)+
   geom_point(aes(x = par_mean,y = Scorer_fct))+
   geom_errorbarh(aes(xmin = par_lwr, xmax = par_upr, height = 0, y = Scorer_fct))+
-  theme_light()
+  theme_light()+
+  labs(y = "", x = "Posterior Estimate")
 scorer_plot
 
 collector_plot <- ggplot(collector_summary)+
+  geom_vline(xintercept = 0, lwd = .2)+
   geom_point(aes(x = par_mean,y = Collector_fct), size = .3)+
   geom_errorbarh(aes(xmin = par_lwr, xmax = par_upr, y = Collector_fct), height = 0, alpha = .6)+
   theme_light()+
-  theme(axis.text.y = element_blank())
+  theme(axis.text.y = element_blank())+
+  labs(y = "Collector_ ID", x = "Posterior Estimate")
+
 collector_plot
+
+random_fx_plot <- collector_plot +  scorer_plot + 
+  plot_layout(nrow = 1) + plot_annotation(tag_levels = "A")
+ggsave(random_fx_plot, filename = "random_fx_plot.png", width = 8, height = 6)
+
 
 
 # calculating summary overall posterior summary stuff for the manuscript
-
+#
 plot(I$marginals.fixed$`speciesAGHY:year`)
 plot(I$marginals.fixed$`speciesAGPE:year`)
 plot(I$marginals.fixed$`speciesELVI:year`)
 
+# getting all the fixed effectts
+fixed_samps <-inla.posterior.sample.eval(rownames(I$summary.fixed), post_samp)
+rownames(fixed_samps) <- rownames(I$summary.fixed)
+fixed_samps_df <- as_tibble(t(fixed_samps)) %>% 
+  pivot_longer(cols = everything(), names_to = "parameter") %>% 
+  filter()
 
+# getting just the main year effects
 year_samps <-inla.posterior.sample.eval(rownames(I$summary.fixed)[4:6], post_samp)
 rownames(year_samps) <- rownames(I$summary.fixed)[4:6]
 year_samps_df <- as_tibble(t(year_samps)) %>% 
@@ -1226,6 +1604,52 @@ year_post_summary <- year_samps_df %>%
   summarize(mean_trend = mean(value),
             n_draws = n(),
             prop_pos = sum(value>0)/n_draws)
+
+
+
+
+####################################################################################################################
+############ Refitting the model with the Conservative sscores and plotting fixed effects ############################### 
+####################################################################################################################
+I
+endo_herb <- endo_herb %>%
+  mutate(Endo_status_conservative = case_when(Endo_status_conservative == 4 ~ 1, TRUE  ~ Endo_status_conservative))
+
+stack.cons <- inla.stack(data = list(Endo_status_liberal = endo_herb$Endo_status_conservative),
+                                  A = list(A,1),
+                                  effects = list(s = spde.index$spatial.field, 
+                                                 data.frame(Intercept = rep(1, nrow(endo_herb)),
+                                                            year = endo_herb$year,
+                                                            year2 = endo_herb$year^2,
+                                                            lat = endo_herb$lat,
+                                                            lat2 = endo_herb$lat^2,
+                                                            lon = endo_herb$lon,
+                                                            lon2 = endo_herb$lon^2,
+                                                            species = endo_herb$Spp_code,
+                                                            id = endo_herb$Sample_id,
+                                                            county = endo_herb$County,
+                                                            collector = endo_herb$collector_id,
+                                                            scorer = endo_herb$scorer_id)),
+                                  
+                                  tag = 'fit')
+I_cons <- inla(formula = formula1, family = "binomial", Ntrials = 1,
+           data = inla.stack.data(stack.cons), 
+           control.predictor = list(A = inla.stack.A(stack.cons),
+                                    link=1,compute=TRUE),
+           control.family = list(link = "logit"),
+           control.compute = list(config = TRUE, dic = TRUE),
+           verbose = TRUE)
+
+I_cons$dic$dic
+I_cons$mode$mode.status
+
+post_samp.cons <- inla.posterior.sample(n = 500, result = I_cons)
+
+fixed_samps.cons <-inla.posterior.sample.eval(rownames(I_cons$summary.fixed), post_samp.cons)
+rownames(fixed_samps.cons) <- rownames(I_cons$summary.fixed)
+fixed_samps.cons_df <- as_tibble(t(fixed_samps.cons)) %>% 
+  pivot_longer(cols = everything(), names_to = "parameter") %>% 
+  filter()
 
 ####################################################################################################################
 ############ Getting the posterior estimates for the temporal trend at each location ############################### 
@@ -1347,24 +1771,25 @@ ggsave(density_plot, filename = "density_plot.png",  width = 4, height = 3)
 ####################################################################################################################
 roc <- ROCR::prediction(endo_herb$fit_mean, endo_herb$Endo_status_liberal)
 performance <- ROCR::performance(roc, "tpr", "fpr")
-png("ROC_plot.png", width = 500, height = 1000)
-par(mfrow=c(2,1))
+png("ROC_plot.png", width = 500, height = 500)
+par(mfrow=c(1,1))
 plot(performance, main = "ROC curve - Observed Data")
 
 auc_roc <- performance(roc, measure = "auc")
 auc_roc <- auc_roc@y.values[[1]]
 
+dev.off()
 
-roc_test <- ROCR::prediction(pred.test_data$pred_mean, pred.test_data$obs_prev)
+roc_test <- ROCR::prediction(pred.test_data$pred_mean, pred.test_data$obs_endo)
 performance_test <-  ROCR::performance(roc_test, "tpr", "fpr")
 plot(performance_test, main = "ROC curve - Test Data")
 
 auc_test <- performance(roc_test, measure = "auc")
 auc_test <- auc_test@y.values[[1]]
 
-dev.off()
 
-
+auc_roc
+auc_test
 
 #####
 
