@@ -793,13 +793,14 @@ ggplot(data = pred.test_data)+
 test_data_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
-  geom_point(data = endo_herb, aes(x = lon, y = lat), color = "black",size = 1, pch = 3)+
-  geom_point(data = contemp_surveys, aes(x = lon, y = lat), color = "red", size = 1)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  geom_point(data = endo_herb, aes(x = lon, y = lat), color = "grey40",size = 1, pch = 3, alpha = .8)+
+  geom_point(data = contemp_surveys, aes(x = lon, y = lat, pch = SpeciesID), color = "red", size = 2, alpha = .8)+
+  coord_sf(xlim = c(-104,-80), ylim = c(25,49))+
+  scale_shape_manual(values = c(19,17))+
   theme_light()+
   theme(strip.background = element_blank(),
         strip.text  = element_text(face = "italic", color = "black"))+
-  labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
+  labs(x = "Longitude", y = "Latitude", pch = "Species")
 test_data_map
 
 ggsave(test_data_map, filename = "test_data_map.png", width = 10, height = 8)
@@ -821,7 +822,9 @@ endo_herb_binned <- endo_herb %>%
             mean_lat = mean(lat),
             sample = n()) %>% 
   mutate(lat_bin = case_when(mean_lat>=35 ~ paste("43"),
-                             mean_lat<35 ~ paste("35")))
+                             mean_lat<35 ~ paste("35")),
+         lon_bin = case_when(mean_lon<=-94 ~ paste("-90"),
+                             mean_lon>-94 ~ paste("-80") ))
   
 # mean_loc <- endo_herb_binned %>% 
 #   group_by(Spp_code, species) %>% 
@@ -1138,28 +1141,30 @@ tmean_change_maps <- tmean_annual_mean_map + tmean_annual_cv_map +
 ggsave(tmean_change_maps, filename = "tmean_change_maps.png", width = 15, height = 6)
 
 #testing out pc's as a way to simplify the interpretation
-# prism_pc <- prcomp(prism_diff_pred_df[,c(4,5,6,8,9,10)], scale = TRUE)
+# prism_pc <- prcomp(prism_diff_pred_df[,c(3,7,8,9,10, 19,23,24,25,26)], scale = TRUE)
 # summary(prism_pc)
-# 
-# prism_loadings <- as_tibble(cbind(rownames(prism_pc$rotation), prism_pc$rotation)) %>% 
-#   rename(parameter = V1) %>% 
-#   pivot_longer(-parameter) %>% 
+# # 
+# prism_loadings <- as_tibble(cbind(rownames(prism_pc$rotation), prism_pc$rotation)) %>%
+#   rename(parameter = V1) %>%
+#   pivot_longer(-parameter) %>%
 #   mutate(value = as.numeric(value))
-# 
+# # 
 # ggplot(prism_loadings)+
 #   geom_bar(aes(x = name, y = value, fill = parameter), position = "dodge", stat = "identity") +
 #   theme_light()
-# 
-# prism_pc_df <- as_tibble(cbind(prism_diff_pred_df$lon, prism_diff_pred_df$lat, prism_pc$x)) %>% 
+# # 
+# library(ggfortify)
+# autoplot(prism_pc, data = prism_diff_pred_df, loadings = TRUE, loadings.labels = TRUE, loadings.label.size = 3)
+# prism_pc_df <- as_tibble(cbind(prism_diff_pred_df$lon, prism_diff_pred_df$lat, prism_pc$x)) %>%
 #   rename(lon = V1, lat = V2)
 # 
-# pred_change_pc_merge <- pred_data_change %>% 
-#   left_join(prism_pc_df) %>% 
+# pred_change_pc_merge <- pred_data_change %>%
+#   left_join(prism_pc_df) %>%
 #   filter(!is.na(PC1))
 # ggplot(data = pred_change_pc_merge) +
-#   geom_point(aes(x = lon, y = lat, color = PC3))
+#   geom_point(aes(x = lon, y = lat, color = PC2))
 # 
-# summary(lm(formula = formula(mean_change ~ 1 + PC1 + PC2 + PC3 + PC4), filter(pred_change_pc_merge,species == "AGHY")))
+# summary(lm(formula = formula(mean_change ~ 1 + PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC6), filter(pred_change_pc_merge,species == "ELVI")))
 
 # Merging the climate date with our predicted change in mean prevalence across 1925 and 2020
 # pred_change_merge <- pred_ %>% 
@@ -1171,9 +1176,12 @@ pred_change_merge <- pred_data_change %>%
   mutate(lat = as.numeric(lat), lon = as.numeric(lon)) %>% 
   select(-contains("_slope"))
 
+pred_change_merge_subsample <- pred_change_merge %>% 
+  group_by(species) %>% 
+  sample_n(size =100)
 
 
-pred_change_merge_long <- pred_change_merge %>% 
+pred_change_merge_long <- pred_change_merge_subsample %>% 
   pivot_longer(cols = contains("_diff")) %>% 
   filter(!grepl("sd", name)) %>% 
   filter(!grepl("tmean_spring", name)) %>% 
@@ -1202,62 +1210,62 @@ climate_regression_plot <- ppt_regression_plot + tmean_regression_plot +
   plot_layout(nrow = 1, guides = "collect") 
 climate_regression_plot
 
-climate_correlations <- pred_change_merge %>% 
+climate_correlations <- pred_change_merge_subsample %>% 
   select(-contains("pred"), -lat, -lon) %>% 
   group_by(species) %>% 
-  summarize(rel.ppt_annual_cor = cor(rel_change, ppt_annual_diff),
-            rel.ppt_spring_cor = cor(rel_change, ppt_spring_diff),
-            rel.ppt_summer_cor = cor(rel_change, ppt_summer_diff),
-            rel.ppt_autumn_cor = cor(rel_change, ppt_autumn_diff),
-            rel.tmean_annual_cor = cor(rel_change, tmean_annual_diff),
-            rel.tmean_spring_cor = cor(rel_change, tmean_spring_diff),
-            rel.tmean_summer_cor = cor(rel_change, tmean_summer_diff),
-            rel.tmean_autumn_cor = cor(rel_change, tmean_autumn_diff),
+  summarize(rel.ppt_annual_cor = cor(rel_change, ppt_annual_diff, method = c("spearman")),
+            rel.ppt_spring_cor = cor(rel_change, ppt_spring_diff, method = c("spearman")),
+            rel.ppt_summer_cor = cor(rel_change, ppt_summer_diff, method = c("spearman")),
+            rel.ppt_autumn_cor = cor(rel_change, ppt_autumn_diff, method = c("spearman")),
+            rel.tmean_annual_cor = cor(rel_change, tmean_annual_diff, method = c("spearman")),
+            rel.tmean_spring_cor = cor(rel_change, tmean_spring_diff, method = c("spearman")),
+            rel.tmean_summer_cor = cor(rel_change, tmean_summer_diff, method = c("spearman")),
+            rel.tmean_autumn_cor = cor(rel_change, tmean_autumn_diff, method = c("spearman")),
             
-            rel.ppt_annual_sd_cor = cor(rel_change, ppt_annual_sd_diff),
-            rel.ppt_spring_sd_cor = cor(rel_change, ppt_spring_sd_diff),
-            rel.ppt_summer_sd_cor = cor(rel_change, ppt_summer_sd_diff),
-            rel.ppt_autumn_sd_cor = cor(rel_change, ppt_autumn_sd_diff),
-            rel.tmean_annual_sd_cor = cor(rel_change, tmean_annual_sd_diff),
-            rel.tmean_spring_sd_cor = cor(rel_change, tmean_spring_sd_diff),
-            rel.tmean_summer_sd_cor = cor(rel_change, tmean_summer_sd_diff),
-            rel.tmean_autumn_sd_cor = cor(rel_change, tmean_autumn_sd_diff),
+            rel.ppt_annual_sd_cor = cor(rel_change, ppt_annual_sd_diff, method = c("spearman")),
+            rel.ppt_spring_sd_cor = cor(rel_change, ppt_spring_sd_diff, method = c("spearman")),
+            rel.ppt_summer_sd_cor = cor(rel_change, ppt_summer_sd_diff, method = c("spearman")),
+            rel.ppt_autumn_sd_cor = cor(rel_change, ppt_autumn_sd_diff, method = c("spearman")),
+            rel.tmean_annual_sd_cor = cor(rel_change, tmean_annual_sd_diff, method = c("spearman")),
+            rel.tmean_spring_sd_cor = cor(rel_change, tmean_spring_sd_diff, method = c("spearman")),
+            rel.tmean_summer_sd_cor = cor(rel_change, tmean_summer_sd_diff, method = c("spearman")),
+            rel.tmean_autumn_sd_cor = cor(rel_change, tmean_autumn_sd_diff, method = c("spearman")),
             
-            rel.ppt_annual_cv_cor = cor(rel_change, ppt_annual_cv_diff),
-            rel.ppt_spring_cv_cor = cor(rel_change, ppt_spring_cv_diff),
-            rel.ppt_summer_cv_cor = cor(rel_change, ppt_summer_cv_diff),
-            rel.ppt_autumn_cv_cor = cor(rel_change, ppt_autumn_cv_diff),
-            rel.tmean_annual_cv_cor = cor(rel_change, tmean_annual_cv_diff),
-            rel.tmean_spring_cv_cor = cor(rel_change, tmean_spring_cv_diff),
-            rel.tmean_summer_cv_cor = cor(rel_change, tmean_summer_cv_diff),
-            rel.tmean_autumn_cv_cor = cor(rel_change, tmean_autumn_cv_diff),
+            rel.ppt_annual_cv_cor = cor(rel_change, ppt_annual_cv_diff, method = c("spearman")),
+            rel.ppt_spring_cv_cor = cor(rel_change, ppt_spring_cv_diff, method = c("spearman")),
+            rel.ppt_summer_cv_cor = cor(rel_change, ppt_summer_cv_diff, method = c("spearman")),
+            rel.ppt_autumn_cv_cor = cor(rel_change, ppt_autumn_cv_diff, method = c("spearman")),
+            rel.tmean_annual_cv_cor = cor(rel_change, tmean_annual_cv_diff, method = c("spearman")),
+            rel.tmean_spring_cv_cor = cor(rel_change, tmean_spring_cv_diff, method = c("spearman")),
+            rel.tmean_summer_cv_cor = cor(rel_change, tmean_summer_cv_diff, method = c("spearman")),
+            rel.tmean_autumn_cv_cor = cor(rel_change, tmean_autumn_cv_diff, method = c("spearman")),
             
-            mean.ppt_annual_cor = cor(mean_change, ppt_annual_diff),
-            mean.ppt_spring_cor = cor(mean_change, ppt_spring_diff),
-            mean.ppt_summer_cor = cor(mean_change, ppt_summer_diff),
-            mean.ppt_autumn_cor = cor(mean_change, ppt_autumn_diff),
-            mean.tmean_annual_cor = cor(mean_change, tmean_annual_diff),
-            mean.tmean_spring_cor = cor(mean_change, tmean_spring_diff),
-            mean.tmean_summer_cor = cor(mean_change, tmean_summer_diff),
-            mean.tmean_autumn_cor = cor(mean_change, tmean_autumn_diff),
+            mean.ppt_annual_cor = cor(mean_change, ppt_annual_diff, method = c("spearman")),
+            mean.ppt_spring_cor = cor(mean_change, ppt_spring_diff, method = c("spearman")),
+            mean.ppt_summer_cor = cor(mean_change, ppt_summer_diff, method = c("spearman")),
+            mean.ppt_autumn_cor = cor(mean_change, ppt_autumn_diff, method = c("spearman")),
+            mean.tmean_annual_cor = cor(mean_change, tmean_annual_diff, method = c("spearman")),
+            mean.tmean_spring_cor = cor(mean_change, tmean_spring_diff, method = c("spearman")),
+            mean.tmean_summer_cor = cor(mean_change, tmean_summer_diff, method = c("spearman")),
+            mean.tmean_autumn_cor = cor(mean_change, tmean_autumn_diff, method = c("spearman")),
             
-            mean.ppt_annual_sd_cor = cor(mean_change, ppt_annual_sd_diff),
-            mean.ppt_spring_sd_cor = cor(mean_change, ppt_spring_sd_diff),
-            mean.ppt_summer_sd_cor = cor(mean_change, ppt_summer_sd_diff),
-            mean.ppt_autumn_sd_cor = cor(mean_change, ppt_autumn_sd_diff),
-            mean.tmean_annual_sd_cor = cor(mean_change, tmean_annual_sd_diff),
-            mean.tmean_spring_sd_cor = cor(mean_change, tmean_spring_sd_diff),
-            mean.tmean_summer_sd_cor = cor(mean_change, tmean_summer_sd_diff),
-            mean.tmean_autumn_sd_cor = cor(mean_change, tmean_autumn_sd_diff),
-            
-            mean.ppt_annual_cv_cor = cor(mean_change, ppt_annual_cv_diff),
-            mean.ppt_spring_cv_cor = cor(mean_change, ppt_spring_cv_diff),
-            mean.ppt_summer_cv_cor = cor(mean_change, ppt_summer_cv_diff),
-            mean.ppt_autumn_cv_cor = cor(mean_change, ppt_autumn_cv_diff),
-            mean.tmean_annual_cv_cor = cor(mean_change, tmean_annual_cv_diff),
-            mean.tmean_spring_cv_cor = cor(mean_change, tmean_spring_cv_diff),
-            mean.tmean_summer_cv_cor = cor(mean_change, tmean_summer_cv_diff),
-            mean.tmean_autumn_cv_cor = cor(mean_change, tmean_autumn_cv_diff),
+            mean.ppt_annual_sd_cor = cor(mean_change, ppt_annual_sd_diff, method = c("spearman")),
+            mean.ppt_spring_sd_cor = cor(mean_change, ppt_spring_sd_diff, method = c("spearman")),
+            mean.ppt_summer_sd_cor = cor(mean_change, ppt_summer_sd_diff, method = c("spearman")),
+            mean.ppt_autumn_sd_cor = cor(mean_change, ppt_autumn_sd_diff, method = c("spearman")),
+            mean.tmean_annual_sd_cor = cor(mean_change, tmean_annual_sd_diff, method = c("spearman")),
+            mean.tmean_spring_sd_cor = cor(mean_change, tmean_spring_sd_diff, method = c("spearman")),
+            mean.tmean_summer_sd_cor = cor(mean_change, tmean_summer_sd_diff, method = c("spearman")),
+            mean.tmean_autumn_sd_cor = cor(mean_change, tmean_autumn_sd_diff, method = c("spearman")),
+        
+            mean.ppt_annual_cv_cor = cor(mean_change, ppt_annual_cv_diff, method = c("spearman")),
+            mean.ppt_spring_cv_cor = cor(mean_change, ppt_spring_cv_diff, method = c("spearman")),
+            mean.ppt_summer_cv_cor = cor(mean_change, ppt_summer_cv_diff, method = c("spearman")),
+            mean.ppt_autumn_cv_cor = cor(mean_change, ppt_autumn_cv_diff, method = c("spearman")),
+            mean.tmean_annual_cv_cor = cor(mean_change, tmean_annual_cv_diff, method = c("spearman")),
+            mean.tmean_spring_cv_cor = cor(mean_change, tmean_spring_cv_diff, method = c("spearman")),
+            mean.tmean_summer_cv_cor = cor(mean_change, tmean_summer_cv_diff, method = c("spearman")),
+            mean.tmean_autumn_cv_cor = cor(mean_change, tmean_autumn_cv_diff, method = c("spearman")),
             ) %>%  
   pivot_longer(cols = c( -species)) %>% 
   separate_wider_delim(name, ".", names = c("change", "name")) %>% 
@@ -1292,10 +1300,103 @@ climate_correlations <- pred_change_merge %>%
   filter(!grepl("SD", parameter_name))
 
 
-climate_corr_heatmap <- ggplot(data = climate_correlations)+
+climate_correlations_pvalues <- pred_change_merge_subsample %>% 
+  select(-contains("pred"), -lat, -lon) %>% 
+  group_by(species) %>% 
+  summarize(pvalue_rel.ppt_annual_cor = cor.test(rel_change, ppt_annual_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_spring_cor = cor.test(rel_change, ppt_spring_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_summer_cor = cor.test(rel_change, ppt_summer_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_autumn_cor = cor.test(rel_change, ppt_autumn_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_annual_cor = cor.test(rel_change, tmean_annual_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_spring_cor = cor.test(rel_change, tmean_spring_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_summer_cor = cor.test(rel_change, tmean_summer_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_autumn_cor = cor.test(rel_change, tmean_autumn_diff, method = c("spearman"))$p.value,
+            
+            pvalue_rel.ppt_annual_sd_cor = cor.test(rel_change, ppt_annual_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_spring_sd_cor = cor.test(rel_change, ppt_spring_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_summer_sd_cor = cor.test(rel_change, ppt_summer_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_autumn_sd_cor = cor.test(rel_change, ppt_autumn_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_annual_sd_cor = cor.test(rel_change, tmean_annual_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_spring_sd_cor = cor.test(rel_change, tmean_spring_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_summer_sd_cor = cor.test(rel_change, tmean_summer_sd_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_autumn_sd_cor = cor.test(rel_change, tmean_autumn_sd_diff, method = c("spearman"))$p.value,
+            
+            pvalue_rel.ppt_annual_cv_cor = cor.test(rel_change, ppt_annual_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_spring_cv_cor = cor.test(rel_change, ppt_spring_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_summer_cv_cor = cor.test(rel_change, ppt_summer_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.ppt_autumn_cv_cor = cor.test(rel_change, ppt_autumn_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_annual_cv_cor = cor.test(rel_change, tmean_annual_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_spring_cv_cor = cor.test(rel_change, tmean_spring_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_summer_cv_cor = cor.test(rel_change, tmean_summer_cv_diff, method = c("spearman"))$p.value,
+            pvalue_rel.tmean_autumn_cv_cor = cor.test(rel_change, tmean_autumn_cv_diff, method = c("spearman"))$p.value,
+            
+            pvalue_mean.ppt_annual_cor = cor.test(mean_change, ppt_annual_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_spring_cor = cor.test(mean_change, ppt_spring_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_summer_cor = cor.test(mean_change, ppt_summer_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_autumn_cor = cor.test(mean_change, ppt_autumn_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_annual_cor = cor.test(mean_change, tmean_annual_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_spring_cor = cor.test(mean_change, tmean_spring_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_summer_cor = cor.test(mean_change, tmean_summer_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_autumn_cor = cor.test(mean_change, tmean_autumn_diff, method = c("spearman"))$p.value,
+            
+            pvalue_mean.ppt_annual_sd_cor = cor.test(mean_change, ppt_annual_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_spring_sd_cor = cor.test(mean_change, ppt_spring_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_summer_sd_cor = cor.test(mean_change, ppt_summer_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_autumn_sd_cor = cor.test(mean_change, ppt_autumn_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_annual_sd_cor = cor.test(mean_change, tmean_annual_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_spring_sd_cor = cor.test(mean_change, tmean_spring_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_summer_sd_cor = cor.test(mean_change, tmean_summer_sd_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_autumn_sd_cor = cor.test(mean_change, tmean_autumn_sd_diff, method = c("spearman"))$p.value,
+            
+            pvalue_mean.ppt_annual_cv_cor = cor.test(mean_change, ppt_annual_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_spring_cv_cor = cor.test(mean_change, ppt_spring_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_summer_cv_cor = cor.test(mean_change, ppt_summer_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.ppt_autumn_cv_cor = cor.test(mean_change, ppt_autumn_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_annual_cv_cor = cor.test(mean_change, tmean_annual_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_spring_cv_cor = cor.test(mean_change, tmean_spring_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_summer_cv_cor = cor.test(mean_change, tmean_summer_cv_diff, method = c("spearman"))$p.value,
+            pvalue_mean.tmean_autumn_cv_cor = cor.test(mean_change, tmean_autumn_cv_diff, method = c("spearman"))$p.value,
+  ) %>%  
+  pivot_longer(cols = c( -species)) %>% 
+  separate_wider_delim(name, ".", names = c("change", "name")) %>%  
+  mutate(change = case_when(change == "pvalue_mean" ~ "Change",
+                            change == "pvalue_rel" ~ "Relative Change")) %>% 
+  mutate(parameter_name = factor(case_when(name == "ppt_annual_cor" ~ "Annual Precip.", name == "ppt_spring_cor" ~ "Spring Precip.",name == "ppt_summer_cor" ~ "Summer Precip.",name == "ppt_autumn_cor" ~ "Autumn Precip.",
+                                           name == "ppt_annual_sd_cor" ~ "Annual Precip. SD", name == "ppt_spring_sd_cor" ~ "Spring Precip. SD",name == "ppt_summer_sd_cor" ~ "Summer Precip. SD",name == "ppt_autumn_sd_cor" ~ "Autumn Precip. SD",
+                                           name == "ppt_annual_cv_cor" ~ "Annual Precip. CV", name == "ppt_spring_cv_cor" ~ "Spring Precip. CV",name == "ppt_summer_cv_cor" ~ "Summer Precip. CV",name == "ppt_autumn_cv_cor" ~ "Autumn Precip. CV",
+                                           
+                                           name == "tmean_annual_cor" ~ "Avg. Annual Temp.", name == "tmean_spring_cor" ~ "Avg. Spring Temp.",name == "tmean_summer_cor" ~ "Avg. Summer Temp.",name == "tmean_autumn_cor" ~ "Avg. Autumn Temp.",  
+                                           name == "tmean_annual_sd_cor" ~ "Avg. Annual Temp. SD", name == "tmean_spring_sd_cor" ~ "Avg. Spring Temp. SD",name == "tmean_summer_sd_cor" ~ "Avg. Summer Temp. SD",name == "tmean_autumn_sd_cor" ~ "Avg. Autumn Temp. SD",  
+                                           name == "tmean_annual_cv_cor" ~ "Avg. Annual Temp. CV", name == "tmean_spring_cv_cor" ~ "Avg. Spring Temp. CV",name == "tmean_summer_cv_cor" ~ "Avg. Summer Temp. CV",name == "tmean_autumn_cv_cor" ~ "Avg. Autumn Temp. CV",  
+                                           TRUE ~ name),
+                                 levels = c("Avg. Annual Temp.", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Annual Precip.", "Autumn Precip.", "Summer Precip.", "Spring Precip.", 
+                                            "Avg. Annual Temp. SD", "Avg. Autumn Temp. SD", "Avg. Summer Temp. SD", "Avg. Spring Temp. SD",  "Annual Precip. SD", "Autumn Precip. SD", "Summer Precip. SD", "Spring Precip. SD",
+                                            "Avg. Annual Temp. CV", "Avg. Autumn Temp. CV", "Avg. Summer Temp. CV", "Avg. Spring Temp. CV",  "Annual Precip. CV", "Autumn Precip. CV", "Summer Precip. CV", "Spring Precip. CV"))) %>% 
+  mutate(species = case_when(species == "AGHY" ~ "A. hyemalis",
+                             species == "AGPE" ~ "A. perennans",
+                             species == "ELVI" ~ "E. virginicus")) %>% 
+  mutate(Season = case_when(grepl("annual",name) ~ "Annual",
+                            grepl("spring",name) ~ "Spring",
+                            grepl("summer",name) ~ "Summer",
+                            grepl("autumn",name) ~ "Autumn")) %>% 
+  mutate(mean_or_cv = case_when(grepl("cv", name) ~ "CV",
+                                !grepl("cv", name) ~ "Mean")) %>% 
+  mutate(driver = case_when(grepl("ppt", name) ~ "Precipitation",
+                            grepl("tmean", name) ~ "Temperature")) %>% 
+  mutate(pvalue = case_when( value < .005 ~ "<.005",
+                          TRUE ~ "")) %>% 
+  filter(change == "Relative Change") %>% 
+  filter(grepl("Precip", parameter_name) | grepl("Annual Temp.", parameter_name)) %>% 
+  filter(!grepl("SD", parameter_name)) %>% 
+  select(species, change, name, pvalue)
+
+climate_correlations_df <- climate_correlations %>% 
+  left_join(climate_correlations_pvalues)
+
+climate_corr_heatmap <- ggplot(data = climate_correlations_df)+
   geom_tile(aes(y = species, x = as.factor(parameter_name),  fill = value), color = "grey20")+
-  geom_point(aes(y = species, x = as.factor(parameter_name), color = weak, alpha = weak), pch = "*", size = 7)+
-  scale_color_manual(values = c("grey", "grey15"))+
+  geom_point(aes(y = species, x = as.factor(parameter_name), alpha = weak), pch = "*", size = 5)+
+  # geom_point(aes(y = species, x = as.factor(parameter_name), alpha = pvalue), pch = "*", size = 5)+
   scale_alpha_manual(values = c(0,1))+
   scale_fill_distiller(palette = "RdBu", direction = "reverse", type = "div")+
   facet_wrap(factor(Season, levels = c("Annual", "Spring", "Summer", "Autumn")) ~ factor(driver, levels = c("Temperature", "Precipitation")), scales = "free_x", nrow = 1)+
@@ -1316,40 +1417,40 @@ elvi_pred_change_merge <- pred_change_merge %>% filter(species == "ELVI")
 
 # bonferonni correction p value would be .005
 
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_diff)$p.value
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_cv_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_cv_diff)$p.value 
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_cv_diff)$p.value # marginal
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_cv_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_diff)$p.value #*
-cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_cv_diff)$p.value
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_diff, method = "spearman")$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_diff, method = "spearman")$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_diff, method = "spearman")$p.value 
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_diff, method = "spearman")$p.value
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_annual_cv_diff, method = "spearman")$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_spring_cv_diff, method = "spearman")$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_summer_cv_diff, method = "spearman")$p.value # 
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$ppt_autumn_cv_diff, method = "spearman")$p.value #*
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_diff, method = "spearman")$p.value 
+cor.test(aghy_pred_change_merge$rel_change, aghy_pred_change_merge$tmean_annual_cv_diff, method = "spearman")$p.value #*
 
 
 
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_diff)$p.value #*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_diff)$p.value #*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_diff)$p.value #*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_diff)$p.value#*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_cv_diff)$p.value #*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_cv_diff)$p.value 
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_cv_diff)$p.value # 
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_cv_diff)$p.value
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_diff)$p.value #*
-cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_cv_diff)$p.value#*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_diff, method = "spearman")$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_diff, method = "spearman")$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_diff, method = "spearman")$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_diff, method = "spearman")$p.value#*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_annual_cv_diff, method = "spearman")$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_spring_cv_diff, method = "spearman")$p.value 
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_summer_cv_diff, method = "spearman")$p.value # 
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$ppt_autumn_cv_diff, method = "spearman")$p.value# 
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_diff, method = "spearman")$p.value #*
+cor.test(agpe_pred_change_merge$rel_change, agpe_pred_change_merge$tmean_annual_cv_diff, method = "spearman")$p.value#*
 
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_diff)$p.value#*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_cv_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_cv_diff)$p.value 
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_cv_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_cv_diff)$p.value #
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_diff)$p.value #*
-cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_cv_diff)$p.value#*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_diff, method = "spearman")$p.value#*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_annual_cv_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_spring_cv_diff, method = "spearman")$p.value 
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_summer_cv_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$ppt_autumn_cv_diff, method = "spearman")$p.value 
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_diff, method = "spearman")$p.value #*
+cor.test(elvi_pred_change_merge$rel_change, elvi_pred_change_merge$tmean_annual_cv_diff, method = "spearman")$p.value#*
 
 plot(filter(pred_change_merge, species == "AGHY")[,25:33])
 
@@ -1405,17 +1506,18 @@ climate_formula <- formula(mean_change ~ 1 + tmean_spring_diff)
 # climate_formula <- formula(mean_change ~ 0 + species*ppt_annual_diff + species*tmean_annual_diff)
 # 
 # climate_formula <- formula(mean_change ~ 0 + species + ppt_spring_diff + ppt_summer_diff + ppt_autumn_diff + ppt_winter_diff + tmean_spring_diff + tmean_summer_diff + tmean_autumn_diff + tmean_winter_diff)
-climate_formula <- formula(rel_change ~ 1 + tmean_annual_diff + ppt_spring_diff +ppt_summer_diff + ppt_autumn_diff)
+climate_formula <- formula(rel_change ~ 1 + tmean_annual_diff + tmean_annual_cv_diff  + ppt_spring_diff + ppt_spring_cv_diff +ppt_summer_diff + ppt_summer_cv_diff + ppt_autumn_diff + ppt_autumn_cv_diff)
 
-climate_formula <- formula(mean_change ~ 1 + pred_mean_1925 + tmean_annual_diff + ppt_spring_diff +ppt_summer_diff + ppt_autumn_diff)
+# climate_formula <- formula(mean_change ~ 1 + pred_mean_1925 + tmean_annual_diff + ppt_spring_diff +ppt_summer_diff + ppt_autumn_diff)
 
 I_climate <- list()
 
 for(s in 1:3){
-I_climate[[s]] <- inla(formula = climate_formula,
+I_climate[[s]] <- inla(formula = climate_formula,family = "t",
            data = filter(pred_change_merge, species == c("AGHY", "AGPE", "ELVI")[s]),
            control.compute = list(config = TRUE, dic = TRUE),
-           verbose = FALSE)
+           control.family=list(hyper=list(dof = list(initial=3, fixed=T) )),
+           verbose = TRUE)
 }
 
 I_climate[[2]]$summary.fixed
@@ -1443,9 +1545,9 @@ elvi_post_samps <- as_tibble(t(post_samps[[3]])) %>%
 climate_post_samps <- aghy_post_samps %>% 
   bind_rows(agpe_post_samps) %>% 
   bind_rows(elvi_post_samps) %>% 
-  mutate(parameter_name = factor(case_when(parameter == "ppt_spring_diff" ~ "Spring Precip.",parameter == "ppt_summer_diff" ~ "Summer Precip.",parameter == "ppt_autumn_diff" ~ "Autumn Precip.",
-                                           parameter == "tmean_spring_diff" ~ "Avg. Spring Temp.",parameter == "tmean_summer_diff" ~ "Avg. Summer Temp.",parameter == "tmean_autumn_diff" ~ "Avg. Autumn Temp.",  TRUE ~ parameter),
-                                 levels = c("(Intercept)", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Autumn Precip.", "Summer Precip.", "Spring Precip.")))
+  mutate(parameter_name = factor(case_when(parameter == "ppt_annual_diff" ~ "Annual Precip.", parameter == "ppt_spring_diff" ~ "Spring Precip.",parameter == "ppt_summer_diff" ~ "Summer Precip.",parameter == "ppt_autumn_diff" ~ "Autumn Precip.",
+                                           parameter == "tmean_annual_diff" ~ "Avg. Annual Temp.", parameter == "tmean_spring_diff" ~ "Avg. Spring Temp.",parameter == "tmean_summer_diff" ~ "Avg. Summer Temp.",parameter == "tmean_autumn_diff" ~ "Avg. Autumn Temp.",  TRUE ~ parameter),
+                                 levels = c("(Intercept)", "Avg. Annual Temp.", "Annual Precip.", "Avg. Autumn Temp.", "Avg. Summer Temp.", "Avg. Spring Temp.",  "Autumn Precip.", "Summer Precip.", "Spring Precip.")))
 
 
 
@@ -1464,7 +1566,7 @@ tmean_post_plot
 
 ppt_post_plot <- ggplot()+
   geom_vline(aes(xintercept = 0))+
-  geom_density_ridges(data = filter(climate_post_samps, grepl("Precip.", parameter_name)), aes(y= parameter_name, x = value, fill = species), scale = 1, color = NA, alpha = .7)+
+  geom_density_ridges(data = filter(climate_post_samps, grepl("ppt", parameter) & grepl("cv", parameter)), aes(y= parameter, x = value, fill = species), scale = 1, color = NA, alpha = .7)+
   scale_fill_manual(values = species_colors)+
   theme_classic()+
   theme(panel.grid.major.y = element_line(color = "darkgrey"),

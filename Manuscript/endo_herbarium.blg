@@ -1,12 +1,8 @@
 This is BibTeX, Version 0.99d (TeX Live 2018)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: endo_herbarium.aux
-The style file: plain.bst
+The style file: plainnat.bst
 Database file #1: endo_herbarium.bib
-Repeated entry---line 60 of file endo_herbarium.bib
- : @article{lewontin_population_1969
- :                                  ,
-I'm skipping whatever remains of this entry
 Repeated entry---line 288 of file endo_herbarium.bib
  : @article{fine1975vectors
  :                         ,
@@ -27,49 +23,50 @@ Repeated entry---line 1282 of file endo_herbarium.bib
  : @article{hillerislambers2013will
  :                                 ,
 I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for "decunta2021systematic"
-Warning--I didn't find a database entry for "stocker2013technical"
-Warning--I didn't find a database entry for "CookEtAl2015"
+Repeated entry---line 1509 of file endo_herbarium.bib
+ : @article{kazenel2015mutualistic
+ :                                ,
+I'm skipping whatever remains of this entry
 Warning--empty journal in Rprism2015
-You've used 83 entries,
-            2118 wiz_defined-function locations,
-            1000 strings with 22588 characters,
-and the built_in function-call counts, 33132 in all, are:
-= -- 3195
-> -- 2042
-< -- 2
-+ -- 816
-- -- 720
-* -- 2867
-:= -- 5678
-add.period$ -- 250
-call.type$ -- 83
-change.case$ -- 605
-chr.to.int$ -- 0
-cite$ -- 84
-duplicate$ -- 920
-empty$ -- 2203
-format.name$ -- 720
-if$ -- 6525
-int.to.chr$ -- 0
-int.to.str$ -- 83
-missing$ -- 81
-newline$ -- 418
-num.names$ -- 166
-pop$ -- 464
+You've used 91 entries,
+            2773 wiz_defined-function locations,
+            1135 strings with 25928 characters,
+and the built_in function-call counts, 52903 in all, are:
+= -- 4554
+> -- 4042
+< -- 25
++ -- 1354
+- -- 1263
+* -- 4995
+:= -- 8308
+add.period$ -- 280
+call.type$ -- 91
+change.case$ -- 688
+chr.to.int$ -- 91
+cite$ -- 183
+duplicate$ -- 1905
+empty$ -- 3672
+format.name$ -- 1384
+if$ -- 10731
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 89
+newline$ -- 468
+num.names$ -- 364
+pop$ -- 1224
 preamble$ -- 1
-purify$ -- 522
+purify$ -- 597
 quote$ -- 0
-skip$ -- 620
+skip$ -- 1571
 stack$ -- 0
-substring$ -- 2328
-swap$ -- 96
-text.length$ -- 2
+substring$ -- 2273
+swap$ -- 112
+text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 332
+type$ -- 1001
 warning$ -- 1
-while$ -- 312
-width$ -- 85
-write$ -- 911
+while$ -- 434
+width$ -- 0
+write$ -- 1197
 (There were 6 error messages)
