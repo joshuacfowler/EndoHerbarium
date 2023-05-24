@@ -1,39 +1,151 @@
 library(tidyverse)
 library(MASS)
 library(INLA)
+library(fields)
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
 
 ##### Simulating data to see if the INLA SPDE model can pick up both increasing and decreasing trends in spatial data #####
 
+
+
+
+
+## time and locations
+t <- 12
+time <- 1:t
+loc <- as.matrix(expand.grid(seq(0, 3, 0.2), seq(0, 3, 0.2)))
+locdist <- as.matrix(dist(loc))
+
+## Space covariance -- sigma = 1, range = 0.3
+## Matern covariance # to be compared with inla: smoothness(nu) = alpha - d/2, d = 2 here and default in inla alpha = 2.
+Vs <- Matern(d =locdist, range = .1, smoothness = .1, phi = 10) # low values here are essentially more local spatial autocorrelation, whereas bigger values are larger autocorrelation
+
+
+## Time covariance -- r = 0 
+# setting this to 0 is essentially no temporal autocorrelation
+Vt <- diag(t) 
+Vt <- 1* .0^abs(row(Vt)-col(Vt))
+
+## Cross covariance
+Vc <- kronecker(Vs, Vt)
+
+## simulate the data
+set.seed(10)
+xx <- crossprod(chol(Vc), rep(rnorm(n = nrow(loc) * t)))
+lon <- rep(loc[,1], each = t)
+lat <-  rep(loc[,2], each = t)
+time <- rep(1:t,  nrow(loc))
+prob_x <-  xx + 0*lon +0*lat + 0*lat*lon
+prob_xt <- xx + 0*lon +0*lat + 0*lat*lon + .1*time + -.1*time*lat + .1*time*lon + -.1*time*lat*lon
+
+## Create the time spatial data frame
+simdf <- data.frame(lon = lon, lat = lat, 
+                    prob= xx, 
+                    prob_x = prob_x,
+                    prob_xt = prob_xt,
+                    datn = rbinom(n = length(xx), size = 1,prob = invlogit(prob_x)),
+                    datnt = rbinom(n = length(xx), size = 1,prob = invlogit(prob_xt)),
+                    time = time )
+
+simdf_samp <- simdf %>% 
+  slice_sample(n = 600)
+
+## plot
+
+ggplot(data = simdf)+
+  geom_tile(aes(x = lon, y = lat, fill = prob)) +coord_sf()+ facet_wrap(~time) 
+
+ggplot(data = simdf)+
+  geom_tile(aes(x = lon, y = lat, fill = prob_x)) +coord_sf()+ facet_wrap(~time) 
+
+ggplot(data = simdf)+
+  geom_tile(aes(x = lon, y = lat, fill = invlogit(prob_xt))) +coord_sf()+ facet_wrap(~time) 
+
+
+ggplot(data = simdf_samp)+
+  geom_tile(aes(x = lon, y = lat, fill = datn)) +coord_sf()+ facet_wrap(~time) 
+
+ggplot(data = simdf_samp)+
+  geom_tile(aes(x = lon, y = lat, fill = datnt)) +coord_sf()+ facet_wrap(~time) 
+
+
+
+
+ggplot(data = filter(simdf, lon == 0.0 & lat == 0.0))+
+  geom_point(aes(x = time, y = datn ), method = "glm")
+ggplot(data = filter(simdf, lon == 0.0 & lat == 0.0))+
+  geom_smooth(aes(x = time, y = datn ), method = "glm")
+#
+
+
+
+
+
+
+
+
+
+
 # setting up the data to be sampled from the generate points for each species
 set.seed(123)
 n_samp <- 100 #number of samples per species
-n_spp <- 5 # number of species
+n_slope <- 5 # number of temporal trend scenarios
+n_space <-  5 # number of spatial scenarios
+n_regions <- c(2,3,4,5,6) # max number of spatial regions (squared)
 
 year <- 0:200
-longitude <- seq(-75,-100, length.out = n_samp*n_spp) + rnorm(n= n_samp*n_spp, mean = 0, sd = 1)
-latitude <- seq(30,40, length.out = n_samp*n_spp) + rnorm(n= n_samp*n_spp, mean = 0, sd = 1)
-species <- LETTERS[1:n_spp]
+slopes <- LETTERS[1:n_slope]
+
+# longitude <- seq(-75,-100, length.out = n_samp*n_slope) + rnorm(n= n_samp*n_slope, mean = 0, sd = 1)
+# latitude <- seq(30,40, length.out = n_samp*n_slope) + rnorm(n= n_samp*n_slope, mean = 0, sd = 1)
+
+
+longitude <- seq(0,100, length.out = n_samp*n_slope) + rnorm(n= n_samp*n_slope, mean = 0, sd = 1)
+latitude <- seq(0,100, length.out = n_samp*n_slope) + rnorm(n= n_samp*n_slope, mean = 0, sd = 1)
 
 # sampling from those to make a set of coordinates for our fake data
-coords <- data.frame(long=sample(longitude, replace = TRUE, size = n_samp*n_spp), lat=sample(latitude, replace = TRUE, size = n_samp*n_spp), year = sample(year, replace = TRUE, size = n_samp*n_spp), spp = rep(times = 200, sample(species,size = n_spp)))
+coords <- data.frame(long=sample(longitude, replace = TRUE, size = n_samp*n_slope), lat=sample(latitude, replace = TRUE, size = n_samp*n_slope), year = sample(year, replace = TRUE, size = n_samp*n_slope))
+
+coords_binned <- list()
+
+for(i in 1:n_space){
+coords_binned[[i]]<- coords %>% 
+  mutate(one.region = "A",
+         bin.long = cut(long, breaks = n_regions[i], labels = LETTERS[1:n_regions[i]]),
+         bin.lat = as.character(as.numeric(cut(lat, breaks = n_regions[i], labels =1:n_regions[i]))))  %>% 
+  mutate(region = paste0(bin.long, bin.lat),
+         space_treatment = paste0("space",i))
+}
+
+coords_df <- as_tibble(rbind(coords_binned[[1]],
+                            coords_binned[[2]],
+                            coords_binned[[3]],
+                            coords_binned[[4]],
+                            coords_binned[[5]]))
+
+
+ggplot(data = coords_df)+
+  geom_point(aes(x = long, y = lat, color = year))+
+  facet_wrap(~space_treatment)
+ggplot(data = coords_df)+
+  geom_point(aes(x = long, y = lat, color = region))+
+  facet_wrap(~space_treatment)
 
 ggplot(data = coords)+
-  geom_point(aes(x = long, y = lat, color = year))+
-  facet_wrap(~spp)
+  geom_point(aes(x = long, y = lat, color = slopes))
 
 ggplot(data = coords)+
   geom_histogram(aes(x = year))+
-  facet_wrap(~spp)
+  facet_wrap(~slopes)
 
 coords_group <- coords %>% 
-  group_by(spp) %>% 
+  group_by(slopes) %>% 
   summarize(n = n())
 
 
 X <- model.matrix(~ 1+year, coords)
-Z <- model.matrix(~ spp -1, coords)
+Z <- model.matrix(~ region -1, coords)
 ZZ <- model.matrix(~spp:year - 1, coords)
 
 
@@ -68,6 +180,22 @@ ggplot(data = filter(coords, year > 50))+
 library(lme4)
 model <- glm(y ~ 0 + spp*year, data = coords, family = "binomial")
 summary(model)
+
+
+
+
+
+
+
+####### TEsting out gstat package
+library(gstat)
+v.sim <- vgm(200, "Mat", 30, 20, kappa = 0.1)
+g.sim <- gstat(NULL, "z", z~long+lat+year,
+               locations=~long+lat, beta = c(0.10, 0.20, 0.40),
+               dummy=TRUE, model = v.sim, nmax=50)
+yy <- predict(g.sim, newdata = coords, nsim = 1) # mydata is a data.table and has the longitude, latitude, and covariate_x
+coordinates(yy) <- c("long", "lat")
+
 
 
 model_matrix <- model.matrix(~ 1 + as.factor(spp) + spp:year, coords)
