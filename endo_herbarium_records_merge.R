@@ -362,6 +362,7 @@ BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>%
          primary_collector = case_when(recordedBy == "S. & G. Jones" ~ "S. Jones", TRUE ~ primary_collector),
          primary_collector = case_when(recordedBy == "B.E. Dutton and David E. Taylor" ~ "B.E. Dutton", TRUE ~ primary_collector),
          primary_collector = case_when(primary_collector == "Alfred Traveers" ~ "Alfred Traverse", TRUE ~ primary_collector),
+         primary_collector = case_when(primary_collector == "A. D. McKeller" ~ "A. D. McKellar", TRUE ~ primary_collector),
          primary_collector = str_replace_all(primary_collector, "�", " "),
          primary_collector = str_replace_all(primary_collector, ", Jr.", ""),
          primary_collector = str_replace_all(primary_collector, "Dr. ", "")) %>% 
@@ -1286,6 +1287,8 @@ specimen_counts <- endo_herb8 %>%
 
 endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, "�", " ")
 endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, "xa0", " ")
+endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, ", Jr.", "")
+endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, ", Jr", "")
 
 
 collector_count <- endo_herb8 %>% 
@@ -1299,7 +1302,12 @@ collector_count <- endo_herb8 %>%
 collector_string_count <- endo_herb8 %>% 
   mutate(collector_full_string = paste(collector_firstname, collector_lastname),
          collector_first_initial  = str_sub(collector_firstname, 1,1),
-         collector_string = paste(collector_first_initial, collector_lastname)) %>% 
+         collector_string = paste(collector_first_initial, collector_lastname)) %>%
+  mutate(collector_string = case_when(collector_full_string == "Robert Jones" ~ "Robert Jones",
+                                      collector_full_string == "Ronald Jones" ~ "Ronald Jones",
+                                      collector_full_string == "Latimore Smith" ~ "Latimore Smith",
+                                      collector_full_string == "Logan Smith" ~ "Logan Smith",
+                                      TRUE ~ collector_string)) %>% 
   group_by(collector_string) %>% 
   summarize(n()) 
  
@@ -1307,6 +1315,8 @@ collector_string_count <- endo_herb8 %>%
 # To do for collectors
 # update Silveus3071 to remove Coll. in master sheet
 # look up Dr. Sanders among BRIT records to see if D.R. Sanders
+# OKL_ELVI_101 needs to be Arthur Pease, not A.S.P.
+
 unique_lastnames <- endo_herb8 %>% 
   group_by(collector_lastname) %>% 
   summarize(no_records = n(),
