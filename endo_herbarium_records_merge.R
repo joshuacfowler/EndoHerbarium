@@ -361,10 +361,17 @@ BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>%
          primary_collector = case_when(str_detect(primary_collector, "John and Connie Taylor") ~ primary_collector,
                                        !str_detect(primary_collector, "John and Connie Taylor") ~ word(primary_collector, sep = fixed("and"))),
          primary_collector = case_when(str_detect(primary_collector, "Jones") ~ primary_collector,
-                                       !str_detect(primary_collector, "Jones") ~ word(primary_collector, sep = fixed("&")))) %>%
+                                       !str_detect(primary_collector, "Jones") ~ word(primary_collector, sep = fixed("&"))),
+         primary_collector = case_when(primary_collector == "Alfred Traveers" ~ "Alfred Traverse", TRUE ~ primary_collector),
+         primary_collector = str_replace_all(primary_collector, "�", " ")) %>% 
   mutate(collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
-                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
+                                        !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
+  mutate(collector_firstname = case_when(primary_collector == "B.R " ~ "B.R & M.H",
+                                         TRUE ~ collector_firstname),
+         collector_lastname = case_when(primary_collector == "B.R " ~ "MacRoberts",
+                                        TRUE ~ collector_lastname))
+
 # Lani's year and county info for her AGPE samples
 AGPE_meta <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/agpe_working.csv") %>% 
   dplyr::select(ID1,ID2) %>% 
@@ -1275,13 +1282,29 @@ specimen_counts <- endo_herb8 %>%
   summarize(n())
 
 #collector info is a work in progress. Need to fix names with the II. and figure out how to match up initials and first names.
+
+endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, "�", " ")
+endo_herb8$collector_lastname <- str_replace_all(endo_herb8$collector_lastname, "xa0", " ")
+
+
 collector_count <- endo_herb8 %>% 
   group_by(collector_firstname, collector_lastname) %>% 
   summarize(n()) %>% 
   mutate(collector_full_string = paste(collector_firstname, collector_lastname),
          collector_first_initial  = str_sub(collector_firstname, 1,1),
          collector_string = paste(collector_first_initial, collector_lastname)) 
-# Traverse and Traveers
+  
+
+collector_string_count <- endo_herb8 %>% 
+  mutate(collector_full_string = paste(collector_firstname, collector_lastname),
+         collector_first_initial  = str_sub(collector_firstname, 1,1),
+         collector_string = paste(collector_first_initial, collector_lastname)) %>% 
+  group_by(collector_string) %>% 
+  summarize(n()) 
+ 
+
+# To do for collectors
+# need to update Silveus3071 to remove Coll. in master sheet
 
 unique_lastnames <- endo_herb8 %>% 
   group_by(collector_lastname) %>% 
@@ -1320,8 +1343,17 @@ specimen_counts <- endo_herb_georef %>%
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
   group_by(Spp_code, tissue_type) %>% 
   summarize(n())
+
 scored_counts <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
+  mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
+                              grepl("ELVI", Sample_id) ~ "ELVI",
+                              grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
+  group_by(Spp_code) %>% 
+  summarize(n())
+
+scored_counts <- endo_herb_georef %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
                               grepl("ELVI", Sample_id) ~ "ELVI",
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
@@ -1336,13 +1368,13 @@ plot(endo_herb_georef$year, endo_herb_georef$Endo_status_liberal_1)
 
 
 endo_herb_AGHY <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "AGHY") %>% 
   filter(!is.na(lon) & !is.na(year)) 
 plot(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
 
 endo_herb_ELVI <- endo_herb_georef %>% 
-  filter(!is.na(Endo_status_liberal_1)) %>% 
+  filter(!is.na(Endo_status_liberal)) %>% 
   filter(Spp_code == "ELVI") %>% 
   filter(!is.na(lon) & !is.na(year))
 plot(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
@@ -1666,18 +1698,23 @@ plot(ppt_annual_change)
 
 # extracting the climate values at our herbarium specimens' coordinates for each year
 
-tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:2020)))
+tmean_stack <- terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "annual", year = 1970:2020)))
 ppt_stack <- terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = 1895:2019)))
 
 
 coords_df <- endo_herb_georef %>% 
-  distinct(lat,lon) %>% 
+  # distinct(lat,lon) %>% 
   filter(!is.na(lat), !is.na(lon))
 coords <- cbind(coords_df$lon, coords_df$lat)
 
 tmean_extract <- terra::extract(tmean_stack, coords)
-tmean_extract$lon = coords_df$lon
-tmean_extract$lat = coords_df$lat
+tmean_extract$lon <-  coords_df$lon
+tmean_extract$lat <-  coords_df$lat
+tmean_extract$species <- coords_df$Spp_code
+tmean_extract$endo <- coords_df$Endo_status_liberal
+
+ggplot(tmean_extract)+geom_point(aes(x = PRISM_tmean_stable_4kmM3_2020))
+
 
 
 lag_multiple <- function(x,name, n_vec){
