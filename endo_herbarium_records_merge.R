@@ -42,7 +42,8 @@ UTAustin_torch <- rbind(AGHY_UTAustin, ELVI_UTAustin, AGPE_UTAustin) %>%
          primary_collector = word(primary_collector, sep = fixed("&")),
          primary_collector = word(primary_collector, sep = fixed("asst")),
          primary_collector = word(primary_collector, sep = fixed("assit")),
-         primary_collector = word(primary_collector, sep = fixed("et"))) %>% 
+         primary_collector = word(primary_collector, sep = fixed("et")),
+         primary_collector = word(primary_collector, sep = fixed("|")),) %>% 
   mutate(collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                  !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1)))
@@ -356,14 +357,14 @@ AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
 
 
 BRIT_torch <- rbind(AGHY_BRIT, ELVI_BRIT, AGPE_BRIT) %>% 
-  mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
-                                       !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
-         primary_collector = case_when(str_detect(primary_collector, "John and Connie Taylor") ~ primary_collector,
-                                       !str_detect(primary_collector, "John and Connie Taylor") ~ word(primary_collector, sep = fixed("and"))),
-         primary_collector = case_when(str_detect(primary_collector, "Jones") ~ primary_collector,
-                                       !str_detect(primary_collector, "Jones") ~ word(primary_collector, sep = fixed("&"))),
+  mutate(primary_collector = recordedBy,
+         primary_collector = case_when(recordedBy == "John and Connie Taylor" | recordedBy == "John & Connie Taylor" ~ "John Taylor", TRUE ~ primary_collector),
+         primary_collector = case_when(recordedBy == "S. & G. Jones" ~ "S. Jones", TRUE ~ primary_collector),
+         primary_collector = case_when(recordedBy == "B.E. Dutton and David E. Taylor" ~ "B.E. Dutton", TRUE ~ primary_collector),
          primary_collector = case_when(primary_collector == "Alfred Traveers" ~ "Alfred Traverse", TRUE ~ primary_collector),
-         primary_collector = str_replace_all(primary_collector, "�", " ")) %>% 
+         primary_collector = str_replace_all(primary_collector, "�", " "),
+         primary_collector = str_replace_all(primary_collector, ", Jr.", ""),
+         primary_collector = str_replace_all(primary_collector, "Dr. ", "")) %>% 
   mutate(collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
@@ -1304,8 +1305,8 @@ collector_string_count <- endo_herb8 %>%
  
 
 # To do for collectors
-# need to update Silveus3071 to remove Coll. in master sheet
-
+# update Silveus3071 to remove Coll. in master sheet
+# look up Dr. Sanders among BRIT records to see if D.R. Sanders
 unique_lastnames <- endo_herb8 %>% 
   group_by(collector_lastname) %>% 
   summarize(no_records = n(),
