@@ -41,7 +41,16 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   mutate(decade_bin = floor(year/10)*10) %>% 
   mutate(std_year = (year-mean(year, na.rm = T))/sd(year, na.rm = T))
 
-
+# mini_dataset <- endo_herb_georef %>% 
+#   filter(year>1970 &year<1990 & species == "A. hyemalis") %>% 
+#   mutate(presence = Endo_status_liberal) %>% 
+#   filter(!is.na(Endo_status_liberal)) %>%
+#   filter(!is.na(lon) & !is.na(year)) %>% 
+#   filter(lon>-110 ) %>% 
+#   filter(Country != "Canada" ) %>% 
+#   dplyr::select(Sample_id, lat, lon, year, std_year, presence)
+# 
+# write_csv(mini_dataset, "2024-04-02_endophyte_data.csv")
 
 endo_herb <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal)) %>%
@@ -78,6 +87,7 @@ endo_herb<- endo_herb %>%
 # Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
 contemp_surveys <- read_csv(file = "contemp_surveys.csv") %>% 
   mutate(decade_bin = floor(Year/10)*10) %>% 
+  mutate(std_year =   (Year-mean(endo_herb$year, na.rm = T))/sd(endo_herb$year, na.rm = T)) %>% 
   filter(SpeciesID == "AGHY") %>% 
   st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
   st_transform(epsg6703km) %>% 
@@ -204,18 +214,13 @@ coords <- cbind(endo_herb$easting, endo_herb$northing)
 
 
 non_convex_bdry <- fm_extensions(
-  coords,
+  endo_herb$geometry,
   convex = c(250, 500),
-  concave = c(250, 500)
+  concave = c(250, 500),
+  crs = fm_crs(endo_herb)
 )
-
-# plot(non_convex_bdry[[1]])
-
-
-non_convex_bdry[[1]] <- st_sfc(non_convex_bdry[[1]], crs = epsg6703km) 
-non_convex_bdry[[2]] <- st_sfc(non_convex_bdry[[2]], crs = epsg6703km) 
-
-
+# 
+plot(non_convex_bdry[[1]])
 
 
 coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE))) %>% st_transform(epsg6703km)
@@ -371,8 +376,8 @@ pc_prec <- list(prior = "pcprec", param = c(1, 0.1))
 
 # components
 svc_components <- ~ 0+ # can add Intercept(1) but don't have it because we have the spatial intercept
-  space_int(coords, model = spde) +   # can add group argument to make specific to each species
-  time_slope(coords, weights = decade, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
+  time_slope(geometry, weights = decade, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
   scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
@@ -382,7 +387,7 @@ svc_components <- ~ 0+ # can add Intercept(1) but don't have it because we have 
   
 # version of the model without spatially varying time slope
 svc_components <- ~ 1+ # can add Intercept(1) but don't have it because we have the spatial intercept
-  space_int(coords, model = spde) +   # can add group argument to make specific to each species
+  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
   year + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
   # scorer(scorer_factor, model = "iid", hyper = list(pc_prec))
@@ -392,15 +397,15 @@ svc_components <- ~ 1+ # can add Intercept(1) but don't have it because we have 
 # version of the model trying to do everything together
 
 svc_components <- ~ Intercept(1)+ yearEffect(main = std_year, model = "linear") +
-  space.int(coords, model = spde) +   # can add group argument to make specific to each species
-  time.slope(coords, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  space.int(geometry, model = spde) + # can add group argument to make specific to each species
+  time.slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
 
 svc_components <- ~ 0+
-  space_int(coords, model = spde) +   # can add group argument to make specific to each species
-  time_slope(coords, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
+  time_slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
@@ -494,7 +499,7 @@ time_slope <- data.frame(
 
 # loop to get estimates on a mapping grid
 pred_grids <- lapply(
-  list(space_int = space_int, time_slope = time_slope),#, year_slope = year_slope),
+  list(space_int = space_int),# time_slope = time_slope),#, year_slope = year_slope),
   function(x) as.matrix(fm_evaluate(mesh_proj, x[,]))
 )
 
@@ -514,7 +519,7 @@ for (j in 1:length(pred_grids)) {
   terra::add(out_stk) <- out_j
 }
 names(out_stk) <- c(
-  "space_median", "space_range95",  "time_median", "time_range95"#, "year_median", "year_range95"
+  "space_median", "space_range95"#,  "time_median", "time_range95"#, "year_median", "year_range95"
 )
 #Masking the raster to our boundary
 
@@ -702,7 +707,7 @@ ggplot(year.pred) +
 
 
 vrt <- inlabru::fm_pixels(mesh, format = "sp")# Note this is where we can mask the output according the whatever shape, such as the host distribution
-  
+
 
 
 ggplot()+
@@ -710,24 +715,9 @@ ggplot()+
   gg(vrt, color = "red")
 
 
-pred_data <- data.frame(expand.grid(Intercept = 1, 
-                         lon = seq(min(endo_herb$lon),max(endo_herb$lon), length.out = 50),
-                         lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 50),
-                         std_year = 0,
-                         collector_factor = NA)) %>% 
-  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
-  st_transform(epsg6703km) %>% 
-  mutate(
-    easting = st_coordinates(.)[, 1],
-    northing = st_coordinates(.)[, 2]
-  ) 
 
-  
-
-predict.bru <- getFromNamespace("predict.bru", "inlabru")
-
-space_prediction <- predict.bru(fit, 
-                      pred_data, formula = ~invlogit(Intercept + space.int))
+space_prediction <- predict(fit, 
+                      vrt, formula = ~invlogit(space.int))
 
 
 dim(vrt)
@@ -735,7 +725,7 @@ dim(space_prediction)
 
 ggplot()+
   # geom_point(data = endo_herb, aes(x = easting, y = northing), color = "blue")
-  geom_point(data = space_prediction, aes(x = easting, y = northing, color = mean))
+  # geom_point(data = space_prediction, aes(x = easting, y = northing, color = mean))
   # gg(mesh)+
   gg(space_prediction, aes(fill = mean))
 
