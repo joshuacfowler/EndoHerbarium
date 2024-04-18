@@ -39,7 +39,7 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
                              spp_code == "AGPE" ~ "A. perennans",
                              spp_code == "ELVI" ~ "E. virginicus")) %>% 
   mutate(decade_bin = floor(year/10)*10) %>% 
-  mutate(std_year = (year-mean(year, na.rm = T))/sd(year, na.rm = T))
+  mutate(std_year = (year-mean(year, na.rm = T))) # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
 
 # mini_dataset <- endo_herb_georef %>% 
 #   filter(year>1970 &year<1990 & species == "A. hyemalis") %>% 
@@ -87,8 +87,8 @@ endo_herb<- endo_herb %>%
 # Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
 contemp_surveys <- read_csv(file = "contemp_surveys.csv") %>% 
   mutate(decade_bin = floor(Year/10)*10) %>% 
-  mutate(std_year =   (Year-mean(endo_herb$year, na.rm = T))/sd(endo_herb$year, na.rm = T)) %>% 
-  filter(SpeciesID == "AGHY") %>% 
+  mutate(std_year =   (Year-mean(endo_herb$year, na.rm = T))) %>% 
+  # filter(SpeciesID == "AGHY") %>% 
   st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
   st_transform(epsg6703km) %>% 
   mutate(
@@ -97,7 +97,13 @@ contemp_surveys <- read_csv(file = "contemp_surveys.csv") %>%
   ) 
   
 
-contemp_random_sample <- read_csv(file = "contemp_random_sample.csv")
+contemp_random_sample <- read_csv(file = "contemp_random_sample.csv") %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km) %>% 
+  mutate(
+    easting = st_coordinates(.)[, 1],
+    northing = st_coordinates(.)[, 2]
+  ) 
 
 
 # register_google(key = "")
@@ -112,7 +118,7 @@ counties_shape <- map_data("county")
 collections_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
-  geom_point(data = endo_herb, aes(x = lon, y = lat, color = spp_code), alpha = .7, size = 1.2)+
+  geom_point(data = endo_herb, aes(x = lon, y = lat, color = species), alpha = .7, size = 1.2)+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
   scale_color_manual(values = species_colors)+
   theme_light()+
@@ -161,14 +167,16 @@ mode <- function(codes){
 
 summary_endo_herb <- endo_herb %>% 
   mutate(Sample_id_temp = Sample_id) %>% 
-  filter(score_number == 1) %>% 
+  filter(score_number == 1) %>%
   separate(Sample_id_temp, sep = "_", into = c("herbarium", "spp_code", "plant_no")) %>% select(-spp_code, -plant_no) %>% 
   # filter(seed_scored>0) %>% 
   filter(month<=12&month>0) %>% 
   group_by(species) %>% 
   summarize(n(),
             avg_seed = mean(seed_scored, na.rm = T),
-            avg_month = mode(as.numeric(month)))
+            avg_month = mode(as.numeric(month)),
+            min_year = min(year),
+            max_year = max(year))
 
 
 
@@ -191,36 +199,36 @@ endo_herb_ELVI <- endo_herb %>%
   filter(spp_code == "ELVI") %>% 
   filter(!is.na(lon) & !is.na(year)) 
 
-
-endo_herb <- endo_herb_AGHY
-# endo_herb <- endo_herb_AGPE 
-# endo_herb <- endo_herb_ELVI
+endo_herb_list <- list()
+endo_herb_list[[1]] <- endo_herb_AGHY
+endo_herb_list[[2]] <- endo_herb_AGPE
+endo_herb_list[[3]] <- endo_herb_ELVI
 
 
 
 ##########################################################################################
 ############ Setting up and running INLA model with inlabru ############################### 
 ##########################################################################################
-
+# Running the model for each species separately
+for(s in 1:1){
 ##### Building a spatial mesh #####
 
+data <- endo_herb_list[[s]]
+
 # Build the spatial mesh from the coords for each species and a boundary around each species predicted distribution (eventually from Jacob's work ev)
-coords <- cbind(endo_herb$easting, endo_herb$northing)
-# AGHY_coords <- cbind(endo_herb_AGHY$lon, endo_herb_AGHY$lat)
-# AGPE_coords <- cbind(endo_herb_AGPE$lon, endo_herb_AGPE$lat)
-# ELVI_coords <- cbind(endo_herb_ELVI$lon, endo_herb_ELVI$lat)
+coords <- cbind(data$easting, data$northing)
 
 # non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.1, resolution = c(100, 100))
 
 
 non_convex_bdry <- fm_extensions(
-  endo_herb$geometry,
+  data$geometry,
   convex = c(250, 500),
   concave = c(250, 500),
-  crs = fm_crs(endo_herb)
+  crs = fm_crs(data)
 )
 # 
-plot(non_convex_bdry[[1]])
+# plot(non_convex_bdry[[2]])
 
 
 coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE))) %>% st_transform(epsg6703km)
@@ -247,7 +255,7 @@ mesh <- fm_mesh_2d_inla(
   # loc = coords,
   boundary = non_convex_bdry, max.edge = c(max.edge, max.edge*2), # km inside and outside
   cutoff = 20,
-  crs = fm_crs(endo_herb)
+  crs = fm_crs(data)
   # crs=CRS(proj4string(bdry_polygon))
 ) # cutoff is min edge
 # plot it
@@ -262,7 +270,7 @@ mesh <- fm_mesh_2d_inla(
 # sf::sf_use_s2(FALSE)
 # bdry_st <- st_multipolygon(non_convex_bdry[[1]])
 #                            mutate(easting = V1,  northing = V2) %>%
-#                            st_as_sf(coords = c("easting", "northing"), crs = fm_crs(endo_herb)) %>%
+#                            st_as_sf(coords = c("easting", "northing"), crs = fm_crs(data)) %>%
 #                            summarise(geometry = st_combine(geometry)) %>%
 #                            st_cast("POLYGON"))
 # # 
@@ -282,10 +290,10 @@ mesh <- fm_mesh_2d_inla(
 # #                                 summarise(geometry = st_combine(geometry)) %>% 
 # #                                 st_cast("POLYGON"))
 # 
-# coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE), crs = fm_crs(endo_herb)))
+# coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE), crs = fm_crs(data)))
 # # plot(coastline)
 # 
-# sf::st_transform(coastline, fm_crs(endo_herb))
+# sf::st_transform(coastline, fm_crs(data))
 # 
 # 
 # bdry <- st_intersection(coastline$geom, bdry_st)
@@ -333,12 +341,12 @@ mesh <- fm_mesh_2d_inla(
 #                      cutoff = max.edge/(15),
 #                      crs = 4326)
 
-ggplot() +
-  gg(data = mesh) +
-  geom_point(data = endo_herb, aes(x = easting, y = northing, col = species), size = 1) +
-  coord_sf()+
-  theme_bw() +
-  labs(x = "", y = "")
+# ggplot() +
+#   gg(data = mesh) +
+#   geom_point(data = data, aes(x = easting, y = northing, col = species), size = 1) +
+#   coord_sf()+
+#   theme_bw() +
+#   labs(x = "", y = "")
 
 
 # make spde
@@ -360,8 +368,15 @@ spde <- inla.spde2.pcmatern(
   prior.range = c(prior_range, 0.05),
 
   prior.sigma = c(prior_sigma, 0.05),
-  # constr = TRUE
 )
+
+# spde_const <- inla.spde2.pcmatern(
+#   mesh = mesh,
+#   prior.range = c(prior_range, 0.05),
+#   
+#   prior.sigma = c(prior_sigma, 0.05),
+#   # constr = TRUE
+# )
 # inlabru makes making weights spatial effects simpler because we don't have to make projector matrices for each effect. i.e we don't have to make an A-matrix for each spatially varying effect.
 # this means we can go strat to making the components of the model
 
@@ -374,54 +389,39 @@ pc_prec <- list(prior = "pcprec", param = c(1, 0.1))
 
 
 
-# components
-svc_components <- ~ 0+ # can add Intercept(1) but don't have it because we have the spatial intercept
-  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
-  time_slope(geometry, weights = decade, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
-  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
-  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
 
 
-
+# version of the model with overall year slope
   
-# version of the model without spatially varying time slope
-svc_components <- ~ 1+ # can add Intercept(1) but don't have it because we have the spatial intercept
-  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
-  year + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
-  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
-  # scorer(scorer_factor, model = "iid", hyper = list(pc_prec))
-
-
-
-# version of the model trying to do everything together
-
-svc_components <- ~ Intercept(1)+ yearEffect(main = std_year, model = "linear") +
+year_components <- ~ Intercept(1)+ yearEffect(main = std_year, model = "linear") +
   space.int(geometry, model = spde) + # can add group argument to make specific to each species
-  time.slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
-  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+#  time.slope(geometry, weights = std_year) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
 scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
-
+# version of the model with spatially varying slopes
 svc_components <- ~ 0+
-  space_int(geometry, model = spde) +   # can add group argument to make specific to each species
-  time_slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
-  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+  space.int(geometry, model = spde) + # can add group argument to make specific to each species
+  time.slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
 scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
 
 
 
 # formula, with "." meaning "add all the model components":
+year_formula <- Endo_status_liberal ~ .
 svc_formula <- Endo_status_liberal ~ .
 
 
 
-# Now run the model
+# Now run the models
 
-fit <- bru(svc_components,
+
+year.fit <- bru(year_components,
            like(
-             formula = svc_formula,
+             formula = year_formula,
              family = "binomial",
              Ntrials = 1,
              data = endo_herb
@@ -433,7 +433,31 @@ fit <- bru(svc_components,
            )
 )
 
-fit$dic$dic
+svc.fit <- bru(svc_components,
+                     like(
+                       formula = svc_formula,
+                       family = "binomial",
+                       Ntrials = 1,
+                       data = endo_herb
+                     ),
+                     options = list(
+                       control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
+                       control.inla = list(int.strategy = "eb"),
+                       verbose = TRUE
+                     )
+)
+
+fit.list <- list(year.fit = year.fit, svc.fit = svc.fit)
+fit_lists <- list(paste0("s",s) = fit.list)
+
+}
+
+
+
+
+fit.1$dic$dic
+fit2$dic$dic
+
 fit$mode$mode.status # a 0 or low value indicates "convergence"
 
 fit$summary.fixed
@@ -484,11 +508,11 @@ time_slope <- data.frame(
 #                fit$summary.random$time_slope$"0.025quant")
 # )
 # 
-# year_slope <- data.frame(
-#   median = (fit$summary.fixed["std_year","0.5quant"] + fit$summary.random$time_slope$"0.5quant"),
-#   range95 = ((fit$summary.fixed["std_year","0.975quant"] + fit$summary.random$time_slope$"0.975quant") -
-#                (fit$summary.fixed["std_year","0.025quant"]+fit$summary.random$time_slope$"0.025quant"))
-# )
+year_slope <- data.frame(
+  median = ((fit$summary.fixed["yearEffect","0.5quant"] + fit$summary.random$time.slope$"0.5quant")),
+  range95 = ((fit$summary.fixed["yearEffect","0.975quant"] + fit$summary.random$time.slope$"0.975quant") -
+               (fit$summary.fixed["yearEffect","0.025quant"]+fit$summary.random$time.slope$"0.025quant"))
+)
 
 # 
 # prev <- data.frame(
@@ -499,7 +523,7 @@ time_slope <- data.frame(
 
 # loop to get estimates on a mapping grid
 pred_grids <- lapply(
-  list(space_int = space_int),# time_slope = time_slope),#, year_slope = year_slope),
+  list(space_int = space_int, time_slope = time_slope, year_slope = year_slope),
   function(x) as.matrix(fm_evaluate(mesh_proj, x[,]))
 )
 
@@ -519,7 +543,7 @@ for (j in 1:length(pred_grids)) {
   terra::add(out_stk) <- out_j
 }
 names(out_stk) <- c(
-  "space_median", "space_range95"#,  "time_median", "time_range95"#, "year_median", "year_range95"
+  "space_median", "space_range95",  "time_median", "time_range95", "year_median", "year_range95"
 )
 #Masking the raster to our boundary
 
@@ -655,7 +679,8 @@ multiplot(plotlist = flist, cols = 2)
 
 min_year <- min(endo_herb$std_year)
 max_year <- max(endo_herb$std_year)
-preddata <- data.frame(std_year = seq(min_year, max_year))
+preddata <- expand.grid(spp_code = "AGPE", geometry = NA, std_year = seq(min_year, max_year, length.out = 1000)) 
+
 
 # gennerating predictions and back-transforming the standardized year variable
 
@@ -665,19 +690,20 @@ sd_year <- sd(endo_herb$year)
 year.pred <- predict(
   fit,
   newdata = preddata,
-  formula = ~ invlogit(Intercept + yearEffect)) %>% 
-  mutate(year = std_year*sd_year + mean_year)
+  formula = ~ invlogit(Intercept + yearEffect))  %>% 
+  mutate(year = std_year + mean_year)
 
 
 # binning the data for plotting
 endo_herb_binned <- endo_herb %>% 
-  mutate(binned_year = cut(year, breaks = 50)) %>%
+  mutate(binned_year = cut(year, breaks = 10)) %>%
   group_by(Spp_code, species,binned_year) %>%   
   summarise(mean_year = mean(year),
             mean_endo = mean(Endo_status_liberal),
             mean_lon = mean(lon),
             mean_lat = mean(lat),
-            sample = n()) %>% 
+            sample = n(),
+            se_endo = sd(Endo_status_liberal)/sqrt(sample)) %>% 
   mutate(lat_bin = case_when(mean_lat>=35 ~ paste("43"),
                              mean_lat<35 ~ paste("35")),
          lon_bin = case_when(mean_lon<=-94 ~ paste("-90"),
@@ -686,6 +712,7 @@ endo_herb_binned <- endo_herb %>%
 
 ggplot(year.pred) +
   geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample))+
+  # geom_linerange(data = endo_herb_binned, aes(x = mean_year, ymin = mean_endo-se_endo, ymax = mean_endo+se_endo))+
   geom_point(data =endo_herb, aes(x = year, y = Endo_status_liberal), shape = "|")+
   geom_line(aes(year, mean)) +
   geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
@@ -706,8 +733,11 @@ ggplot(year.pred) +
 
 
 
-vrt <- inlabru::fm_pixels(mesh, format = "sp")# Note this is where we can mask the output according the whatever shape, such as the host distribution
+vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
 
+vrt@data <- data.frame(std_year = rep(mean(endo_herb$std_year), length.out = length(vrt)))
+
+vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
 
 
 ggplot()+
@@ -716,18 +746,66 @@ ggplot()+
 
 
 
-space_prediction <- predict(fit, 
-                      vrt, formula = ~invlogit(space.int))
+prediction <- predict(fit, 
+                      vrt, formula =  ~ list(prev = invlogit(space.int + time.slope),
+                                             space_pred = (space.int),
+                                             # time_pred = 100*(exp(yearEffect + time.slope)-1)))
+                                              time_pred = time.slope))
 
 
 dim(vrt)
-dim(space_prediction)
+dim(prediction$prev)
+
+dim(prediction$space_pred)
+dim(prediction$time_pred)
 
 ggplot()+
-  # geom_point(data = endo_herb, aes(x = easting, y = northing), color = "blue")
-  # geom_point(data = space_prediction, aes(x = easting, y = northing, color = mean))
-  # gg(mesh)+
-  gg(space_prediction, aes(fill = mean))
+  gg(prediction$prev, aes(fill = mean))+
+  scale_fill_viridis_c(option = "plasma", na.value = "transparent", begin = 0, end = 1)
+
+
+ggplot()+
+  gg(prediction$space_pred, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent")
+  
+
+
+
+ggplot()+
+  gg(prediction$time_pred, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent")
+
+
+
+#### Making contemp predictions
+contemp_surveys %>% 
+  filter(SpeciesID == "ELVI")
+
+
+
+prediction <- predict(fit, 
+                      contemp_surveys, 
+                      formula =  ~ list(prev = invlogit(space.int + time.slope)),
+                      )
+
+dim(prediction$prev)
+
+ggplot(prediction$prev)+
+  geom_point(aes(x = easting, y = endo_prev, size = sample_size), alpha = .2)+
+  geom_smooth(aes(x = easting, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
+  geom_point(aes(x = easting, y = mean), color = "darkgreen") +
+  geom_linerange(aes(x = easting, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
+  ylim(0,1) + theme_classic()
+
+
+ggplot(prediction$prev)+
+  geom_point(aes(x = northing, y = endo_prev, size = sample_size), alpha = .2)+
+  geom_smooth(aes(x = northing, y = endo_prev)) +#, method = "glm", method.args = list(family = "binomial"))+
+  geom_point(aes(x = northing, y = mean), color = "darkgreen") +
+  geom_linerange(aes(x = northing, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
+  ylim(0,1) + theme_classic()
+
+###
 
 
 data(gorillas, package = "inlabru")
