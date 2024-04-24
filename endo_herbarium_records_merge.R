@@ -106,7 +106,7 @@ AM_merged_records <- AM_symbiota_records %>%
 
 # BRIT digitized records downloaded from TORCH (includes Vanderbilt and U of Louisiana Monroe) 
 # This was downloaded on Jul17 and we can get more specimens transcribed and download again.
-AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2023-02-03_192156_DwC-A/occurrences.csv",
+AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGHY_TORCH_records/SymbOutput_2024-04-03_142217_DwC-A/occurrences.csv",
                       col_types = cols(id = col_double(),
                                        institutionCode = col_character(),
                                        collectionCode = col_logical(),
@@ -205,7 +205,7 @@ AGHY_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   dplyr::select(id, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, recordNumber, eventDate, day, month, year) %>% 
   mutate(Spp_code = "AGHY")
 
-ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2023-02-03_182842_DwC-A/occurrences.csv",
+ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_ELVI_TORCH_records/SymbOutput_2024-04-03_141739_DwC-A/occurrences.csv",
                       col_types = cols(id = col_double(),
                                        institutionCode = col_character(),
                                        collectionCode = col_logical(),
@@ -301,7 +301,7 @@ ELVI_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digitiz
   mutate(Spp_code = "ELVI")
 
 
-AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGPE_TORCH_records/SymbOutput_2023-02-03_183145_DwC-A/occurrences.csv",
+AGPE_BRIT <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/BRIT_records/BRIT_AGPE_TORCH_records/SymbOutput_2024-04-03_142041_DwC-A/occurrences.csv",
                       col_types = cols(id = col_double(),
                                        institutionCode = col_character(),
                                        collectionCode = col_logical(),
@@ -515,12 +515,15 @@ LSU_records <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Digit
                                          references = col_character())) %>% 
   mutate(primary_collector = case_when(str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, end = 2, sep = fixed(",")),
                                        !str_detect(recordedBy, "Jr.") ~ word(recordedBy, start = 1, sep = fixed(","))),
+         primary_collector = case_when(recordedBy == "J. D. Schneidau (Jr.)" ~ "John D. Schneidau", 
+                                       recordedBy == "John D. Schneidau (Jr.)" ~ "John D. Schneidau", TRUE ~ primary_collector),
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr.") ~ word(str_trim(primary_collector), -1))) %>% 
   mutate(Spp_code = case_when(genus == "Elymus" ~ "ELVI",
                               genus == "Agrostis" & specificEpithet == "hyemalis" | specificEpithet == "hiemalis" ~ "AGHY",
-                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%  # there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+                              genus == "Agrostis" & specificEpithet == "perennans" ~ "AGPE")) %>%# there are some Agrostis scabra, that may need to be sorted out cause they could be part of hyemalis
+  mutate(county = case_when(catalogNumber == "LSU00074817" ~ "Rensselaer", TRUE ~ county)) %>% 
   dplyr::select(id, Spp_code, catalogNumber, country, stateProvince, county, municipality, locality, decimalLatitude, decimalLongitude, coordinateUncertaintyInMeters, recordedBy, primary_collector, collector_lastname, collector_firstname, recordNumber, eventDate, day, month, year) 
 
 # Reading in the Oklahoma state university digitized records
@@ -964,14 +967,18 @@ specimen_info <- read_csv(file = "~joshuacfowler/Dropbox/Josh&Tom - shared/Endo_
                           Spp_code == "AGPE" & is.na(year.x) ~ year.y, TRUE ~ year.x)) %>% 
   mutate(hand_georef_lon = case_when(as.numeric(decimalLongitude)>0 ~ (as.numeric(decimalLongitude))*-1,TRUE ~ as.numeric(decimalLongitude)),
          hand_georef_lat = as.numeric(decimalLatitude)) %>%
-  mutate(primary_collector = case_when(str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, end = 2, sep = fixed(",")),
-                                       !str_detect(Collected_by, "Jr") ~ word(Collected_by, start = 1, sep = fixed(","))),
+  mutate(primary_collector = case_when(str_detect(Collected_by, ", Jr") ~ word(Collected_by, start = 1, sep = fixed(",")),
+                                       str_detect(Collected_by, " Jr") ~ word(Collected_by, start = 1, end = 2, sep = fixed(" ")),
+                                       TRUE ~ Collected_by),
          primary_collector = word(primary_collector, sep = fixed(";")),
          primary_collector = word(primary_collector, sep = fixed("with")),
          primary_collector = word(primary_collector, sep = fixed("and")),
          primary_collector = word(primary_collector, sep = fixed("&")),
          primary_collector = str_replace(primary_collector,"\n", ""),
          primary_collector = str_replace(primary_collector, "Hoagl", "Hoagland"),
+         primary_collector = str_replace(primary_collector, "R. Lence Weldon, Susan Harris, Elizabeth Harris, Tony L. Burgess", "R. Lence Weldon"),
+         primary_collector = str_replace(primary_collector, "G. Davidse, D. Bell, ", "G. Davidse"),
+         primary_collector = str_replace(primary_collector, "F.L. Johnson, R. Rudman,", "F.L. Johnson"),
          collector_firstname = word(primary_collector),
          collector_lastname = case_when(str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), start = -2, end = -1),
                                         !str_detect(primary_collector,"Jr") ~ word(str_trim(primary_collector), -1))) %>% 
@@ -1035,7 +1042,8 @@ endo_herb <- endo_scores %>%
   left_join(fitness_data, by = c("Specimen_id" = "Specimen_id",
                                  "Herbarium_id" = "Herbarium_id", 
                                  "Spp_code" = "Spp_code", 
-                                 "Specimen_no" = "Specimen_no"))
+                                 "Specimen_no" = "Specimen_no")) 
+
 
 
 # These are the matches from BRIT for transcription using the file that Jason Best shared of their database, Mar 25th, 2020
@@ -1077,7 +1085,7 @@ endo_herb1 <- endo_herb %>%
   mutate(Spp_code = case_when(is.na(Spp_code.x) ~ Spp_code.y,
                               is.na(Spp_code.y) ~ Spp_code.x, TRUE ~ Spp_code.y)) %>% 
   mutate(primary_collector = case_when(is.na(primary_collector.x) ~ primary_collector.y,
-                                       is.na(primary_collector.y) ~ primary_collector.x, TRUE ~ primary_collector.y),
+                                       is.na(primary_collector.y) ~ primary_collector.x,  TRUE ~ primary_collector.y),
          collector_lastname = case_when(is.na(collector_lastname.x) ~ collector_lastname.y,
                                         is.na(collector_lastname.y) ~ collector_lastname.x,TRUE ~ collector_lastname.y),
          collector_firstname = case_when(is.na(collector_firstname.x) ~ collector_firstname.y,
@@ -1378,6 +1386,7 @@ specimen_counts <- endo_herb8 %>%
 
 
 
+
  # checking in on the accuracy of splitting the collector names
 
 collector_string_count <- endo_herb8 %>% 
@@ -1403,6 +1412,13 @@ collector_no <- paste0("Collector",1:nlevels(as.factor(endo_herb8$collector_stri
 
 endo_herb8$collector_factor <- collector_no[match(as.factor(endo_herb8$collector_string), collector_levels)]
 
+collector_checking <- endo_herb8 %>% 
+  filter(is.na(collector_string) & !is.na(Endo_status_liberal) & !is.na(County))
+
+
+
+location_checking <- endo_herb8 %>% 
+  filter(!is.na(Endo_status_liberal) & is.na(Country))
 
 
 # ggplot(unique_lastnames)+
@@ -1422,7 +1438,7 @@ endo_herb_georef <-endo_herb8 %>%
   unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
   filter(Endo_status_liberal <= 1) %>%
   mutate_geocode(location_string) # Uncomment this to run the geocoding.
-write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
+# write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
   # filter(Country != "Canada") %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
@@ -1437,6 +1453,7 @@ specimen_counts <- endo_herb_georef %>%
                               grepl("AGPE", Sample_id) ~ "AGPE")) %>% 
   group_by(Spp_code, tissue_type) %>% 
   summarize(n())
+
 
 scored_counts <- endo_herb_georef %>% 
   filter(!is.na(Endo_status_liberal), !is.na(lon), score_number == 1) %>% 
@@ -1495,7 +1512,8 @@ write_csv(need_collector, file = "~/Downloads/endo_herbarium_need_collector.csv"
 need_latlon <- endo_herb_georef %>% 
   filter(Spp_code %in% c("AGHY", "AGPE", "ELVI" )) %>% 
   filter(!is.na(Endo_status_liberal), is.na(lon)) %>% 
-  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_string, location_string, Country, year, lon, lat)
+  dplyr::select(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_string, location_string, Country, year, lon, lat) %>% 
+  left_join(specimen_info %>% select(Specimen_id, photo_transcribing_notes), by = c("Sample_id" = "Specimen_id"))
 
 
 write_csv(need_latlon, file = "~/Downloads/endo_herbarium_need_latlon.csv")
@@ -1648,6 +1666,49 @@ ppt_summer_cv_difference <- terra::diff(terra::rast(list(ppt_summer_old_cv, ppt_
 ppt_autumn_cv_difference <- terra::diff(terra::rast(list(ppt_autumn_old_cv, ppt_autumn_recent_cv)))
 
 
+# changing the crs of these rasters to match the pixels of our mesh
+raster::crs(tmean_annual_difference) <- epsg6703km
+raster::crs(tmean_spring_difference) <- epsg6703km
+raster::crs(tmean_summer_difference) <- epsg6703km
+raster::crs(tmean_autumn_difference) <- epsg6703km
+
+raster::crs(tmean_annual_sd_difference) <- epsg6703km
+raster::crs(tmean_spring_sd_difference) <- epsg6703km
+raster::crs(tmean_summer_sd_difference) <- epsg6703km
+raster::crs(tmean_autumn_sd_difference) <- epsg6703km
+
+raster::crs(tmean_annual_cv_difference) <- epsg6703km 
+raster::crs(tmean_spring_cv_difference) <- epsg6703km 
+raster::crs(tmean_summer_cv_difference) <- epsg6703km 
+raster::crs(tmean_autumn_cv_difference) <- epsg6703km 
+
+
+
+raster::crs(ppt_annual_difference) <- epsg6703km
+raster::crs(ppt_spring_difference) <- epsg6703km
+raster::crs(ppt_summer_difference) <- epsg6703km
+raster::crs(ppt_autumn_difference) <- epsg6703km
+
+raster::crs(ppt_annual_sd_difference) <- epsg6703km
+raster::crs(ppt_spring_sd_difference) <- epsg6703km
+raster::crs(ppt_summer_sd_difference) <- epsg6703km
+raster::crs(ppt_autumn_sd_difference) <- epsg6703km
+
+raster::crs(ppt_annual_cv_difference) <- epsg6703km 
+raster::crs(ppt_spring_cv_difference) <- epsg6703km 
+raster::crs(ppt_summer_cv_difference) <- epsg6703km 
+raster::crs(ppt_autumn_cv_difference) <- epsg6703km 
+
+
+
+ppt_autumn_cv_difference %>% st_transform(epsg6703km)
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE)
+  st_transform(epsg6703km) %>% 
+  mutate(
+    coords.x1 = st_coordinates(.)[, 1],
+    coords.x2 = = st_coordinates(.)[, 1],
+)
+
 ######### Next extracting these climate values at our points. ####
 # we can extract them at the georeferenced coordinates and also across the grid of points we are using for prediction
 
@@ -1698,55 +1759,49 @@ write_csv(prism_diff_df, file = "prism_diff_df.csv")
 # this is the coordinates we are using for the spatial model prediction currently
 # this is the set of data for which we want predictions
 
+fit_lists <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists_withscorer.Rds")
 
-non_convex_bdry <- inla.nonconvex.hull(coords, -0.03, -0.05, resolution = c(100, 100))
-sf::sf_use_s2(FALSE)
-bdry_st <- st_make_valid(as_tibble(non_convex_bdry$loc)  %>% 
-                           mutate(lon = V1,  lat = V2) %>% 
-                           st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
-                           summarise(geometry = st_combine(geometry)) %>% 
-                           st_cast("POLYGON"))
+mesh_lists <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_list_withscorer.Rds")
 
-coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE)))
-# plot(coastline)
-
-bdry <- st_intersection(coastline$geom, bdry_st)
-
-bdry_polygon <- st_cast(st_sf(bdry), "POLYGON") %>% st_union() %>% 
-  as("Spatial")
-
-
-# this is the set of data for which we want predictions across the whole space
-pred_data <- data.frame(expand.grid(Intercept = 1, 
-                                    lon = seq(min(endo_herb$lon),max(endo_herb$lon), length.out = 100),
-                                    lat = seq(min(endo_herb$lat),max(endo_herb$lat), length.out = 100),
-                                    year = c(1820, 1870, 1895, 1920, 1970, 1990, 2020), 
-                                    species = c("AGHY", "AGPE", "ELVI"),
-                                    id = NA,
-                                    county = NA,
-                                    collector = NA,
-                                    scorer = NA)) %>% 
-  mutate(year2 = year^2, lon2 = lon^2, lat2 = lat^2)
-
-
-# keeping just the points that are part of the mesh's boundary
-simple_bdry <- st_as_sf(bdry_polygon) %>% ms_simplify()  %>% st_make_valid() %>% as("Spatial") #%>% ms_filter_islands(min_area = 5000000000000)
-# plot(simple_bdry)
-ind <- point.in.polygon(
-  pred_data$lon, pred_data$lat,
-  raster::geom(simple_bdry)[,5], raster::geom(simple_bdry)[,6] 
-)
-
-coords_pred <- pred_data %>% 
-  select(lon, lat) 
-coords_pred <- as.matrix(coords_pred[which(ind == 1),])
-# plot(coords_pred)
-pred_data <- pred_data[which(ind ==1),]
+bdry_polygon_list <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/boundary_polygon_list.Rds")
 
 
 
-prism_diff_pred_df <- tibble(lon = coords_pred[,1], lat = coords_pred[,2],
-                             tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, coords_pred)),
+# THese are the pixels across space for which we will extract climate
+
+epsg6703degree <- "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=km +no_defs"
+vrt_list <- list()
+
+for (s in 1:3){
+  vrt <- NA
+  mesh <- mesh_list[[s]]
+  bdry_polygon <- bdry_polygon_list[[s]]
+  
+  vrt_list[[species_codes[s]]] <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))
+}
+
+vrt_df <- vrt_df %>% 
+  st_transform(crs = epsg6703degree) %>% 
+  mutate(lat= st_coordinates(vrt_df)[,1],
+         lon = st_coordinates(vrt_df)[,2])
+
+ggplot()+
+  gg(mesh_list[[1]])+
+  gg(vrt_list[[1]], color = "red")
+
+ggplot()+
+  gg(mesh_list[[2]])+
+  gg(vrt_list[[2]], color = "red")
+
+ggplot()+
+  gg(mesh_list[[3]])+
+  gg(vrt_list[[3]], color = "red")
+
+
+vrt_list[[1]]@coords
+
+prism_diff_pred_df <- tibble(lon = vrt_list[[1]]@coords[,1], lat = vrt_list[[1]]@coords[,2],
+                             tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, vrt_list[[1]]@coords)))
                              tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords_pred)),
                              tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords_pred)),
                              tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords_pred)),
