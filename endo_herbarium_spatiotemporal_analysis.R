@@ -17,7 +17,7 @@ library(tidyterra)
 
 library(patchwork)
 library(ggmap)
-library(ROCR)
+library(pROC)
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
 species_colors <- c("#1b9e77","#d95f02","#7570b3")
@@ -39,8 +39,8 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
                              spp_code == "AGPE" ~ "A. perennans",
                              spp_code == "ELVI" ~ "E. virginicus")) %>% 
   mutate(decade_bin = floor(year/10)*10) %>% 
-  mutate(std_year = (year-mean(year, na.rm = T))) # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
-
+  mutate(std_year = (year-mean(year, na.rm = T))) %>%  # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
+  filter(scorer_factor != "Scorer26")
 # mini_dataset <- endo_herb_georef %>% 
 #   filter(year>1970 &year<1990 & species == "A. hyemalis") %>% 
 #   mutate(presence = Endo_status_liberal) %>% 
@@ -125,7 +125,7 @@ collections_map <- ggplot()+
   theme(legend.text = element_text(face = "italic"))+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
-collections_map
+# collections_map
 # ggsave(collections_map, filename = "collections_map.png", width = 7, height = 4)
 
 endo_status_map <- ggplot()+
@@ -139,9 +139,23 @@ endo_status_map <- ggplot()+
   theme(strip.background = element_blank(),
         strip.text  = element_text(face = "italic", color = "black"))+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
-endo_status_map
+# endo_status_map
 
 # ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5)
+
+
+
+scorer_map <- ggplot()+
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_point(data = endo_herb, aes(x = lon, y = lat, color = scorer_factor, shape = species), alpha = .7, size = 1.2)+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  theme_light()+
+  theme(legend.text = element_text(face = "italic"))+
+  labs(x = "Longitude", y = "Latitude", color = "Host Species")
+
+# scorer_map
+# ggsave(scorer_map, filename = "scorer_map.png", width = 7, height = 4)
 
 
 
@@ -205,12 +219,18 @@ endo_herb_list[[2]] <- endo_herb_AGPE
 endo_herb_list[[3]] <- endo_herb_ELVI
 
 
-
 ##########################################################################################
 ############ Setting up and running INLA model with inlabru ############################### 
 ##########################################################################################
 # Running the model for each species separately
-for(s in 1:1){
+species_codes <- c("AGHY", "AGPE", "ELVI")
+species_names <- c("A. hyemalis", "A. perennans", "E. virginicus")
+
+fit_lists <- list()
+mesh_list <- list()
+bdry_polygon_list <- list()
+
+for(s in 1:3){
 ##### Building a spatial mesh #####
 
 data <- endo_herb_list[[s]]
@@ -398,14 +418,14 @@ year_components <- ~ Intercept(1)+ yearEffect(main = std_year, model = "linear")
   space.int(geometry, model = spde) + # can add group argument to make specific to each species
 #  time.slope(geometry, weights = std_year) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
-scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+ scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
 # version of the model with spatially varying slopes
 svc_components <- ~ 0+
   space.int(geometry, model = spde) + # can add group argument to make specific to each species
   time.slope(geometry, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
   collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
-scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
 
 
@@ -447,34 +467,113 @@ svc.fit <- bru(svc_components,
                      )
 )
 
-fit.list <- list(year.fit = year.fit, svc.fit = svc.fit)
-fit_lists <- list(paste0("s",s) = fit.list)
+fit.list <- list(year_fit = year.fit, svc_fit = svc.fit)
+
+fit_lists[[species_codes[s]]] <- list(fit.list)
+
+mesh_list[[s]] <- mesh
+bdry_polygon_list[[s]] <- bdry_polygon
 
 }
 
 
+saveRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists_withscorer.Rds")
+
+saveRDS(mesh_list, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_list_withscorer.Rds")
+saveRDS(bdry_polygon_list, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/boundary_polygon_list.Rds")
+
+fit_lists_withoutscorer <- readRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists.Rds")
 
 
-fit.1$dic$dic
-fit2$dic$dic
+fit_lists <- readRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists_withscorer.Rds")
+mesh_list <- readRDS( file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_list_withscorer.Rds")
+bdry_polygon_list <- readRDS( file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/boundary_polygon_list.Rds")
 
-fit$mode$mode.status # a 0 or low value indicates "convergence"
 
-fit$summary.fixed
-fit$summary.random
+fit_lists$AGHY[[1]]$year_fit$dic$dic
+fit_lists$AGHY[[1]]$svc_fit$dic$dic
 
-fit$summary.hyperpar
+fit_lists$AGPE[[1]]$year_fit$dic$dic
+fit_lists$AGPE[[1]]$svc_fit$dic$dic
 
-saveRDS(fit, file = "fit_AGHY.rds")
+fit_lists$ELVI[[1]]$year_fit$dic$dic
+fit_lists$ELVI[[1]]$svc_fit$dic$dic
 
-fit <- read_rds(file = "fit_AGHY.rds")
 
-saveRDS(fit, file = "fit_AGPE.rds")
+fit_lists_withoutscorer$AGHY[[1]]$year_fit$dic$dic
+fit_lists_withoutscorer$AGHY[[1]]$svc_fit$dic$dic
+
+fit_lists_withoutscorer$AGPE[[1]]$year_fit$dic$dic
+fit_lists_withoutscorer$AGPE[[1]]$svc_fit$dic$dic
+
+fit_lists_withoutscorer$ELVI[[1]]$year_fit$dic$dic
+fit_lists_withoutscorer$ELVI[[1]]$svc_fit$dic$dic
+
+
+fit_lists$AGHY[[1]]$year_fit$mode$mode.status
+fit_lists$AGHY[[1]]$svc_fit$mode$mode.status
+
+fit_lists$AGPE[[1]]$year_fit$mode$mode.status
+fit_lists$AGPE[[1]]$svc_fit$mode$mode.status
+
+fit_lists$ELVI[[1]]$year_fit$mode$mode.status
+fit_lists$ELVI[[1]]$svc_fit$mode$mode.status
+
+# 
+# fit$summary.fixed
+# fit$summary.random
+# 
+# fit$summary.hyperpar
+
+
+
+################################################################################################################################
+##########  Assessing model fit     ###############
+################################################################################################################################
+
+validation.pred <- list()
+for(s in 1:3){
+  for(m in 1:2){
+data <- endo_herb_list[[s]]
+# predicting the training data
+validation.pred[[species_codes[s]]][[1]] <- predict(
+  fit_lists[[species_codes[s]]][[1]]$year_fit,
+  newdata = data,
+  formula = ~ invlogit(Intercept + yearEffect + space.int + collector + scorer )) 
+validation.pred[[species_codes[s]]][[2]] <- predict(
+  fit_lists[[species_codes[s]]][[1]]$svc_fit,
+  newdata = data,
+  formula = ~ invlogit(time.slope + space.int + collector + scorer)) 
+  }
+}
+
+
+rocobj <- pROC::roc(endo_herb_list[[1]]$Endo_status_liberal, validation.pred$AGHY[[1]]$mean)
+rocobj <- pROC::roc(endo_herb_list[[1]]$Endo_status_liberal, validation.pred$AGHY[[2]]$mean)
+rocobj <- pROC::roc(endo_herb_list[[2]]$Endo_status_liberal, validation.pred$AGPE[[1]]$mean)
+rocobj <- pROC::roc(endo_herb_list[[2]]$Endo_status_liberal, validation.pred$AGPE[[2]]$mean)
+rocobj <- pROC::roc(endo_herb_list[[3]]$Endo_status_liberal, validation.pred$ELVI[[1]]$mean)
+rocobj <- pROC::roc(endo_herb_list[[3]]$Endo_status_liberal, validation.pred$ELVI[[2]]$mean)
+
+ggroc(rocobj) 
+  
+
+# AUC values
+rocobj$auc
+
+
+
+
+
+
+
+################################################################################################################################
+##########  Looking at the raw parameters from the SVC models   ###############
+################################################################################################################################
 
 # Mapping the coeffients
 
 # get easting and northing limits
-
 
 
 xlim <- range(mesh$loc[, 1])
@@ -663,35 +762,36 @@ cov.plot
 
 
 
-# Making a plot of the marginal posterior of the year slope. We can see the posterior has a small positive slope for AGHY
-flist <- vector("list", NROW(fit$summary.fixed))
-for (i in seq_along(flist)) {
-  flist[[i]] <- plot(fit, rownames(fit$summary.random$scorer)[i])
-}
-multiplot(plotlist = flist, cols = 2)
 
+################################################################################################################################
+##########  Getting and plotting prediction from overall trend model  ###############
+################################################################################################################################
+year.pred <- list()
 
-
-###### Getting and plotting prediction from model #####
-# Here I am showing u
-
-
-
-min_year <- min(endo_herb$std_year)
-max_year <- max(endo_herb$std_year)
-preddata <- expand.grid(spp_code = "AGPE", geometry = NA, std_year = seq(min_year, max_year, length.out = 1000)) 
-
+for (s in 1:3){
+  data <- endo_herb_list[[s]]
+min_year <- min(data$std_year)
+max_year <- max(data$std_year)
+preddata <- expand.grid(spp_code = species_codes[s], species = species_names[s], std_year = seq(min_year, max_year, length.out = 1000),
+                        collector_factor = NA, scorer_factor = NA) 
 
 # gennerating predictions and back-transforming the standardized year variable
 
 mean_year <- mean(endo_herb$year)
 sd_year <- sd(endo_herb$year)
 
-year.pred <- predict(
-  fit,
+
+
+year.pred[[s]] <- predict(
+  fit_lists[[species_codes[s]]][[1]]$year_fit,
   newdata = preddata,
-  formula = ~ invlogit(Intercept + yearEffect))  %>% 
+  formula = ~ invlogit(Intercept + yearEffect + collector +scorer)) %>% 
   mutate(year = std_year + mean_year)
+
+}
+
+
+year.pred_df <- bind_rows(year.pred, .id = "column_label")
 
 
 # binning the data for plotting
@@ -710,101 +810,328 @@ endo_herb_binned <- endo_herb %>%
                              mean_lon>-94 ~ paste("-80") ))
 
 
-ggplot(year.pred) +
-  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample))+
+year_trend <- ggplot(year.pred_df) +
+  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample, color = species))+
   # geom_linerange(data = endo_herb_binned, aes(x = mean_year, ymin = mean_endo-se_endo, ymax = mean_endo+se_endo))+
   geom_point(data =endo_herb, aes(x = year, y = Endo_status_liberal), shape = "|")+
   geom_line(aes(year, mean)) +
   geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
   geom_ribbon(aes(year, ymin = mean - 1 * sd, ymax = mean + 1 * sd), alpha = 0.2) +
+  facet_wrap(~species)+
+  scale_color_manual(values = species_colors)+
+  labs(y = "Endophyte Prevalence", x = "Year", color = "Species", size = "Sample Size")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        legend.text = element_text(face = "italic"))+
   lims(y = c(0,1))
 
+year_trend
+
+
+# Making a histogram of the data
+year_hist <- ggplot()+
+  geom_histogram(data = endo_herb_AGHY, aes(x = year), fill = species_colors[1], bins = 120, alpha = .6)+
+  geom_histogram(data = endo_herb_ELVI, aes(x = year), fill = species_colors[3], bins = 120, alpha = .6)+
+  geom_histogram(data = endo_herb_AGPE, aes(x = year),fill = species_colors[2],  bins = 120, alpha = .6)+
+  facet_wrap(~species)+
+  theme_classic()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(face = "italic"))+
+  theme(axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())+
+  labs(y = "# of Specimens")+
+  guides(fill = "none")
+year_hist
+
+
+year_plot <- year_hist + year_trend + 
+  plot_layout(ncol = 1, heights = c(1,2)) + plot_annotation(tag_levels = "A")
+  
+year_plot
+ggsave(year_plot, filename = "year_plot.png", width = 7, height = 5)
+ggsave(year_plot, filename = "year_plot_withscorer.png", width = 7, height = 5)
 
 
 
 
-# Making spatial predictions
+
+################################################################################################################################
+##########  Plotting the spatially varying trends ###############
+################################################################################################################################
+svc.pred <- list()
 
 
 
-
-
-
-
-
+for (s in 1:3){
+  vrt <- NA
+  data <- endo_herb_list[[s]]
+  mesh <- mesh_list[[s]]
+  bdry_polygon <- bdry_polygon_list[[s]]
 
 vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
 
-vrt@data <- data.frame(std_year = rep(mean(endo_herb$std_year), length.out = length(vrt)))
+vrt@data <- data.frame(std_year = rep(mean(data$std_year), length.out = length(vrt)),
+                       spp_code = rep(species_codes[s], length.out = length(vrt)),
+                       species = rep(species_names[s], length.out = length(vrt)))
 
-vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
-
-
-ggplot()+
-  gg(mesh)+
-  gg(vrt, color = "red")
+# vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
 
 
+# ggplot()+
+#   gg(mesh)+
+#   gg(vrt, color = "red")
 
-prediction <- predict(fit, 
-                      vrt, formula =  ~ list(prev = invlogit(space.int + time.slope),
-                                             space_pred = (space.int),
-                                             # time_pred = 100*(exp(yearEffect + time.slope)-1)))
-                                              time_pred = time.slope))
+
+
+svc.pred[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$svc_fit, 
+                      vrt, 
+                      formula = ~ (exp(time.slope)-1)*100)
+
+}
+
+# make a base map
+world_map <- st_as_sf(maps::map("world", plot = FALSE, fill = TRUE)) %>%
+  st_transform(epsg6703km)
+states_map <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
+  st_transform(epsg6703km)
+
+dim(vrt)
+# dim(svc.pred$prev)
+# 
+# dim(svc.pred$space_pred)
+dim(svc.pred[[1]])
+
+# ggplot()+
+#   gg(svc.pred$prev, aes(fill = mean))+
+#   scale_fill_viridis_c(option = "plasma", na.value = "transparent", begin = 0, end = 1)
+# 
+# 
+# ggplot()+
+#   gg(svc.pred$space_pred, aes(fill = mean))+
+#   scale_fill_viridis_c(option = "turbo", na.value = "transparent")
+# SEtting a common color scale across
+min_trend <- max(max(svc.pred[[1]]$mean),max(svc.pred[[2]]$mean), max(svc.pred[[3]]$mean))
+
+max_trend <- min(min(svc.pred[[1]]$mean),min(svc.pred[[2]]$mean),min(svc.pred[[3]]$mean))
+
+trendrange <- range(svc.pred[[1]]$mean, svc.pred[[2]]$mean, svc.pred[[3]]$mean)
+
+
+space_x <- range(svc.pred[[1]]@coords[,1], svc.pred[[2]]@coords[,1], svc.pred[[3]]@coords[,1])
+space_y <- range(svc.pred[[1]]@coords[,2], svc.pred[[2]]@coords[,2], svc.pred[[3]]@coords[,2])
+
+
+svc_time_map_AGHY <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred[[1]], aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[1], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_AGHY
+
+svc_time_map_AGPE<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.pred[[2]], aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+  
+
+# svc_time_map_AGPE
+
+
+svc_time_map_ELVI<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.pred[[3]], aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_ELVI
+
+
+
+svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI +
+  plot_layout(ncol = 1, guides = 'collect') + plot_annotation(tag_levels = "A")
+ggsave(svc_time_map, filename = "svc_time_map.png", width = 6, height = 12)
+
+
+
+
+
+################################################################################################################################
+##########  Plotting the spatial Intercepts ###############
+################################################################################################################################
+svc.pred_space <- list()
+
+
+
+for (s in 1:3){
+  vrt <- NA
+  data <- endo_herb_list[[s]]
+  mesh <- mesh_list[[s]]
+  bdry_polygon <- bdry_polygon_list[[s]]
+  
+  vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
+  
+  vrt@data <- data.frame(std_year = rep(mean(data$std_year), length.out = length(vrt)),
+                         spp_code = rep(species_codes[s], length.out = length(vrt)),
+                         species = rep(species_names[s], length.out = length(vrt)))
+  
+  # vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
+  
+  
+  # ggplot()+
+  #   gg(mesh)+
+  #   gg(vrt, color = "red")
+  # 
+  
+  
+  svc.pred_space[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$svc_fit, 
+                           vrt, 
+                           formula = ~ invlogit(space.int))
+  
+}
 
 
 dim(vrt)
-dim(prediction$prev)
-
-dim(prediction$space_pred)
-dim(prediction$time_pred)
-
-ggplot()+
-  gg(prediction$prev, aes(fill = mean))+
-  scale_fill_viridis_c(option = "plasma", na.value = "transparent", begin = 0, end = 1)
+# dim(svc.pred$prev)
+# 
+# dim(svc.pred$space_pred)
+dim(svc.pred_space[[3]])
 
 
-ggplot()+
-  gg(prediction$space_pred, aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent")
+min_trend <- max(max(svc.pred_space[[1]]$mean),max(svc.pred_space[[2]]$mean), max(svc.pred_space[[3]]$mean))
+
+max_trend <- min(min(svc.pred_space[[1]]$mean),min(svc.pred_space[[2]]$mean),min(svc.pred_space[[3]]$mean))
+
+trendrange <- range(svc.pred_space[[1]]$mean, svc.pred_space[[2]]$mean, svc.pred_space[[3]]$mean)
+
+
+space_x <- range(svc.pred_space[[1]]@coords[,1], svc.pred_space[[2]]@coords[,1], svc.pred_space[[3]]@coords[,1])
+space_y <- range(svc.pred_space[[1]]@coords[,2], svc.pred_space[[2]]@coords[,2], svc.pred_space[[3]]@coords[,2])
+
+
+svc_space_map_AGHY <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_space[[1]], aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[1], fill = "", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_space_map_AGHY
+
+svc_space_map_AGPE<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.pred_space[[2]], aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+
+
+# svc_space_map_AGPE
+
+
+svc_space_map_ELVI<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.pred_space[[3]], aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_space_map_ELVI
+
+
+
+svc_space_map <- svc_space_map_AGHY + svc_space_map_AGPE + svc_space_map_ELVI +
+  plot_layout(ncol = 1, guides = 'collect') + plot_annotation(tag_levels = "A")
+ggsave(svc_space_map, filename = "svc_space_map.png", width = 6, height = 12)
+
+
+
+
+################################################################################################################################
+##########  Making the contemp predictions ###############
+################################################################################################################################
+
+contemp.pred <- list()
+
+
+for (s in 1:1){
+  data <- contemp_surveys %>% 
+    filter(SpeciesID == "AGHY") %>% 
+    mutate(collector_factor = NA, scorer_factor = NA) %>% 
+    st_transform(epsg6703km)
   
+  # gennerating predictions and back-transforming the standardized year variable
+  
+  mean_year <- mean(endo_herb$year)
+  sd_year <- sd(endo_herb$year)
+  
+  
+  
+  contemp.pred[[s]] <- predict(
+    fit_lists[[species_codes[s]]][[1]]$svc_fit,
+    newdata = data,
+    formula = ~ invlogit(space.int+time.slope + collector + scorer)) %>% 
+    mutate(year = std_year + mean_year)
+  
+}
+
+
+contemp.pred_df <- bind_rows(contemp.pred, .id = "column_label")
 
 
 
-ggplot()+
-  gg(prediction$time_pred, aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent")
-
-
-
-#### Making contemp predictions
-contemp_surveys %>% 
-  filter(SpeciesID == "ELVI")
-
-
-
-prediction <- predict(fit, 
-                      contemp_surveys, 
-                      formula =  ~ list(prev = invlogit(space.int + time.slope)),
-                      )
-
-dim(prediction$prev)
-
-ggplot(prediction$prev)+
-  geom_point(aes(x = easting, y = endo_prev, size = sample_size), alpha = .2)+
-  geom_smooth(aes(x = easting, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
-  geom_point(aes(x = easting, y = mean), color = "darkgreen") +
-  geom_linerange(aes(x = easting, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
+contemp_lon <- ggplot(contemp.pred_df)+
+  geom_point(aes(x = lon, y = endo_prev, size = sample_size), alpha = .2)+
+  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
+  geom_point(aes(x = lon, y = mean), color = "darkgreen") +
+  geom_linerange(aes(x = lon, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
   ylim(0,1) + theme_classic()
 
 
-ggplot(prediction$prev)+
-  geom_point(aes(x = northing, y = endo_prev, size = sample_size), alpha = .2)+
-  geom_smooth(aes(x = northing, y = endo_prev)) +#, method = "glm", method.args = list(family = "binomial"))+
-  geom_point(aes(x = northing, y = mean), color = "darkgreen") +
-  geom_linerange(aes(x = northing, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
+
+
+contemp_lat <- ggplot(contemp.pred_df)+
+  geom_point(aes(x = lat, y = endo_prev, size = sample_size), alpha = .2)+
+  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
+  geom_point(aes(x = lat, y = mean), color = "darkgreen") +
+  geom_linerange(aes(x = lat, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
   ylim(0,1) + theme_classic()
 
+
+contemp_obspred <- ggplot(contemp.pred_df)+
+  geom_point(aes(x = mean, y = endo_prev),color = "darkgreen", alpha = .2)+
+  geom_abline(intercept = 0, slope = 1)+
+  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
+  geom_linerange(aes(y = endo_prev, xmax = mean+1.96*sd, xmin = mean-1.96*sd), color = "darkgreen")+
+  lims(x = c(0,1), y = c(0,1)) + theme_classic()
+contemp_obspred
+
+
+
+contemp_test_plot <- contemp_obspred + contemp_lon + contemp_lat+
+  plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+contemp_test_plot
+ggsave(contemp_test_plot, filename = "contemp_test_plot.png", width = 10, height = 4)
 ###
 
 
@@ -946,35 +1273,48 @@ ggplot() +
 
 # reading in the change in climate normals (1895-1925 and 1990-2020)
 prism_diff_pred_df <- read_csv(file = "prism_diff_pred_df.csv") %>% 
-  distinct() 
+  distinct() %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km) %>% 
+  mutate(
+    coords.x1 = st_coordinates(.)[, 1],
+    coords.x2 = st_coordinates(.)[, 2]
+  ) 
+
 # mutate(across(contains("ppt_"), ~.x*.1)) # changing the units of the change in precip. to be 10ths of millimeters
 prism_for_plotting <- prism_diff_pred_df %>% 
   filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2)  
 
 
+ggplot()+
+  gg(prism_diff_pred_df, aes(color = tmean_annual_diff ))
 
+ggplot()+
+  gg(svc.pred[[1]], aes(color = mean))
 # Merging the climate date with our predicted temporal slopes
 
 points <- prism_diff_pred_df %>%
   dplyr::select(lon, lat) 
   
 
-# getting the raster values of slopes as a dataframe
+# getting the pixel values of slopes as a dataframe
 
-trend_df <- as_tibble(cbind(points,(extract(out_stk[["time_median"]], points, df = T))))
 
-ggplot(data=trend_df)+
-  geom_tile(aes(x = lon, y = lat, fill = time_median))
+dim(svc.pred[[1]])
+trend_df <- bind_rows(as_tibble(svc.pred[[1]]), as_tibble(svc.pred[[3]]), as_tibble(svc.pred[[2]]), .id = "column_label")
+
+# 
+# ggplot(data=trend_df)+
+#   geom_tile(aes(x = coords.x1, y = coords.x2, fill = mean))
 
 
 # pred_change_merge <- pred_ %>% 
 pred_change_merge <- trend_df %>% 
-  left_join(prism_diff_pred_df) 
-  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) %>% 
-  distinct() %>% 
+  left_join(prism_diff_pred_df) %>% 
+  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) 
+  distinct()  
   na.omit() %>% 
-  mutate(lat = as.numeric(lat), lon = as.numeric(lon)) %>% 
-  select(-contains("_slope"))
+  mutate(lat = as.numeric(lat), lon = as.numeric(lon)) 
 
 pred_change_merge_subsample <- pred_change_merge %>% 
   # group_by(species) %>% 
