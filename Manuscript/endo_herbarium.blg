@@ -30,43 +30,43 @@ I'm skipping whatever remains of this entry
 Warning--empty journal in Rprism2015
 You've used 91 entries,
             2773 wiz_defined-function locations,
-            1135 strings with 25928 characters,
-and the built_in function-call counts, 52903 in all, are:
-= -- 4554
-> -- 4042
+            1134 strings with 25853 characters,
+and the built_in function-call counts, 52713 in all, are:
+= -- 4538
+> -- 4015
 < -- 25
-+ -- 1354
-- -- 1263
-* -- 4995
-:= -- 8308
++ -- 1345
+- -- 1254
+* -- 4973
+:= -- 8277
 add.period$ -- 280
 call.type$ -- 91
-change.case$ -- 688
+change.case$ -- 685
 chr.to.int$ -- 91
 cite$ -- 183
 duplicate$ -- 1905
-empty$ -- 3672
-format.name$ -- 1384
-if$ -- 10731
+empty$ -- 3669
+format.name$ -- 1375
+if$ -- 10696
 int.to.chr$ -- 1
 int.to.str$ -- 1
 missing$ -- 89
 newline$ -- 468
 num.names$ -- 364
-pop$ -- 1224
+pop$ -- 1218
 preamble$ -- 1
-purify$ -- 597
+purify$ -- 594
 quote$ -- 0
-skip$ -- 1571
+skip$ -- 1568
 stack$ -- 0
-substring$ -- 2273
+substring$ -- 2260
 swap$ -- 112
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 1001
 warning$ -- 1
-while$ -- 434
+while$ -- 433
 width$ -- 0
 write$ -- 1197
 (There were 6 error messages)

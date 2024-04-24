@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  23 MAR 2023 02:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  20 APR 2024 06:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -183,25 +183,31 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 )
-(./endo_herbarium.aux)
+(./endo_herbarium.aux
+
+LaTeX Warning: Label `eq:trends' multiply defined.
+
+
+LaTeX Warning: Label `eq:trends' multiply defined.
+
+)
 \openout1 = `endo_herbarium.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 59.
-LaTeX Font Info:    ... okay on input line 59.
-LaTeX Font Info:    Try loading font information for OT1+pplx on input line 59.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 60.
+LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Try loading font information for OT1+pplx on input line 60.
 
-
-(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1pplx.fd
+ (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1pplx.fd
 File: ot1pplx.fd 2004/09/06 font definitions for OT1/pplx.
 )
 (/usr/local/texlive/2018/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -273,25 +279,25 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for OML+zplm on input line 61.
+LaTeX Font Info:    Try loading font information for OML+zplm on input line 62.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMS+zplm on input line 61.
+LaTeX Font Info:    Try loading font information for OMS+zplm on input line 62.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMX+zplm on input line 61.
+LaTeX Font Info:    Try loading font information for OMX+zplm on input line 62.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Try loading font information for OT1+zplm on input line 61.
+LaTeX Font Info:    Try loading font information for OT1+zplm on input line 62.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1zplm.fd
@@ -300,180 +306,219 @@ File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `OT1/pplx/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 89.
+(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 91.
  [2] [3] [4]
 [5] [6] [7]
-<collections_map.png, id=29, 505.89pt x 289.08pt>
+<collections_map.png, id=30, 505.89pt x 289.08pt>
 File: collections_map.png Graphic file (type png)
 <use collections_map.png>
-Package pdftex.def Info: collections_map.png  used on input line 194.
+Package pdftex.def Info: collections_map.png  used on input line 196.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
 LaTeX Font Info:    Font shape `OT1/pplx/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 195.
- [8] [9 <./collections_map.png>] [10] [11] [12]
-Overfull \hbox (8.86877pt too wide) in paragraph at lines 279--280
+(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 197.
+ [8 <./collections_map.png>]
+Overfull \hbox (5.00896pt too wide) in paragraph at lines 211--213
+[]\OT1/pplx/m/n/10.95 To quan-tify over-all trends in en-do-phyte preva-lence, 
+we mod-eled en-do-phyte pres-ence/absences
+ []
+
+[9] [10] [11] [12]
+<year_plot.png, id=48, 505.89pt x 361.35pt>
+File: year_plot.png Graphic file (type png)
+<use year_plot.png>
+Package pdftex.def Info: year_plot.png  used on input line 324.
+(pdftex.def)             Requested size: 469.75502pt x 335.54477pt.
+ [13] [14 <./year_plot.png>]
+<svc_time_map.png, id=56, 433.62pt x 867.24pt>
+File: svc_time_map.png Graphic file (type png)
+<use svc_time_map.png>
+Package pdftex.def Info: svc_time_map.png  used on input line 343.
+(pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
+ [15]
+Overfull \vbox (25.7568pt too high) has occurred while \output is active []
+
+
+[16 <./svc_time_map.png>]
+Overfull \hbox (8.86877pt too wide) in paragraph at lines 356--363
 \OT1/pplx/m/n/10.95 tial bi-ases in-tro-duced by col-lec-tors and by in-di-vid-
 u-als who quan-ti-fied en-do-phyte pres-ence/absence
  []
 
-<random_fx_plot.png, id=47, 578.16pt x 433.62pt>
+<random_fx_plot.png, id=63, 578.16pt x 433.62pt>
 File: random_fx_plot.png Graphic file (type png)
 <use random_fx_plot.png>
-Package pdftex.def Info: random_fx_plot.png  used on input line 284.
+Package pdftex.def Info: random_fx_plot.png  used on input line 367.
 (pdftex.def)             Requested size: 375.80544pt x 281.84966pt.
-[13]
-<prevalence_map.png, id=52, 794.97pt x 361.35pt>
-File: prevalence_map.png Graphic file (type png)
-<use prevalence_map.png>
-Package pdftex.def Info: prevalence_map.png  used on input line 300.
-(pdftex.def)             Requested size: 469.75502pt x 213.53099pt.
- [14 <./random_fx_plot.png>]
-<year_plot.png, id=56, 505.89pt x 289.08pt>
-File: year_plot.png Graphic file (type png)
-<use year_plot.png>
-Package pdftex.def Info: year_plot.png  used on input line 313.
-(pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
- [15 <./prevalence_map.png>] [16 <./year_plot.png>]
-<rel_change_plot.png, id=63, 722.7pt x 1084.05pt>
-File: rel_change_plot.png Graphic file (type png)
-<use rel_change_plot.png>
-Package pdftex.def Info: rel_change_plot.png  used on input line 327.
-(pdftex.def)             Requested size: 375.80544pt x 563.70926pt.
- [17]
-Overfull \vbox (25.72704pt too high) has occurred while \output is active []
+[17]
+<svc_space_map.png, id=67, 433.62pt x 867.24pt>
+File: svc_space_map.png Graphic file (type png)
+<use svc_space_map.png>
+Package pdftex.def Info: svc_space_map.png  used on input line 383.
+(pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
+ [18 <./random_fx_plot.png>]
+Overfull \vbox (25.7568pt too high) has occurred while \output is active []
 
 
-[18 <./rel_change_plot.png>]
-<contemp_test_plot.png, id=70, 867.24pt x 578.16pt>
+[19 <./svc_space_map.png>]
+<tmean_regression_plot_ESA.png, id=75, 289.08pt x 361.35pt>
+File: tmean_regression_plot_ESA.png Graphic file (type png)
+<use tmean_regression_plot_ESA.png>
+Package pdftex.def Info: tmean_regression_plot_ESA.png  used on input line 411.
+
+(pdftex.def)             Requested size: 328.82707pt x 411.05557pt.
+ [20]
+<ppt_regression_plot_ESA.png, id=79, 289.08pt x 433.62pt>
+File: ppt_regression_plot_ESA.png Graphic file (type png)
+<use ppt_regression_plot_ESA.png>
+Package pdftex.def Info: ppt_regression_plot_ESA.png  used on input line 417.
+(pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
+ [21 <./tmean_regression_plot_ESA.png>]
+Overfull \vbox (45.61812pt too high) has occurred while \output is active []
+
+
+[22 <./ppt_regression_plot_ESA.png>]
+<ppt_CV_regression_plot_ESA.png, id=87, 289.08pt x 433.62pt>
+File: ppt_CV_regression_plot_ESA.png Graphic file (type png)
+<use ppt_CV_regression_plot_ESA.png>
+Package pdftex.def Info: ppt_CV_regression_plot_ESA.png  used on input line 424
+.
+(pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
+
+Overfull \vbox (45.61812pt too high) has occurred while \output is active []
+
+
+[23 <./ppt_CV_regression_plot_ESA.png>]
+<contemp_test_plot.png, id=91, 722.7pt x 289.08pt>
 File: contemp_test_plot.png Graphic file (type png)
 <use contemp_test_plot.png>
-Package pdftex.def Info: contemp_test_plot.png  used on input line 343.
-(pdftex.def)             Requested size: 469.75502pt x 313.17216pt.
- [19] [20 <./contemp_test_plot.png>]
-<climate_corr_heatmap.png, id=78, 722.7pt x 505.89pt>
-File: climate_corr_heatmap.png Graphic file (type png)
-<use climate_corr_heatmap.png>
-Package pdftex.def Info: climate_corr_heatmap.png  used on input line 370.
-(pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
- [21] [22 <./climate_corr_heatmap.png>] [23] [24] [25] [26] [27]
-<endo_status_map.png, id=104, 722.7pt x 361.35pt>
+Package pdftex.def Info: contemp_test_plot.png  used on input line 437.
+(pdftex.def)             Requested size: 469.75502pt x 187.90417pt.
+ [24 <./contemp_test_plot.png>] [25]
+[26] [27] [28] [29]
+<endo_status_map.png, id=111, 722.7pt x 361.35pt>
 File: endo_status_map.png Graphic file (type png)
 <use endo_status_map.png>
-Package pdftex.def Info: endo_status_map.png  used on input line 485.
+Package pdftex.def Info: endo_status_map.png  used on input line 553.
 (pdftex.def)             Requested size: 469.75502pt x 234.88023pt.
-<mesh_plot.png, id=105, 505.89pt x 289.08pt>
+<mesh_plot.png, id=112, 505.89pt x 289.08pt>
 File: mesh_plot.png Graphic file (type png)
 <use mesh_plot.png>
-Package pdftex.def Info: mesh_plot.png  used on input line 491.
+Package pdftex.def Info: mesh_plot.png  used on input line 559.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
- [28 <./endo_status_map.png>]
-<density_plot.png, id=109, 289.08pt x 216.81pt>
+ [30 <./endo_status_map.png>]
+<density_plot.png, id=117, 289.08pt x 216.81pt>
 File: density_plot.png Graphic file (type png)
 <use density_plot.png>
-Package pdftex.def Info: density_plot.png  used on input line 497.
+Package pdftex.def Info: density_plot.png  used on input line 565.
 (pdftex.def)             Requested size: 375.80544pt x 281.86949pt.
-
-[29 <./mesh_plot.png>]
-<ROC_plot.png, id=114, 501.875pt x 501.875pt>
+ [31 <./mesh_plot.png>]
+<ROC_plot.png, id=123, 501.875pt x 501.875pt>
 File: ROC_plot.png Graphic file (type png)
 <use ROC_plot.png>
-Package pdftex.def Info: ROC_plot.png  used on input line 504.
+Package pdftex.def Info: ROC_plot.png  used on input line 572.
 (pdftex.def)             Requested size: 234.8775pt x 234.87808pt.
- [30 <./density_plot.png>]
-<fixed_plot.png, id=118, 361.35pt x 361.35pt>
+
+[32 <./density_plot.png>]
+<fixed_plot.png, id=127, 361.35pt x 361.35pt>
 File: fixed_plot.png Graphic file (type png)
 <use fixed_plot.png>
-Package pdftex.def Info: fixed_plot.png  used on input line 510.
+Package pdftex.def Info: fixed_plot.png  used on input line 578.
 (pdftex.def)             Requested size: 469.75502pt x 469.76047pt.
- [31 <./ROC_plot.png>]
-<test_data_map.png, id=124, 722.7pt x 578.16pt>
+ [33 <./ROC_plot.png>]
+<test_data_map.png, id=132, 722.7pt x 578.16pt>
 File: test_data_map.png Graphic file (type png)
 <use test_data_map.png>
-Package pdftex.def Info: test_data_map.png  used on input line 516.
+Package pdftex.def Info: test_data_map.png  used on input line 584.
 (pdftex.def)             Requested size: 469.75502pt x 375.80836pt.
 LaTeX Font Info:    Font shape `OT1/pplx/bx/it' in size <10.95> not available
-(Font)              Font shape `OT1/pplx/b/it' tried instead on input line 517.
+(Font)              Font shape `OT1/pplx/b/it' tried instead on input line 585.
 
- [32 <./fixed_plot.png>]
-<ppt_change_maps.png, id=128, 1084.05pt x 1445.4pt>
+ [34 <./fixed_plot.png>]
+<ppt_change_maps.png, id=136, 1084.05pt x 1445.4pt>
 File: ppt_change_maps.png Graphic file (type png)
 <use ppt_change_maps.png>
-Package pdftex.def Info: ppt_change_maps.png  used on input line 522.
+Package pdftex.def Info: ppt_change_maps.png  used on input line 590.
 (pdftex.def)             Requested size: 375.80544pt x 501.06754pt.
- [33 <./test_data_map.png>]
+
+[35 <./test_data_map.png>]
 Overfull \vbox (9.32524pt too high) has occurred while \output is active []
 
 
-[34 <./ppt_change_maps.png>]
-<tmean_change_maps.png, id=136, 1084.05pt x 433.62pt>
+[36 <./ppt_change_maps.png>]
+<tmean_change_maps.png, id=144, 1084.05pt x 433.62pt>
 File: tmean_change_maps.png Graphic file (type png)
 <use tmean_change_maps.png>
-Package pdftex.def Info: tmean_change_maps.png  used on input line 529.
+Package pdftex.def Info: tmean_change_maps.png  used on input line 597.
 (pdftex.def)             Requested size: 469.75502pt x 187.90198pt.
-<prevalence_map_CI.png, id=137, 1084.05pt x 722.7pt>
+<prevalence_map_CI.png, id=145, 1084.05pt x 722.7pt>
 File: prevalence_map_CI.png Graphic file (type png)
 <use prevalence_map_CI.png>
-Package pdftex.def Info: prevalence_map_CI.png  used on input line 537.
+Package pdftex.def Info: prevalence_map_CI.png  used on input line 605.
 (pdftex.def)             Requested size: 469.75502pt x 313.16995pt.
- [35 <./tmean_change_maps.png>]
-<climate_corr_heatmap_subsample.png, id=141, 722.7pt x 505.89pt>
+ [37 <./tmean_change_maps.png>]
+<climate_corr_heatmap_subsample.png, id=150, 722.7pt x 505.89pt>
 File: climate_corr_heatmap_subsample.png Graphic file (type png)
 <use climate_corr_heatmap_subsample.png>
 Package pdftex.def Info: climate_corr_heatmap_subsample.png  used on input line
- 544.
+ 612.
 (pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
- [36 <./prevalence_map_CI.png>]
+ [38 <./prevalence_map_CI.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[37 <./climate_corr_heatmap_subsample.png>] (./endo_herbarium.bbl [38] [39]
-[40] [41] [42]
+[39 <./climate_corr_heatmap_subsample.png>] (./endo_herbarium.bbl [40] [41]
+[42] [43] [44]
 Underfull \hbox (badness 10000) in paragraph at lines 312--315
 []\OT1/pplx/m/n/10.95 IPCC.  Cli-mate change 2021: The phys-i-cal sci-ence ba-s
 is, 2021.  URL
  []
 
-[43] [44] [45] [46] [47]
-Underfull \hbox (badness 4995) in paragraph at lines 606--615
+[45] [46] [47] [48] [49]
+Underfull \hbox (badness 4995) in paragraph at lines 603--612
 []\OT1/pplx/m/n/10.95 Shripad D. Tul-japurkar.  Pop-u-la-tion dy-nam-ics in var
 i-able en-vi-ron-ments. III. Evo-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 606--615
+Underfull \hbox (badness 10000) in paragraph at lines 603--612
 \OT1/pplx/m/n/10.95 lu-tion-ary dy-nam-ics of r-selection.  \OT1/pplx/m/it/10.9
 5 The-o-ret-i-cal Pop-u-la-tion Bi-ol-ogy\OT1/pplx/m/n/10.95 , 21(1):141--165,
  []
 
 
-Underfull \hbox (badness 7777) in paragraph at lines 606--615
+Underfull \hbox (badness 7777) in paragraph at lines 603--612
 \OT1/pplx/m/n/10.95 Febru-ary 1982.  ISSN 0040-5809.  doi: 10.1016/0040-5809(82
 )90010-7.  URL
  []
 
-[48]) [49] (./endo_herbarium.aux) ) 
+[50]) [51] (./endo_herbarium.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 3984 strings out of 492649
- 57267 string characters out of 6129622
- 131323 words of memory out of 5000000
- 7756 multiletter control sequences out of 15000+600000
- 36770 words of font info for 93 fonts, out of 8000000 for 9000
+ 4005 strings out of 492649
+ 57706 string characters out of 6129622
+ 132397 words of memory out of 5000000
+ 7772 multiletter control sequences out of 15000+600000
+ 39694 words of font info for 101 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,10n,35p,812b,402s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2018/texmf-dist/fonts/en
-c/dvips/base/8r.enc}</usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmmi10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmr10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmsy10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/mathpazo/
-fplmri.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplb8a.
-pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></
-usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/loc
-al/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (49 pages, 7989648 bytes).
+ 41i,10n,35p,812b,414s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
+exlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
+xlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texl
+ive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texliv
+e/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
+/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/
+2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/2018
+/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-
+dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/f
+onts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/ty
+pe1/urw/palatino/uplri8a.pfb>
+Output written on endo_herbarium.pdf (51 pages, 8054290 bytes).
 PDF statistics:
- 223 PDF objects out of 1000 (max. 8388607)
- 140 compressed objects within 2 object streams
+ 234 PDF objects out of 1000 (max. 8388607)
+ 147 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 86 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 96 words of extra memory for PDF output out of 10000 (max. 10000000)
 
