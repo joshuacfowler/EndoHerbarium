@@ -86,10 +86,10 @@ endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "ï
 endo_herb$collector_lastname <- str_replace_all(endo_herb$collector_lastname, "xa0", " ")
 
 
-collector_levels <- levels(as.factor(endo_herb$collector_lastname))
-collector_no <- paste0("Collector",1:nlevels(as.factor(endo_herb$collector_lastname)))
+collector_levels <- levels(as.factor(endo_herb$collector_string))
+collector_no <- paste0("Collector",1:nlevels(as.factor(endo_herb$collector_string)))
 
-endo_herb$collector_id <- collector_no[match(as.factor(endo_herb$collector_lastname), collector_levels)]
+endo_herb$collector_id <- collector_no[match(as.factor(endo_herb$collector_string), collector_levels)]
 
 
 # endo_herb <- endo_herb_AGHY
@@ -217,6 +217,11 @@ ELVI_bdry_st <- st_make_valid(as_tibble(ELVI_non_convex_bdry$loc)  %>%
 coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE)))
 # plot(coastline)
 
+# Making the CRS of the map and the mesh shape line up
+bdry_st_crs <- st_crs(bdry_st)
+
+coastline <- st_transform(coastline, bdry_st_crs)
+
 bdry <- st_intersection(coastline$geom, bdry_st)
 AGHY_bdry <- st_intersection(coastline$geom, AGHY_bdry_st)
 AGPE_bdry <- st_intersection(coastline$geom, AGPE_bdry_st)
@@ -261,11 +266,12 @@ mesh <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/2/2),
                       offset = c(1,4),
                       cutoff = max.edge/(20))
 
-# mesh_plot <- ggplot()+
-#   gg(mesh, exterior = FALSE, edge.color = "grey25", alpha = .1 )+
-#   geom_point(data = endo_herb, aes(x = lon, y = lat), lwd = .5, color = "red")+
-#   coord_sf()+
-#   theme_minimal()
+mesh_plot <- ggplot()+
+  gg(mesh, exterior = FALSE, edge.color = "grey25", alpha = .1 )+
+  geom_point(data = endo_herb, aes(x = lon, y = lat), lwd = .5, color = "red")+
+  coord_sf()+
+  theme_minimal()
+# mesh_plot
 # ggsave(mesh_plot, filename = "mesh_plot.png", width = 7, height = 4)
 
 
@@ -405,8 +411,10 @@ pred.y_data <- data.frame(expand.grid(Intercept = 1,
                           id = NA,
                           county = NA,
                           collector = NA,
-                          scorer = NA)) %>% 
-  full_join(mean_loc, by = c("species" = "Spp_code" ))
+                          scorer = NA, 
+                          lon = NA,
+                          lat = NA)) 
+  # full_join(mean_loc, by = c("species" = "Spp_code" ))
 
 coords_pred.y <- pred.y_data %>% 
   select(lon, lat) %>% 
@@ -478,6 +486,11 @@ full_stack <- inla.stack(stack.fit, stack.pred.aghy, stack.pred.agpe, stack.pred
 # 
 # formula <- formula(Endo_status_liberal_1 ~ 1 + lon*lat*year+
 #                    + f(s, model = spde))
+formula1 <- formula(Endo_status_liberal ~ 1 + species*year)
+                    # + f(s, model = spde))
+
+
+
 formula1 <- formula(Endo_status_liberal ~ 0 + species + species:year + species:year:lat + species:year:lon + species:year:lat:lon
                     + f(s, model = spde) + f(collector, model = "iid") + f(scorer, model = "iid"))
 
@@ -546,7 +559,7 @@ I6 <- inla(formula = formula6, family = "binomial", Ntrials = 1,
            control.family = list(link = "logit"),
            control.compute = list(config = TRUE, dic = TRUE),
            verbose = TRUE)
-I10 <- inla(formula = formula10, family = "binomial", Ntrials = 1,
+I8 <- inla(formula = formula8, family = "binomial", Ntrials = 1,
            data = inla.stack.data(full_stack), 
            control.predictor = list(A = inla.stack.A(full_stack),
                                     link=1,compute=TRUE),
@@ -610,7 +623,7 @@ prevalence_map_CI <- ggplot()+
   theme_light()+
   # theme(strip.background = element_blank())+
   labs(x = "Longitude", y = "Latitude") 
-# prevalence_map_CI
+prevalence_map_CI
 ggsave(prevalence_map_CI, filename = "prevalence_map_CI.png", width = 15, height = 10)
   
 # making maps for each species for manuscript
@@ -825,7 +838,7 @@ endo_herb_binned <- endo_herb %>%
                              mean_lat<35 ~ paste("35")),
          lon_bin = case_when(mean_lon<=-94 ~ paste("-90"),
                              mean_lon>-94 ~ paste("-80") ))
-  
+  endo_herb$end
 # mean_loc <- endo_herb_binned %>% 
 #   group_by(Spp_code, species) %>% 
 #   summarize(lon = mean(mean_lon),
@@ -836,27 +849,31 @@ index <- inla.stack.index(full_stack, tag = "pred.y")$data
 pred.y_data$pred_mean <- I$summary.fitted.values[index, "mean"]
 pred.y_data$pred_lwr <- I$summary.fitted.values[index, "0.025quant"]
 pred.y_data$pred_upr <- I$summary.fitted.values[index, "0.975quant"]
-
+# 
 pred.y_data_neat <- pred.y_data %>% 
-  mutate(species = species.y) %>% 
-  filter(name != "min_lat") %>% 
-  mutate(name  = case_when(name == "mean_lat" ~ paste("35"),
-                           name == "max_lat" ~ paste("43"),
-                           TRUE ~ name))
+  mutate(species= case_when(species == "AGHY" ~ "A. hyemalis",
+                                  species == "AGPE" ~ "A. perennans",
+                                  species == "ELVI" ~ "E. virginicus"))
+  
+#   # mutate(species = species.y) %>%
+#   filter(name != "min_lat") %>% 
+#   mutate(name  = case_when(name == "mean_lat" ~ paste("35"),
+#                            name == "max_lat" ~ paste("43"),
+#                            TRUE ~ name))
 
 year_trend <- ggplot()+
-  geom_ribbon(data = pred.y_data_neat, aes(x = year, ymin = pred_lwr, ymax = pred_upr, group = name, linetype = name), color = "grey40", fill = "grey", alpha = .1)+
-  geom_line( data = pred.y_data_neat, aes(x = year, y = pred_mean, group = name, linetype = name), color = "black", linewidth = 1, alpha = .8)+
+  geom_ribbon(data = pred.y_data_neat, aes(x = year, ymin = pred_lwr, ymax = pred_upr), color = "grey40", fill = "grey", alpha = .1)+
+  geom_line( data = pred.y_data_neat, aes(x = year, y = pred_mean), color = "black", linewidth = 1, alpha = .8)+
   geom_point(data = endo_herb, aes(x = year, y = Endo_status_liberal), pch = "|", alpha = .7)+
   geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, col = species , size = sample, pch = lat_bin), alpha = .9)+
   scale_color_manual(values = species_colors, guide = "none")+
   # scale_fill_manual(values = species_colors)+
   scale_shape_manual(values = c(1,19))+
-  scale_linetype_manual(values = c("dotted", "solid"))+
+  # scale_linetype_manual(values = c("dotted", "solid"))+
   facet_wrap(~species, nrow = 1)+
   theme_classic()+
   theme(strip.background = element_blank(),
-        strip.text = element_blank())+
+  strip.text = element_blank())+
   labs(y = "Endophyte Prevalence", x = "Year", color = "Species", fill = "Species", size = "Specimen Count", shape = "Latitude", linetype = "Latitude")
 year_trend
   
