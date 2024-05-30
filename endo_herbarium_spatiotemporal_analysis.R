@@ -41,15 +41,15 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   mutate(decade_bin = floor(year/10)*10) %>% 
   mutate(std_year = (year-mean(year, na.rm = T))) %>%  # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
   filter(scorer_factor != "Scorer26")
-# mini_dataset <- endo_herb_georef %>% 
-#   filter(year>1970 &year<1990 & species == "A. hyemalis") %>% 
-#   mutate(presence = Endo_status_liberal) %>% 
+# mini_dataset <- endo_herb_georef %>%
+#   filter(year>1970 &year<1990 $ Spp_code == "AGHY) %>%
+#   mutate(presence = Endo_status_liberal) %>%
 #   filter(!is.na(Endo_status_liberal)) %>%
-#   filter(!is.na(lon) & !is.na(year)) %>% 
-#   filter(lon>-110 ) %>% 
-#   filter(Country != "Canada" ) %>% 
-#   dplyr::select(Sample_id, lat, lon, year, std_year, presence)
-# 
+#   filter(!is.na(lon) & !is.na(year)) %>%
+#   filter(lon>-110 ) %>%
+#   filter(Country != "Canada" ) %>%
+#   dplyr::select(Sample_id, Spp_code, lat, lon, year, std_year, presence)
+
 # write_csv(mini_dataset, "2024-04-02_endophyte_data.csv")
 
 endo_herb <- endo_herb_georef %>% 
@@ -82,6 +82,7 @@ endo_herb<- endo_herb %>%
     northing = st_coordinates(.)[, 2]
   ) 
 
+# write_csv(endo_herb, file = "filtered_endo_herb_georef.csv")
 
 
 # Loading in contemporary survey data for AGHY and ELVI, which we will use for model validation
@@ -148,13 +149,13 @@ endo_status_map <- ggplot()+
 scorer_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
-  geom_point(data = endo_herb, aes(x = lon, y = lat, color = scorer_factor, shape = species), alpha = .7, size = 1.2)+
+  geom_point(data = filter(endo_herb, scorer_factor == "Scorer7"), aes(x = lon, y = lat, color = scorer_factor, shape = species), alpha = .7, size = 1.2)+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
   theme_light()+
   theme(legend.text = element_text(face = "italic"))+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
-# scorer_map
+scorer_map
 # ggsave(scorer_map, filename = "scorer_map.png", width = 7, height = 4)
 
 
@@ -973,6 +974,7 @@ ggsave(svc_time_map, filename = "svc_time_map.png", width = 6, height = 12)
 ##########  Plotting the spatial Intercepts ###############
 ################################################################################################################################
 svc.pred_space <- list()
+svc.pred_space_year <- list()
 
 
 
@@ -1001,6 +1003,11 @@ for (s in 1:3){
                            vrt, 
                            formula = ~ invlogit(space.int))
   
+  
+  svc.pred_space_year[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$year_fit, 
+                                 vrt, 
+                                 formula = ~ invlogit(space.int))
+  
 }
 
 
@@ -1026,7 +1033,7 @@ svc_space_map_AGHY <- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   coord_sf(xlim = space_x, ylim = space_y)+
-  gg(svc.pred_space[[1]], aes(fill = mean))+
+  gg(svc.pred_space_year[[1]], aes(fill = mean))+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[1], fill = "", y = "Latitude", x = "Longitude")+
   theme_light()+
@@ -1036,7 +1043,7 @@ svc_space_map_AGHY <- ggplot()+
 svc_space_map_AGPE<- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred_space[[2]], aes(fill = mean))+
+  gg(svc.pred_space_year[[2]], aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
@@ -1050,7 +1057,7 @@ svc_space_map_AGPE<- ggplot()+
 svc_space_map_ELVI<- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred_space[[3]], aes(fill = mean))+
+  gg(svc.pred_space_year[[3]], aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
@@ -1062,7 +1069,7 @@ svc_space_map_ELVI<- ggplot()+
 
 svc_space_map <- svc_space_map_AGHY + svc_space_map_AGPE + svc_space_map_ELVI +
   plot_layout(ncol = 1, guides = 'collect') + plot_annotation(tag_levels = "A")
-ggsave(svc_space_map, filename = "svc_space_map.png", width = 6, height = 12)
+ggsave(svc_space_map, filename = "svc_space_map_year.png", width = 6, height = 12)
 
 
 
