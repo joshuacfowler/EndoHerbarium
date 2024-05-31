@@ -284,98 +284,19 @@ non_convex_bdry[[1]] <- bdry_polygon
 
 
 
-max.edge = diff(range(coords[,1]))/(40)
+max.edge = diff(range(coords[,1]))/(30)
 
 
 mesh <- fm_mesh_2d_inla(
   # loc = coords,
   boundary = non_convex_bdry, max.edge = c(max.edge, max.edge*2), # km inside and outside
-  cutoff = 20,
+  cutoff = max.edge/5,
   crs = fm_crs(data)
   # crs=CRS(proj4string(bdry_polygon))
 ) # cutoff is min edge
 # plot it
-plot(mesh)
+# plot(mesh)
 
-
-# 
-# # AGHY_non_convex_bdry <- inla.nonconvex.hull(AGHY_coords, -0.03, -0.05, resolution = c(100, 100))
-# # AGPE_non_convex_bdry <- inla.nonconvex.hull(AGPE_coords, -0.04, -0.05, resolution = c(100, 100))
-# # ELVI_non_convex_bdry <- inla.nonconvex.hull(ELVI_coords, -0.03, -0.05, resolution = c(100, 100))
-# 
-# sf::sf_use_s2(FALSE)
-# bdry_st <- st_multipolygon(non_convex_bdry[[1]])
-#                            mutate(easting = V1,  northing = V2) %>%
-#                            st_as_sf(coords = c("easting", "northing"), crs = fm_crs(data)) %>%
-#                            summarise(geometry = st_combine(geometry)) %>%
-#                            st_cast("POLYGON"))
-# # 
-# # AGHY_bdry_st <- st_make_valid(as_tibble(AGHY_non_convex_bdry$loc)  %>% 
-# #                                 mutate(lon = V1,  lat = V2) %>% 
-# #                                 st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
-# #                                 summarise(geometry = st_combine(geometry)) %>% 
-# #                                 st_cast("POLYGON"))
-# # AGPE_bdry_st <- st_make_valid(as_tibble(AGPE_non_convex_bdry$loc)  %>% 
-# #                                 mutate(lon = V1,  lat = V2) %>% 
-# #                                 st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
-# #                                 summarise(geometry = st_combine(geometry)) %>% 
-# #                                 st_cast("POLYGON"))
-# # ELVI_bdry_st <- st_make_valid(as_tibble(ELVI_non_convex_bdry$loc)  %>% 
-# #                                 mutate(lon = V1,  lat = V2) %>% 
-# #                                 st_as_sf(coords = c("lon", "lat"), crs = 4326) %>% 
-# #                                 summarise(geometry = st_combine(geometry)) %>% 
-# #                                 st_cast("POLYGON"))
-# 
-# coastline <- st_make_valid(sf::st_as_sf(maps::map("world", regions = c("usa", "canada", "mexico"), plot = FALSE, fill = TRUE), crs = fm_crs(data)))
-# # plot(coastline)
-# 
-# sf::st_transform(coastline, fm_crs(data))
-# 
-# 
-# bdry <- st_intersection(coastline$geom, bdry_st)
-# # AGHY_bdry <- st_intersection(coastline$geom, AGHY_bdry_st)
-# # AGPE_bdry <- st_intersection(coastline$geom, AGPE_bdry_st)
-# # ELVI_bdry <- st_intersection(coastline$geom, ELVI_bdry_st)
-# 
-# bdry_polygon <- st_cast(st_sf(bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
-#   as("Spatial")
-# # AGHY_bdry_polygon <- st_cast(st_sf(AGHY_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
-# #   as("Spatial")
-# # AGPE_bdry_polygon <- st_cast(st_sf(AGPE_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
-# #   as("Spatial")
-# # ELVI_bdry_polygon <- st_cast(st_sf(ELVI_bdry), "MULTIPOLYGON", group_or_split = TRUE) %>% st_union() %>% 
-# #   as("Spatial")
-# # plot(bdry_polygon)
-# 
-# max.edge = diff(range(coords[,2]))/(10)
-# mesh10 <- inla.mesh.2d(loc = coords, max.edge = c(1,2)*max.edge,
-#                        boundary = bdry_polygon,
-#                        offset = c(1,4),
-#                        cutoff = max.edge/(5))
-# plot(mesh10)
-# mesh5 <- inla.mesh.2d(loc = coords, max.edge = c(1,2)*(max.edge/2),
-#                       boundary = bdry_polygon,
-#                       offset = c(1,4),
-#                       cutoff = max.edge/(5))
-# plot(mesh5)
-# # # 
-# # # mesh2.5 <- inla.mesh.2d(loc = coords, max.edge = c(1,2)*(max.edge/2/2),
-# # #                         boundary = bdry_polygon,
-# # #                         offset = c(1,4),
-# # #                         cutoff = max.edge/(10))
-# # # # plot(mesh2.5)
-# # 
-# mesh1 <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/4),
-#                       boundary = bdry_polygon,
-#                       offset = c(1,4),
-#                       cutoff = max.edge/(10))
-# plot(mesh1)
-# # 
-# mesh <- inla.mesh.2d(loc = coords, max.edge = c(.5,2)*(max.edge/4),
-#                      boundary = bdry_polygon,
-#                      offset = c(1,4),
-#                      cutoff = max.edge/(15),
-#                      crs = 4326)
 
 ggplot() +
   gg(data = mesh) +
@@ -412,7 +333,7 @@ spde_const <- inla.spde2.pcmatern(
   prior.range = c(prior_range, 0.5),
 
   prior.sigma = c(prior_sigma, 0.5),
-  # constr = TRUE
+  constr = TRUE
 )
 # inlabru makes making weights spatial effects simpler because we don't have to make projector matrices for each effect. i.e we don't have to make an A-matrix for each spatially varying effect.
 # this means we can go strat to making the components of the model
@@ -422,7 +343,65 @@ spde_const <- inla.spde2.pcmatern(
 
 
 # setting the random effects prior
-pc_prec <- list(prior = "pcprec", param = c(5, 0.1))
+pc_prec <- list(prior = "pcprec", param = c(1, 0.1))
+
+
+
+
+
+
+
+
+
+# version of the model with multiple likelihoods
+
+cmp <- ~ space(geometry, model = spde) + space.species1(geometry, model = spde) + space.species2(geometry, model = spde) + + space.species3(geometry, model = spde) +
+  time.species1(geometry, weights = std_year, model = spde) + time.species2(geometry, weights = std_year, model = spde) + time.species3(geometry, weights = std_year, model = spde) +
+  + int.species1(1) + int.species2(1) + int.species3(1)+
+  + year.species1(main = ~0 + std_year, model = "fixed") + year.species2(main = ~0 + std_year, model = "fixed") + year.species3(main = ~0 + std_year, model = "fixed")+
+  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec)) +
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+
+fml.aghy <- Endo_status_liberal ~ 0 + int.species1 + year.species1 + space + space.species1 + time.species1 + scorer + collector
+fml.agpe <- Endo_status_liberal ~ 0 + int.species2 + year.species2 + space + space.species2 + time.species2 + scorer + collector
+fml.elvi <- Endo_status_liberal ~ 0 + int.species3 + year.species3 + space + space.species3 + time.species3 + scorer + collector
+
+
+
+lik_aghy <- like(formula = fml.aghy,
+                 family = "binomial",
+                 Ntrials = 1,
+                 data = data[data$species_index == 1,])
+
+lik_agpe <- like(formula = fml.agpe,
+                 family = "binomial",
+                 Ntrials = 1,
+                 data = data[data$species_index == 2,])
+
+lik_elvi <- like(formula = fml.elvi,
+                 family = "binomial",
+                 Ntrials = 1,
+                 data = data[data$species_index == 3,])
+
+
+
+
+fit <- bru(cmp,
+           lik_aghy,
+           lik_agpe,
+           lik_elvi,
+           options = list(
+             control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
+             control.inla = list(int.strategy = "eb"),
+             verbose = TRUE,
+             bru_max_iter = 1)
+)
+
+fit$dic$dic
+
+
+
+
 
 
 
@@ -571,7 +550,7 @@ plot(spde.posterior(svc.fit, "time.slope", "variance"))
 # generate integration points to calculate overall posterior for spde represent weighted average
 iset <- inla.spde.make.index('i', n.spde = spde$n.spde,
                              n.group = k)
-ips <- fm_int(domain = list(coordinates = mesh), samplers = bdry_polygon)
+ips <- fm_int(domain = list( coordinates = mesh), samplers = bdry_polygon)
 
 
 year.pred <- predict(
@@ -683,14 +662,24 @@ fit_lists$ELVI[[1]]$svc_fit$mode$mode.status
 ################################################################################################################################
 ##########  Assessing model fit     ###############
 ################################################################################################################################
+# fml.aghy <- presence ~ 0 + int.species1 + year.species1 + space.species1 + time.species1 + scorer
+# fml.agpe <- presence ~ 0 + int.species2 + year.species2 + space.species2 + time.species2 + scorer
+# fml.elvi <- presence ~ 0 + int.species3 + year.species3 +  space.species3 + time.species3 + scorer
 
 
 data <- endo_herb
 # predicting the training data
 validation.pred <- predict(
-  svc.fit,
+  fit,
   newdata = data,
-  formula = ~ invlogit(species + year + sppyear + space.int + time.slope)) 
+  formula = ~ invlogit(int.species1 + int.species2 + int.species3 + year.species1 + year.species2 + year.species3 +
+                       space + space.species1 + space.species2 + space.species3 + 
+                       time.species1 + time.species2 + time.species3 +
+                       scorer + collector),
+  include = c("int.species1", "int.species2", "int.species3", "year.species1", "year.species2", "year.species3",
+                "space", "space.species1", "space.species2", "space.species3", 
+                "time.species1", "time.species2", "time.species3",
+                "scorer", "collector")) 
 
 
 
@@ -972,12 +961,25 @@ sd_year <- sd(data$year)
 
 
 
-year.pred <- predict(
-  svc.fit,
-  newdata = preddata,
-  formula = ~ invlogit(species + year + sppyear)) %>% 
+year.pred.aghy <- predict(
+  fit,
+  newdata = preddata[preddata$species_index == 1,],
+  formula = ~ invlogit(int.species1 + year.species1)) %>% 
   mutate(year = std_year + mean_year)
 
+year.pred.agpe <- predict(
+  fit,
+  newdata = preddata[preddata$species_index == 2,],
+  formula = ~ invlogit(int.species2 + year.species2)) %>% 
+  mutate(year = std_year + mean_year)
+
+year.pred.elvi <- predict(
+  fit,
+  newdata = preddata[preddata$species_index == 3,],
+  formula = ~ invlogit(int.species3 + year.species3)) %>% 
+  mutate(year = std_year + mean_year)
+
+year.pred <- bind_rows(year.pred.aghy, year.pred.agpe, year.pred.elvi)
 
 # binning the data for plotting
 endo_herb_binned <- endo_herb %>% 
@@ -1031,6 +1033,13 @@ year_hist <- ggplot()+
 year_hist
 
 
+
+format <- theme(panel.grid.minor = element_line(size = 0.2, linetype = 'dashed',
+                                                  colour = "grey"))
+
+
+
+
 year_plot <- year_hist + year_trend + 
   plot_layout(ncol = 1, heights = c(1,2)) + plot_annotation(tag_levels = "A")
   
@@ -1040,31 +1049,58 @@ ggsave(year_plot, filename = "year_plot_withscorer.png", width = 7, height = 5)
 
 
 
+# Making a plot of the posteriors:
+
+int_aghy <- plot(fit, "int.species1")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_agpe <- plot(fit, "int.species2")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[2], color = species_colors[2], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_elvi <- plot(fit, "int.species3")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[3], color = species_colors[3], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_posterior <- int_aghy + int_agpe + int_elvi + plot_layout(ncol = 1)
+int_posterior
 
 
+
+year_aghy <- plot(fit, "year.species1", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species1$mean, color = species_colors[1], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_agpe <- plot(fit, "year.species2", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species2$mean, color = species_colors[2], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_elvi <- plot(fit, "year.species3", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species3$mean, color = species_colors[3], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_posterior <- year_aghy + year_agpe + year_elvi + plot_layout(ncol = 1)
+year_posterior
+
+
+int_posterior_wrap <- int_posterior + plot_annotation(tag_levels = list(c("A", "", "")))
+year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B", "", "")))
+
+posterior_plot <- wrap_elements(int_posterior_wrap)|wrap_elements(year_posterior_wrap)
+posterior_plot
 ################################################################################################################################
 ##########  Plotting the spatially varying trends ###############
 ################################################################################################################################
-svc.pred <- list()
 
 
 vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
 
 vrt@data <- expand.grid(std_year = rep(1, length.out = length(vrt)),
-                       species_index = 2,
-                       species = species_names[2])
+                       species_index = 3,
+                       species = species_names[3])
 
 
 
 
 
-svc.pred <- predict(svc.fit, 
+svc.pred <- predict(fit, 
                          vrt, 
-                         formula = ~ ( exp(year  + time.slope)-1)*100)
+                         formula = ~ ( exp(year.species3  + time.species3)-1)*100)
 
-svc.pred <- predict(svc.fit, 
+svc.pred <- predict(fit, 
                     vrt, 
-                    formula = ~ (space.int))
+                    formula = ~ (space))
+
+svc.pred <- predict(fit, 
+                    vrt, 
+                    formula = ~ (space + space.species2))
+
+svc.pred <- predict(fit, 
+                    vrt, 
+                    formula = ~ (space.species2))
 
 # make a base map
 world_map <- st_as_sf(maps::map("world", plot = FALSE, fill = TRUE)) %>%
@@ -1352,12 +1388,17 @@ ggsave(svc_space_map, filename = "svc_space_map_year.png", width = 6, height = 1
   sd_year <- sd(endo_herb$year)
   
   
+  fml.aghy <- Endo_status_liberal ~ 0 + int.species1 + year.species1 + space + space.species1 + time.species1 + scorer
+  fml.agpe <- Endo_status_liberal ~ 0 + int.species2 + year.species2 + space + space.species2 + time.species2 + scorer
+  fml.elvi <- Endo_status_liberal ~ 0 + int.species3 + year.species3 + space + space.species3 + time.species3 + scorer
   
   contemp.pred<- predict(
-    svc.fit,
+    fit,
     newdata = data,
-    formula = ~ invlogit(species + space.int),
-    include = character(0)) %>% 
+    formula = ~ invlogit(int.species1 + year.species1 + space + space.species1 + time.species1 + 
+                           int.species2 + year.species2 + space + space.species2 + time.species2 +
+                           int.species3 + year.species3 + space + space.species3 + time.species3 +
+                           scorer)) %>% 
     mutate(year = std_year + mean_year)
 
 
@@ -1386,7 +1427,7 @@ contemp_obspred <- ggplot(contemp.pred)+
   geom_point(aes(x = mean, y = endo_prev),color = "darkgreen", alpha = .2)+
   geom_abline(intercept = 0, slope = 1)+
   # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
-  geom_linerange(aes(y = endo_prev, xmax = mean+1.96*sd, xmin = mean-1.96*sd), color = "darkgreen")+
+  geom_linerange(aes(y = endo_prev, xmax = mean+1.96*sd, xmin = mean-1.96*sd), color = "darkgreen")
   lims(x = c(0,1), y = c(0,1)) + theme_classic()
 contemp_obspred
 
