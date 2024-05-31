@@ -206,29 +206,6 @@ summary_endo_herb <- endo_herb %>%
 
 
 
-# making separate dataframes for each species
-
-endo_herb_AGHY <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "AGHY") %>% 
-  filter(!is.na(lon) & !is.na(year))
-
-endo_herb_AGPE <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "AGPE") %>% 
-  filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lat>=20) # dropping one plant in mexico
-
-
-endo_herb_ELVI <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "ELVI") %>% 
-  filter(!is.na(lon) & !is.na(year)) 
-
-endo_herb_list <- list()
-endo_herb_list[[1]] <- endo_herb_AGHY
-endo_herb_list[[2]] <- endo_herb_AGPE
-endo_herb_list[[3]] <- endo_herb_ELVI
 
 endo_herb <- endo_herb %>% 
   filter(!is.na(Endo_status_liberal)) %>% 
@@ -238,14 +215,8 @@ endo_herb <- endo_herb %>%
 ##########################################################################################
 ############ Setting up and running INLA model with inlabru ############################### 
 ##########################################################################################
-# Running the model for each species separately
 species_codes <- c("AGHY", "AGPE", "ELVI")
 species_names <- c("A. hyemalis", "A. perennans", "E. virginicus")
-
-fit_lists <- list()
-mesh_list <- list()
-bdry_polygon_list <- list()
-
 
 ##### Building a spatial mesh #####
 
@@ -328,7 +299,7 @@ spde <- inla.spde2.pcmatern(
 )
 
 
-spde_const <- inla.spde2.pcmatern(
+spde_constr <- inla.spde2.pcmatern(
   mesh = mesh,
   prior.range = c(prior_range, 0.5),
 
@@ -394,7 +365,7 @@ fit <- bru(cmp,
              control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
              control.inla = list(int.strategy = "eb"),
              verbose = TRUE,
-             bru_max_iter = 1)
+             bru_max_iter = 10)
 )
 
 fit$dic$dic
@@ -667,21 +638,39 @@ fit_lists$ELVI[[1]]$svc_fit$mode$mode.status
 # fml.elvi <- presence ~ 0 + int.species3 + year.species3 +  space.species3 + time.species3 + scorer
 
 
-data <- endo_herb
+data <- endo_herb %>% mutate(row_number = row_number())
+data1 <- data %>% filter(species_index == 1)
+data2 <- data %>% filter(species_index == 2)
+data3 <- data %>% filter(species_index == 3)
+
 # predicting the training data
-validation.pred <- predict(
+
+validation.pred1 <- predict(
   fit,
-  newdata = data,
-  formula = ~ invlogit(int.species1 + int.species2 + int.species3 + year.species1 + year.species2 + year.species3 +
-                       space + space.species1 + space.species2 + space.species3 + 
-                       time.species1 + time.species2 + time.species3 +
-                       scorer + collector),
-  include = c("int.species1", "int.species2", "int.species3", "year.species1", "year.species2", "year.species3",
-                "space", "space.species1", "space.species2", "space.species3", 
-                "time.species1", "time.species2", "time.species3",
-                "scorer", "collector")) 
+  newdata = data1,
+  formula = ~ invlogit(int.species1 + year.species1 + 
+                         space + space.species1 + 
+                         time.species1 + 
+                         scorer + collector)) 
 
+validation.pred2 <- predict(
+  fit,
+  newdata = data2,
+  formula = ~ invlogit(int.species2 + year.species2 + 
+                         space + space.species2 + 
+                         time.species2 + 
+                         scorer + collector)) 
 
+validation.pred3 <- predict(
+  fit,
+  newdata = data3,
+  formula = ~ invlogit(int.species3 + year.species3 +
+                       space + space.species3 + 
+                       time.species3 +
+                       scorer + collector)) 
+
+validation.pred <- bind_rows(tibble(validation.pred1), tibble(validation.pred2), tibble(validation.pred3)) %>% 
+  arrange(row_number)
 
 rocobj <- pROC::roc(endo_herb$Endo_status_liberal, validation.pred$mean)
 
@@ -692,194 +681,14 @@ ggroc(rocobj)
 rocobj$auc
 
 
-
-
-
-
-
-################################################################################################################################
-##########  Looking at the raw parameters from the SVC models   ###############
-################################################################################################################################
-
-# Mapping the coeffients
-
-# get easting and northing limits
-
-
-xlim <- range(mesh$loc[, 1])
-ylim <- range(mesh$loc[, 2])
-grd_dims <- round(c(x = diff(range(xlim))/50, y = diff(range(ylim))/50))
-
-# make mesh projector to get model summaries from the mesh to the mapping grid
-mesh_proj <- fm_evaluator(
-  mesh,
-  xlim = xlim, ylim = ylim, dims = grd_dims,
-)
-
-fit <- svc.fit
-
-
-space_int_df <- data.frame(rep("1", times = dim(mesh$loc)[1]))
-  
-  fit$summary.random$space.int
-
-space_int <- data.frame(
-  median = invlogit(fit$summary.random$space.int$"0.5quant"),
-  range95 = invlogit(fit$summary.random$space.int$"0.975quant") -
-    invlogit(fit$summary.random$space.int$"0.025quant")
-)
-
-time_slope <- data.frame(
-  median = (exp(fit$summary.random$time.slope$"0.5quant")-1)*100,
-  range95 = (exp(fit$summary.random$time.slope$"0.975quant") -
-               exp(fit$summary.random$time.slope$"0.025quant"))*100
-)
-
-# # raw values
-# time_slope <- data.frame(
-#   median = (fit$summary.random$time_slope$"0.5quant"),
-#   range95 = (fit$summary.random$time_slope$"0.975quant" -
-#                fit$summary.random$time_slope$"0.025quant")
-# )
-# # 
-# year_slope <- data.frame(
-#   median = ((fit$summary.fixed["yearEffect","0.5quant"] + fit$summary.random$time.slope$"0.5quant")),
-#   range95 = ((fit$summary.fixed["yearEffect","0.975quant"] + fit$summary.random$time.slope$"0.975quant") -
-#                (fit$summary.fixed["yearEffect","0.025quant"]+fit$summary.random$time.slope$"0.025quant"))
-# )
-
-# 
-# prev <- data.frame(
-#   median = (fit$summary.fixed["year","0.5quant"]*2000 + fit$summary.random$space_int$"0.5quant"),
-#   range95 = (fit$summary.fixed["year","0.975quant"]*2000 + fit$summary.random$time_slope$"0.975quant") -
-#                (fit$summary.fixed["year","0.025quant"]*2000 + + fit$summary.random$time_slope$"0.025quant")
-# )
-
-# loop to get estimates on a mapping grid
-pred_grids <- lapply(
-  list(space_int = space_int),
-  function(x) as.matrix(fm_evaluate(mesh_proj, x[,]))
-)
-
-
-# make a terra raster stack with the posterior median and range95
-out_stk <- rast()
-for (j in 1:length(pred_grids)) {
-  mean_j <- cbind(expand.grid(x = mesh_proj$x, y = mesh_proj$y),
-                  Z = c(matrix(pred_grids[[j]][, 1], grd_dims[1]))
-  )
-  mean_j <- rast(mean_j)
-  range95_j <- cbind(expand.grid(X = mesh_proj$x, Y = mesh_proj$y),
-                     Z = c(matrix(pred_grids[[j]][, 2], grd_dims[1]))
-  )
-  range95_j <- rast(range95_j)
-  out_j <- c(mean_j, range95_j)
-  terra::add(out_stk) <- out_j
-}
-names(out_stk) <- c(
-  "space_median", "space_range95",  "time_median", "time_range95", "year_median", "year_range95"
-)
-#Masking the raster to our boundary
-
-
-### out_stk <- raster::mask(out_stk, bdry_raster, touches = FALSE)
-
-make_plot_field <- function(data_stk, scale_label) {
-  ggplot() +
-    # geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
-    # geom_map(data = states_shape, map = states_shape, aes( map_id = region), color = "grey", linewidth = .1, fill = NA)+
-    geom_sf(fill = NA) +
-    # coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
-    geom_spatraster(data = data_stk) +
-    labs(x = "", y = "") +
-    scale_fill_viridis_c(name = scale_label, option = "turbo", na.value = "transparent")+
-    theme(text = element_text(size = 2))+
-    theme_bw()
-  }
-
-
-pt <- make_plot_field(
-  data_stk = out_stk[["time_median"]],
-  scale_label = "Trend\nPosterior Median\n "
-) 
-   # coord_sf(xlim = c(-1000,2200), ylim = c(0,3000))
-pt
-
-# ggsave(pt, filename = "ELVI_SVC_trends_map.png", width = 10, height = 7)
-  
-
-pt_r <- make_plot_field(
-  data_stk = out_stk[["time_range95"]],
-  scale_label = "Trend\nPosterior 95 CI\n"
-)
-pt_r
-
-
-
-py <- make_plot_field(
-  data_stk = out_stk[["year_median"]],
-  scale_label = "Trend\nPosterior Median\n "
-) 
-# coord_sf(xlim = c(-1000,2200), ylim = c(0,3000))
-py
-
-# ggsave(pt, filename = "ELVI_SVC_trends_map.png", width = 10, height = 7)
-
-
-py_r <- make_plot_field(
-  data_stk = out_stk[["year_range95"]],
-  scale_label = "Trend\nPosterior 95 CI\n"
-)
-py_r
-
-
-
-
-# ggsave(pt_r, filename = "AGPE_SVC_trends_CI_map.png", width = 10, height = 7)
-
-ps <- make_plot_field(
-  data_stk = out_stk[["space_median"]],
-  scale_label = "Spatial\nPosterior Median"
-)
-ps
-
-ps_r <- make_plot_field(
-  data_stk = out_stk[["space_range95"]],
-  scale_label = "Spatial\nPosterior 95 CI\n"
-)
-ps_r
-
-
-
-
-
-
-
-
-
-# plotting the prevalence (without any temporal stuff)
-pp <- make_plot_field(
-  data_stk = out_stk[["prev_median"]],
-  scale_label = "Prevalence\nPosterior Median"
-)
-pp
-
-pp_r <- make_plot_field(
-  data_stk = out_stk[["prev_range95"]],
-  scale_label = "Spatial\nPosterior 95 CI\n"
-)
-pp_r
-
 # Taking alot of material from this blog post: https://inlabru-org.github.io/inlabru/articles/2d_lgcp_covars.html
 
 # plotting the spde range and sd posteriors
-spde.range <- spde.posterior(fit, "space.int", what = "range")
-spde.logvar <- spde.posterior(fit, "space.int", what = "log.variance")
-spde.var <- spde.posterior(fit, "space.int", what = "variance")
+spde.range <- spde.posterior(fit, "space", what = "range")
+spde.var <- spde.posterior(fit, "space", what = "variance")
 
-spde.range <- spde.posterior(fit, "time.slope", what = "range")
-spde.logvar <- spde.posterior(fit, "time.slope", what = "log.variance")
-spde.var <- spde.posterior(fit, "time.slope", what = "variance")
+spde.range <- spde.posterior(fit, "time.species1", what = "range")
+spde.var <- spde.posterior(fit, "time.species1", what = "variance")
 
 range.plot <- plot(spde.range)
 var.plot <- plot(spde.var)
@@ -890,7 +699,15 @@ var.plot
 
 # and plot the matern covariance (our spatial decay effect)
 
-cov.plot <- plot(spde.posterior(fit, "space.int", what = "matern.covariance"))
+cov.plot <- plot(spde.posterior(fit, "space", what = "matern.covariance"))
+cov.plot
+
+cov.plot <- plot(spde.posterior(fit, "space.species2", what = "matern.covariance"))
+cov.plot
+
+cov.plot <- plot(spde.posterior(fit, "time.species2", what = "matern.covariance"))
+cov.plot
+
 cov.plot <- plot(spde.posterior(fit, "time.slope", what = "matern.covariance"))
 
 cov.plot
@@ -1034,10 +851,6 @@ year_hist
 
 
 
-format <- theme(panel.grid.minor = element_line(size = 0.2, linetype = 'dashed',
-                                                  colour = "grey"))
-
-
 
 
 year_plot <- year_hist + year_trend + 
@@ -1050,6 +863,8 @@ ggsave(year_plot, filename = "year_plot_withscorer.png", width = 7, height = 5)
 
 
 # Making a plot of the posteriors:
+
+format <- theme(panel.grid.minor = element_line(linewidth = 0.1, linetype = 'dashed',colour = "grey"))
 
 int_aghy <- plot(fit, "int.species1")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
 int_agpe <- plot(fit, "int.species2")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[2], color = species_colors[2], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
@@ -1071,6 +886,40 @@ year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B",
 
 posterior_plot <- wrap_elements(int_posterior_wrap)|wrap_elements(year_posterior_wrap)
 posterior_plot
+
+################################################################################################################################
+##########  Plotting the posteriors of scorer and collector effects ###############
+################################################################################################################################
+
+slist <- vector("list", NROW(fit$summary.random$scorer))
+for (i in seq_along(slist)) slist[[i]] <- plot(fit, "scorer", index = i) + lims(x = c(-2.5,2.5))
+multiplot(plotlist = slist, cols = 3)
+
+plot(fit, "scorer")
+plot(fit, "collector")
+
+plot(fit, "space")
+plot(fit, "time.species1")
+
+
+
+################################################################################################################################
+##########  Generating posterior samples for some summary statistics ###############
+################################################################################################################################
+
+
+samps_int.1 <- tibble(value = t(generate(fit, formula = ~ int.species1, n.samples = 1000)), species = species_names[1]) %>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[1] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
+samps_int.2  <- tibble(value = t(generate(fit, formula = ~ int.species2, n.samples = 1000)), species = species_names[2]) %>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[2] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
+samps_int.3<- tibble(value = t(generate(fit, formula = ~ int.species3, n.samples = 1000)), species = species_names[3])%>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[3] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
+
+samps <- bind_rows(samps_int.1, samps_int.2, samps_int.3)
+
+ggplot(samps)+
+  geom_vline(xintercept = 0)+
+  geom_histogram(aes(x = value, fill = species, color = quantile), bins = 60, alpha = .7) + facet_wrap(~species, scales = "free_y", ncol = 1) +
+  scale_fill_manual(values = species_colors)
+
+
 ################################################################################################################################
 ##########  Plotting the spatially varying trends ###############
 ################################################################################################################################
@@ -1376,68 +1225,96 @@ ggsave(svc_space_map, filename = "svc_space_map_year.png", width = 6, height = 1
 ##########  Making the contemp predictions ###############
 ################################################################################################################################
 
-
-  data <- contemp_surveys %>% 
+contemp.aghy <- contemp_surveys %>% 
     filter(SpeciesID == "AGHY") %>% 
-    mutate(collector_factor = NA, scorer_factor = NA, species_index = 1, species = "A. hyemalis") %>% 
+    mutate(collector_factor = NA, scorer_factor = NA, species_index = 1, species = species_names[1]) %>% 
     st_transform(epsg6703km)
-  
+
+contemp.elvi <- contemp_surveys %>% 
+  filter(SpeciesID == "ELVI") %>% 
+  mutate(collector_factor = NA, scorer_factor = NA, species_index = 3, species = species_names[3]) %>% 
+  st_transform(epsg6703km)
+
+
   # gennerating predictions and back-transforming the standardized year variable
   
   mean_year <- mean(endo_herb$year)
   sd_year <- sd(endo_herb$year)
   
   
-  fml.aghy <- Endo_status_liberal ~ 0 + int.species1 + year.species1 + space + space.species1 + time.species1 + scorer
-  fml.agpe <- Endo_status_liberal ~ 0 + int.species2 + year.species2 + space + space.species2 + time.species2 + scorer
-  fml.elvi <- Endo_status_liberal ~ 0 + int.species3 + year.species3 + space + space.species3 + time.species3 + scorer
-  
-  contemp.pred<- predict(
+  contemp.pred.aghy<- predict(
     fit,
-    newdata = data,
+    newdata = contemp.aghy,
     formula = ~ invlogit(int.species1 + year.species1 + space + space.species1 + time.species1 + 
-                           int.species2 + year.species2 + space + space.species2 + time.species2 +
-                           int.species3 + year.species3 + space + space.species3 + time.species3 +
-                           scorer)) %>% 
+                           scorer + collector)) %>% 
     mutate(year = std_year + mean_year)
 
+  
+  contemp.pred.elvi<- predict(
+    fit,
+    newdata = contemp.elvi,
+    formula = ~ invlogit(int.species3 + year.species3 + space.species3 + time.species3 + 
+                           scorer + collector)) %>% 
+    mutate(year = std_year + mean_year)
+
+
+contemp.pred <- bind_rows(contemp.pred.aghy, contemp.pred.elvi)
 
 
 
 
 contemp_lon <- ggplot(contemp.pred)+
-  geom_point(aes(x = lon, y = endo_prev, size = sample_size), alpha = .2)+
-  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
-  geom_point(aes(x = lon, y = mean), color = "darkgreen") +
-  geom_linerange(aes(x = lon, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
-  ylim(0,1) + theme_classic()
-
+  geom_point(aes(x = lon, y = endo_prev, size = sample_size), alpha = .4)+
+  geom_smooth(aes(x = lon, y = endo_prev, group = species), color = "black", method = "glm",  formula = "y ~ x", method.args = list(family = "binomial" ))+
+  geom_linerange(aes(x = lon, ymin = `q0.025`, ymax = `q0.975`, color = species), alpha = .8)+
+  geom_point(aes(x = lon, y = mean), shape = 4) + 
+  scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Longitude", color = "Species", size = "Sample Size")+
+  facet_wrap(~species) + theme_classic()
+# contemp_lon
 
 
 
 contemp_lat <- ggplot(contemp.pred)+
-  geom_point(aes(x = lat, y = endo_prev, size = sample_size), alpha = .2)+
-  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
-  geom_point(aes(x = lat, y = mean), color = "darkgreen") +
-  geom_linerange(aes(x = lat, ymax = mean+1.96*sd, ymin = mean-1.96*sd), color = "darkgreen")+
-  ylim(0,1) + theme_classic()
-
+  geom_point(aes(x = lat, y = endo_prev, size = sample_size), alpha = .4)+
+  geom_smooth(aes(x = lat, y = endo_prev, group = species), color = "black", method = "glm",  formula = "y ~ x", method.args = list(family = "binomial" ))+
+  geom_linerange(aes(x = lat, ymin = `q0.025`, ymax = `q0.975`, color = species))+
+  geom_point(aes(x = lat, y = mean), shape = 4) +
+  scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Latitude",  color = "Species", size = "Sample Size")+
+  facet_wrap(~species) + theme_classic()
+# contemp_lat
 
 contemp_obspred <- ggplot(contemp.pred)+
-  geom_point(aes(x = mean, y = endo_prev),color = "darkgreen", alpha = .2)+
   geom_abline(intercept = 0, slope = 1)+
-  # geom_smooth(aes(x = lon, y = endo_prev))+#, method = "glm", method.args = list(family = "binomial"))+
-  geom_linerange(aes(y = endo_prev, xmax = mean+1.96*sd, xmin = mean-1.96*sd), color = "darkgreen")
-  lims(x = c(0,1), y = c(0,1)) + theme_classic()
-contemp_obspred
+  geom_linerange(aes(y = endo_prev, xmin = `q0.025`, xmax = `q0.975`, color = species))+
+  geom_point(aes(x = mean, y = endo_prev), shape = 4)+
+  scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  lims(x = c(0,1), y = c(0,1)) + labs(y = "Observed", x = "Predicted",  color = "Species")+
+  facet_wrap(~species) + theme_classic()
+# contemp_obspred
 
 
 
 contemp_test_plot <- contemp_obspred + contemp_lon + contemp_lat+
-  plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+  plot_layout(ncol = 1, guides = "collect") + plot_annotation(tag_levels = "A")
 contemp_test_plot
 ggsave(contemp_test_plot, filename = "contemp_test_plot.png", width = 10, height = 4)
 ###
+
+# now looking at the ROC and AUC values for the contemporary dataset choosing only one plant from each population
+# however we only have this information for AGHY
+rocobj <- pROC::roc(contemp_random_sample$endo_status, contemp.pred.aghy$mean)
+
+ggroc(rocobj) 
+
+
+# AUC values
+rocobj$auc
+
+
+
+
 
 
 data(gorillas, package = "inlabru")
