@@ -1,7 +1,9 @@
-This is BibTeX, Version 0.99d (TeX Live 2018)
-Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: endo_herbarium.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
 The style file: plainnat.bst
+Reallocating 'name_of_file' (item size: 1) to 15 items.
 Database file #1: endo_herbarium.bib
 Repeated entry---line 288 of file endo_herbarium.bib
  : @article{fine1975vectors
@@ -27,46 +29,47 @@ Repeated entry---line 1509 of file endo_herbarium.bib
  : @article{kazenel2015mutualistic
  :                                ,
 I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for ""
 Warning--empty journal in Rprism2015
-You've used 91 entries,
+You've used 90 entries,
             2773 wiz_defined-function locations,
-            1135 strings with 25928 characters,
-and the built_in function-call counts, 52903 in all, are:
-= -- 4554
-> -- 4042
-< -- 25
-+ -- 1354
-- -- 1263
-* -- 4995
-:= -- 8308
-add.period$ -- 280
-call.type$ -- 91
-change.case$ -- 688
-chr.to.int$ -- 91
-cite$ -- 183
-duplicate$ -- 1905
-empty$ -- 3672
-format.name$ -- 1384
-if$ -- 10731
+            1128 strings with 25723 characters,
+and the built_in function-call counts, 52289 in all, are:
+= -- 4497
+> -- 3994
+< -- 24
++ -- 1338
+- -- 1248
+* -- 4942
+:= -- 8212
+add.period$ -- 277
+call.type$ -- 90
+change.case$ -- 680
+chr.to.int$ -- 90
+cite$ -- 181
+duplicate$ -- 1885
+empty$ -- 3633
+format.name$ -- 1366
+if$ -- 10607
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 89
-newline$ -- 468
-num.names$ -- 364
-pop$ -- 1224
+missing$ -- 88
+newline$ -- 463
+num.names$ -- 360
+pop$ -- 1210
 preamble$ -- 1
-purify$ -- 597
+purify$ -- 590
 quote$ -- 0
-skip$ -- 1571
+skip$ -- 1552
 stack$ -- 0
-substring$ -- 2273
-swap$ -- 112
+substring$ -- 2242
+swap$ -- 111
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1001
+type$ -- 990
 warning$ -- 1
-while$ -- 434
+while$ -- 428
 width$ -- 0
-write$ -- 1197
+write$ -- 1184
 (There were 6 error messages)

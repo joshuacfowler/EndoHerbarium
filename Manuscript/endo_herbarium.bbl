@@ -1,4 +1,4 @@
-\begin{thebibliography}{91}
+\begin{thebibliography}{90}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -374,11 +374,6 @@ Adrian Leuchtmann, Charles~W Bacon, Christopher~L Schardl, James~F White~Jr,
   epichlo{\"e}.
 \newblock \emph{Mycologia}, 106\penalty0 (2):\penalty0 202--215, 2014.
 
-\bibitem[Lindgren and Rue(2015)]{lindgren2015bayesian}
-Finn Lindgren and H{\aa}vard Rue.
-\newblock Bayesian spatial modelling with r-inla.
-\newblock \emph{Journal of statistical software}, 63:\penalty0 1--25, 2015.
-
 \bibitem[Lindgren et~al.(2011)Lindgren, Rue, and
   Lindstr{\"o}m]{lindgren2011explicit}
 Finn Lindgren, H{\aa}vard Rue, and Johan Lindstr{\"o}m.
@@ -396,6 +391,12 @@ Margaret McFall-Ngai, Michael~G Hadfield, Thomas~CG Bosch, Hannah~V Carey,
 \newblock Animals in a bacterial world, a new imperative for the life sciences.
 \newblock \emph{Proceedings of the National Academy of Sciences}, 110\penalty0
   (9):\penalty0 3229--3236, 2013.
+
+\bibitem[Meehan et~al.(2019)Meehan, Michel, and Rue]{meehan2019spatial}
+Timothy~D Meehan, Nicole~L Michel, and H{\aa}vard Rue.
+\newblock Spatial modeling of audubon christmas bird counts reveals fine-scale
+  patterns and drivers of relative abundance trends.
+\newblock \emph{Ecosphere}, 10\penalty0 (4):\penalty0 e02707, 2019.
 
 \bibitem[Meineke et~al.(2018)Meineke, Davis, and Davies]{meineke2018unrealized}
 Emily~K Meineke, Charles~C Davis, and T~Jonathan Davies.
@@ -533,15 +534,6 @@ H{\aa}vard Rue, Sara Martino, and Nicolas Chopin.
   integrated nested laplace approximations.
 \newblock \emph{Journal of the royal statistical society: Series b (statistical
   methodology)}, 71\penalty0 (2):\penalty0 319--392, 2009.
-
-\bibitem[Sadykova et~al.(2017)Sadykova, Scott, De~Dominicis, Wakelin, Sadykov,
-  and Wolf]{sadykova2017bayesian}
-Dinara Sadykova, Beth~E Scott, Michela De~Dominicis, Sarah~L Wakelin, Alexander
-  Sadykov, and Judith Wolf.
-\newblock Bayesian joint models with inla exploring marine mobile
-  predator--prey and competitor species habitat overlap.
-\newblock \emph{Ecology and Evolution}, 7\penalty0 (14):\penalty0 5212--5226,
-  2017.
 
 \bibitem[Saikkonen et~al.(2013)Saikkonen, Gundel, and
   Helander]{saikkonen2013chemical}
