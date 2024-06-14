@@ -1,0 +1,24 @@
+********************************************** 
+ Beginning Spatial Thinning.
+ Script Started at: Fri Dec 22 12:09:07 2023
+
+Thinning Parameter Used (in km): 9
+Number of replicates of thinning script: 10
+
+Elapsed time for thinning completion
+0.01 0.006 0.015 0 0
+
+Number of data.frames per locations retained
+loc.cnt df.freq
+113
+10
+Maximum number of records after thinning: 113
+Number of data.frames with max records: 10
+
+**New *.csv file creation:**
+Writing new *.csv files to output directory: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence
+Writing file: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/points_aghy_thinned_recent_thin1.csv
+Writing file: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/points_aghy_thinned_recent_thin2.csv
+Writing file: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/points_aghy_thinned_recent_thin3.csv
+Writing file: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/points_aghy_thinned_recent_thin4.csv
+Writing file: /Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/points_aghy_thinned_recent_thin5.csv
