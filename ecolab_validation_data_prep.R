@@ -106,10 +106,13 @@ ecolab_random_sample <- ecolab %>%
   filter(!is.na(lat)) %>% 
   group_by(SiteID) %>% 
   slice_sample(n = 1) 
+
 write_csv(ecolab_random_sample, file = "contemp_random_sample.csv")
 
 ggplot(ecolab_random_sample)+
-  geom_point(aes(x = lon, y = endo_status))
+  geom_point(aes(x = lon, y = endo_status)) +
+  geom_point(data = )
+  geom_line
 
 
 # getting the county for each survey
