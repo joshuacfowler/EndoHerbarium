@@ -23,6 +23,7 @@
 
 \usepackage{xcolor}
 \newcommand{\tom}[2]{{\color{red}{#1}}\footnote{\textit{\color{red}{#2}}}}
+\newcommand{\jacob}[2]{{\color{blue}{#1}}\footnote{\textit{\color{blue}{#2}}}}
 \newcommand{\josh}[2]{{\color{orange}{#1}}\footnote{\textit{\color{orange}{#2}}}}
 %%%%%%%%%%%%%%%%%%%%%
 % Line numbering
@@ -62,7 +63,7 @@
 	\maketitle
 	
 	\noindent{} 1. Rice University, Department of BioSciences, Houston, Texas 77006;
-	\noindent{} 1. University of Miami, Department of Biology, Miami, Florida;
+	\noindent{} \jacob{1}{I think this is should be 2}. University of Miami, Department of Biology, Miami, Florida;
 
 
 	\noindent{} $\ast$ Corresponding author; e-mail: jcf221@miami.edu.
@@ -98,7 +99,7 @@ We asked how the prevalence of seed-transmitted fungal symbionts of grasses (\em
 Specifically, we analyzed \tom{\#}{Give numbers} herbarium specimens of three grass host species collected over the last two centuries (18\#\# -- 20\#\#) for the presence or absence of endophyte symbiosis, and evaluated spatial and temporal trends in endophyte prevalence. 
 We found that endophytes have increased in prevalence over the last two centuries from ca. 25\% prevalence to ca. 75\% prevalence, on average, across the three host species.
 We also found that changes in prevalence were associated with observed \tom{changes in annual and seasonal climate drivers}{Describe ``changes'' -- warming? drying?} corresponding to each host species' peak growing season. 
-Our results provide novel evidence for a cryptic biological response to climate change that may contribute to the resilience of host-microbe symbiosis through context-dependent benefits that confer a fitness advantage to symbiotic hosts under environmental change.
+\jacob{Our results provide novel evidence for a cryptic biological response to climate change that may contribute to the resilience of host-microbe symbiosis through context-dependent benefits that confer a fitness advantage to symbiotic hosts under environmental change.}{I like this and the abstract in general. I agree with Tom and I think we  have some space to add these details. Abstract : 300}
 	
 	\newpage{}
 	
@@ -246,8 +247,15 @@ We assessed model fit with graphical posterior predictive checks (Fig. A3).
 \tom{The model performed adequately at classifying the historical data, comparing the accuracy of predictions from the model with observed data (avg. AUC = 0.77; Fig. A4). }{Maybe move this to validation section, and then have both in-sample and out-of-sample approaches.}
 
 \subsection*{Modeling distributions of host species}
-
-Jacob needs to write this, but we built SDMs using MaxEnt and the same climate predictors described below. 
+We modeled  epicloe host species distribution to predict their occurrences in space and time as continuous and binary maps of potential presences. 
+These maps were used as a backbone to predict endophyte prevalence on epicloe host species. 
+The species distribution models were built following the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}. 
+We used the observed presence of the host species collected from GBIF from 1990 to 2020. These occurrences were corrected for spatial autocorrelation due to sampling bias by thinning the occurrences to the spatial scale of the climatic variables. The climatic variables were temperature of the spring, precipitation of the spring  and precipitation of the summer. We preferred these variables because they were not correlated (Variance Inflation Factor \> 0.7) and also allowed the model to account for the influence of seasonal climate variation on species presence.
+The occurrence data was split into 75\% for model training and 25\% for model testing. We fitted the model using maximum entropy (MaxEnt) using the maxent function in the package dismo \citep{hijmans2017package}. 
+MaxEnt was preferred because it does not generate response curves that may cause unpredictable behavior when applied to new climates \citep{hijmans2006ability}.
+ We used 10000 pseudo-absences as background points. 
+ To convert the continuous predicted probabilities into binary presence - absence maps, we used the  training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}. 
+The performances of the model were evaluated using the AUC \citep{jimenez2012insights}. 
 
 
 \subsection*{Validating the model with an out-of-sample test}
@@ -273,7 +281,7 @@ In addition to mean climate conditions, environmental variability itself can inf
 Therefore we calculated the coefficient of variation (CV) during each period for each annual and seasonal climate driver as the interannual standard deviation divided by the mean across each 30-year period.
 We then took the difference between recent and historic periods for the mean and CV for each climate driver \tom{(Fig. A5)}{This is Figure A7 -- Can you make the color scale on these diverging at zero?}.
 Because initial analyses indicated a high degree of collinearity between seasonal and annual changes in temperature, we used annual temperature only, along with annual and seasonal precipitation, in the subsequent analysis.
-All together, this left us with measurements of change in 10 potential climate drivers: the mean and coefficient of variation of annual temperature, as well as the mean and coefficient of variation of cumulative annual precipitation, cumulative spring precipitation, cumulative summer precipitation, and cumulative autumn precipitation (Fig A8-A9).
+All together, this left us with measurements of change in 10 potential climate drivers: the mean and coefficient of variation of annual temperature, as well as the mean and coefficient of variation of cumulative annual precipitation, cumulative spring precipitation, cumulative summer precipitation, and cumulative autumn precipitation \jacob{(Fig A8-A9)}{ The species names are not clear  on Fig A9. I suggest increase the font siize }.
 
 To evaluate whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change), \tom{we modeled spatially varying slopes of endophyte change through time ($\beta_{l}$) as a linear function of environmental covariates, with a Gaussian error distribution. }{I think we need to account for uncertainty in the slopes. They are outputs of a (quasi) Bayesian model so we should be able to propagate all the uncertainty in the posterior disgtribution.}
 Calculating correlations from many pixels across the study region risks articially inflating confidence in our results due to large sample sizes, and \tom{so we repeated this calculation using only a random subsample of 100 pixels across the study region}{100 seems like a low number to me. What if we did this for all of the herbarium collection locations?}.
