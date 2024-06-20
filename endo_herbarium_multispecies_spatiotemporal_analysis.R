@@ -830,33 +830,77 @@ ggplot(samps)+
 ################################################################################################################################
 ##########  Plotting the spatially varying trends ###############
 ################################################################################################################################
+# Making a mask for each species based on Jacob's host SDMs
+aghy_raster <-terra::rast("aghy_binary.tif") 
+aghy_raster_distribution <- mask(aghy_raster, mask = aghy_raster == 1, maskvalue = 0)
+
+aghy_distribution_poly<-  terra::as.polygons(aghy_raster_distribution) 
+
+aghy_distribution <- aghy_distribution_poly   %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km)  
 
 
-vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
 
-vrt@data <- expand.grid(std_year = rep(1, length.out = length(vrt)),
+
+agpe_raster <- terra::rast("agpe_binary.tif")
+agpe_raster_distribution <- mask(agpe_raster, mask = agpe_raster == 1, maskvalue = 0)
+
+agpe_distribution_poly<-  terra::as.polygons(agpe_raster_distribution) 
+
+agpe_distribution <- agpe_distribution_poly   %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km)  
+
+
+elvi_raster <- terra::rast("elvi_binary.tif")
+elvi_raster_distribution <- mask(elvi_raster, mask = elvi_raster == 1, maskvalue = 0)
+
+elvi_distribution_poly<-  terra::as.polygons(elvi_raster_distribution) 
+
+elvi_distribution <- elvi_distribution_poly   %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km)  
+
+
+vrt_aghy <- inlabru::fm_pixels(mesh, mask = aghy_distribution, format = "sp", dims = c(50, 50))# Note this is where we can mask the output according the whatever shape, such as the host distribution
+vrt_agpe <- inlabru::fm_pixels(mesh, mask = agpe_distribution, format = "sp", dims = c(50, 50))# Note this is where we can mask the output according the whatever shape, such as the host distribution
+vrt_elvi <- inlabru::fm_pixels(mesh, mask = elvi_distribution, format = "sp", dims = c(50, 50))# Note this is where we can mask the output according the whatever shape, such as the host distribution
+
+saveRDS(vrt_aghy, file = "aghy_distribution_df.rds")
+saveRDS(vrt_agpe, file = "agpe_distribution_df.rds")
+saveRDS(vrt_elvi, file = "elvi_distribution_df.rds")
+
+ggplot()+
+  gg(mesh)+
+  gg(vrt_agpe, color = "red")
+
+
+vrt_aghy@data <- expand.grid(std_year = rep(1, length.out = length(vrt_aghy)),
                        species_index = 1,
                        species = species_names[1])
 
+vrt_agpe@data <- expand.grid(std_year = rep(1, length.out = length(vrt_agpe)),
+                             species_index = 2,
+                             species = species_names[2])
+
+vrt_elvi@data <- expand.grid(std_year = rep(1, length.out = length(vrt_elvi)),
+                             species_index = 3,
+                             species = species_names[3])
 
 
 
-
-svc.pred <- predict(fit, 
-                         vrt, 
+svc.pred_aghy <- predict(fit, 
+                         vrt_aghy, 
                          formula = ~ ( exp(year.species1+ time.species1)-1)*100)
+svc.pred_agpe <- predict(fit, 
+                         vrt_agpe, 
+                         formula = ~ ( exp(year.species2+ time.species2)-1)*100)
+svc.pred_elvi <- predict(fit, 
+                         vrt_elvi, 
+                         formula = ~ ( exp(year.species3+ time.species3)-1)*100)
 
-svc.pred <- predict(fit, 
-                    vrt, 
-                    formula = ~ (space))
 
-svc.pred <- predict(fit, 
-                    vrt, 
-                    formula = ~ (space + space.species1))
-
-svc.pred <- predict(fit, 
-                    vrt, 
-                    formula = ~ (space.species2))
 
 # make a base map
 world_map <- st_as_sf(maps::map("world", plot = FALSE, fill = TRUE)) %>%
@@ -867,16 +911,16 @@ states_map <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
 
 
 
-min_trend <- max(svc.pred$mean)
+min_trend <- max(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
 
-max_trend <- min(svc.pred$mean)
+max_trend <- min(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
 
-trendrange <- range(svc.pred$mean)
+trendrange <- range(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
 
 
 
-space_x <- range(svc.pred@coords[,1])
-space_y <- range(svc.pred@coords[,2])
+space_x <- range(svc.pred_aghy@coords[,1],svc.pred_agpe@coords[,1],svc.pred_agpe@coords[,1])
+space_y <- range(svc.pred_aghy@coords[,2],svc.pred_agpe@coords[,2],svc.pred_agpe@coords[,2])
 
 
 
@@ -884,12 +928,100 @@ svc_time_map_AGHY <- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   coord_sf(xlim = space_x, ylim = space_y)+
-  gg(svc.pred, aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent")+#, limits = trendrange)+
+  gg(svc.pred_aghy, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[1], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
-svc_time_map_AGHY
+# svc_time_map_AGHY
+
+
+svc_time_map_AGPE <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_agpe, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_AGPE
+
+
+svc_time_map_ELVI <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_elvi, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
+  labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_ELVI
+
+
+
+svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+ggsave(svc_time_map, filename = "svc_time_map.png")
+
+
+
+trendrange.CI <- range(svc.pred_aghy$`q0.975`-svc.pred_aghy$`q0.025`, svc.pred_agpe$`q0.975`-svc.pred_agpe$`q0.025`, svc.pred_elvi$`q0.975`-svc.pred_elvi$`q0.025`)
+
+
+
+
+svc_time_map_AGHY.CI <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_aghy, aes(fill = `q0.975`-`q0.025`))+
+  scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent", limits = trendrange.CI)+
+  labs(title = species_names[1], y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_AGHY.CI
+
+
+svc_time_map_AGPE.CI <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_agpe, aes(fill = `q0.975`-`q0.025`))+
+  scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent",  limits = trendrange.CI)+
+  labs(title = species_names[2], y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_AGPE.CI
+
+
+svc_time_map_ELVI.CI <- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  coord_sf(xlim = space_x, ylim = space_y)+
+  gg(svc.pred_elvi, aes(fill = `q0.975`-`q0.025`))+
+  scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent",  limits = trendrange.CI)+
+  labs(title = species_names[3], y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+# svc_time_map_ELVI.CI
+
+
+
+svc_time_map.CI <- svc_time_map_AGHY.CI + svc_time_map_AGPE.CI + svc_time_map_ELVI.CI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+ggsave(svc_time_map.CI, filename = "svc_time_map.CI.png")
+
+
+
+
+
+
+
+
+### Now making a plot of the uncertainty range
+
+
+
 
 
 
