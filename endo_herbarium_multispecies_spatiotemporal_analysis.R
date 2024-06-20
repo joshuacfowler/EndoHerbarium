@@ -41,17 +41,6 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
   mutate(decade_bin = floor(year/10)*10) %>% 
   mutate(std_year = (year-mean(year, na.rm = T))) %>%  # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
   filter(scorer_factor != "Scorer26")
-  
-
-
-
-# Creating herbariumd levels
-herbarium_levels <- levels(as.factor(endo_herb_georef$Herb_code))
-herbarium_no <- paste0("Herbarium",1:nlevels(as.factor(endo_herb_georef$Herb_code)))
-
-endo_herb_georef$herbarium_factor <- herbarium_no[match(as.factor(endo_herb_georef$Herb_code), herbarium_levels)]
-
-
 # mini_dataset <- endo_herb_georef %>% 
 #   filter(year>1970 &year<1990 & species == "A. hyemalis") %>% 
 #   mutate(presence = Endo_status_liberal) %>% 
@@ -71,9 +60,8 @@ endo_herb <- endo_herb_georef %>%
   filter(Country != "Canada" ) %>% 
   mutate(year_bin = case_when(year<1970 ~ "pre-1970",
                               year>=1970 ~ "post-1970")) %>% 
-  mutate(scorer_index = parse_number(scorer_factor),
-         herbarium_index = parse_number(herbarium_factor),
-         collector_index = parse_number(collector_factor)) %>% 
+  mutate(scorer_id = case_when(scorer_id == "BellaGuttierez" ~ "BellaGutierrez",
+                               TRUE ~ scorer_id)) %>% 
   mutate(endo_status_text = case_when(Endo_status_liberal == 0 ~ "E-",
                                       Endo_status_liberal == 1 ~ "E+"))  %>% 
   filter(spp_code %in% c("AGHY", "AGPE", "ELVI")) 
@@ -217,22 +205,7 @@ summary_endo_herb <- endo_herb %>%
             max_year = max(year))
 
 
-endo_herb_AGHY <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "AGHY") %>% 
-  filter(!is.na(lon) & !is.na(year))
 
-endo_herb_AGPE <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "AGPE") %>% 
-  filter(!is.na(lon) & !is.na(year)) %>% 
-  filter(lat>=20) # dropping one plant in mexico
-
-
-endo_herb_ELVI <- endo_herb %>% 
-  filter(!is.na(Endo_status_liberal)) %>% 
-  filter(spp_code == "ELVI") %>% 
-  filter(!is.na(lon) & !is.na(year)) 
 
 endo_herb <- endo_herb %>% 
   filter(!is.na(Endo_status_liberal)) %>% 
@@ -326,6 +299,13 @@ spde <- inla.spde2.pcmatern(
 )
 
 
+spde_constr <- inla.spde2.pcmatern(
+  mesh = mesh,
+  prior.range = c(prior_range, 0.5),
+
+  prior.sigma = c(prior_sigma, 0.5),
+  constr = TRUE
+)
 # inlabru makes making weights spatial effects simpler because we don't have to make projector matrices for each effect. i.e we don't have to make an A-matrix for each spatially varying effect.
 # this means we can go strat to making the components of the model
 
@@ -337,18 +317,24 @@ spde <- inla.spde2.pcmatern(
 pc_prec <- list(prior = "pcprec", param = c(1, 0.1))
 
 
+
+
+
+
+
+
+
 # version of the model with multiple likelihoods
 
-cmp <- ~  space(geometry, model = spde) + space.species1(geometry, model = spde) + space.species2(geometry, model = spde) + + space.species3(geometry, model = spde) +
+cmp <- ~ space(geometry, model = spde) + space.species1(geometry, model = spde) + space.species2(geometry, model = spde) + + space.species3(geometry, model = spde) +
   time.species1(geometry, weights = std_year, model = spde) + time.species2(geometry, weights = std_year, model = spde) + time.species3(geometry, weights = std_year, model = spde) +
   + int.species1(1) + int.species2(1) + int.species3(1)+
   + year.species1(main = ~0 + std_year, model = "fixed") + year.species2(main = ~0 + std_year, model = "fixed") + year.species3(main = ~0 + std_year, model = "fixed")+
-  # herbarium(herbarium_index, model = "iid", constr = TRUE, mapper = bru_mapper_index(max(data$herbarium_index)), hyper = list(pc_prec))+
-  scorer(scorer_index, model = "iid", constr = TRUE, mapper = bru_mapper_index(max(data$scorer_index)), hyper = list(pc_prec)) +
-  collector(collector_index, model = "iid", constr = TRUE, mapper = bru_mapper_index(max(data$collector_index, na.rm = T)), hyper = list(pc_prec))
+  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec)) +
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
 
-fml.aghy <- Endo_status_liberal ~ 0 + int.species1 + year.species1 + space + space.species1 + time.species1 + scorer + collector 
-fml.agpe <- Endo_status_liberal ~ 0 + int.species2 + year.species2 + space + space.species2 + time.species2 + scorer + collector 
+fml.aghy <- Endo_status_liberal ~ 0 + int.species1 + year.species1 + space + space.species1 + time.species1 + scorer + collector
+fml.agpe <- Endo_status_liberal ~ 0 + int.species2 + year.species2 + space + space.species2 + time.species2 + scorer + collector
 fml.elvi <- Endo_status_liberal ~ 0 + int.species3 + year.species3 + space + space.species3 + time.species3 + scorer + collector
 
 
@@ -377,21 +363,111 @@ fit <- bru(cmp,
            lik_elvi,
            options = list(
              control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
-             #control.inla = list(int.strategy = "eb"),
+             control.inla = list(int.strategy = "eb"),
              verbose = TRUE,
              bru_max_iter = 10)
 )
 
-
-saveRDS(fit, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/multispecies_fit.Rds")
-fit <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/multispecies_fit.Rds")
-
 fit$dic$dic
-fit$mode$mode.status
 
-fit$summary.fixed
-fit$summary.random
 
+
+
+
+
+
+
+
+
+# version of the model with overall year slope
+  
+year_components <- ~ 0 + fixed_effects(main = ~0 + std_year*species, model = "fixed") +
+  space.int(geometry, group = species, model = spde)  # can add group argument to make specific to each species
+  #time.slope(geometry, group = species, weights = std_year, model = spde) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
+ scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+
+# version of the model with spatially varying slopes
+
+
+# version of the model with spatially varying slopes
+svc_components <- ~ 0 + fixed(main = ~std_year*species, model = "fixed") +  
+space.int(geometry, group = species_index, model = spde) + # can add group argument to make specific to each species
+  time.slope(geometry, group = species_index, weights = std_year, model = spde_const) + # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
+  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+
+
+
+
+
+
+svc_components <- ~ 0 + species(main = ~ 0 + species, model = "fixed") + year(main = ~0 + std_year, model = "fixed") + sppyear(main = ~0 + species:std_year, model = "fixed") +
+  space.int(geometry, group = species_index, model = spde_const) + # can add group argument to make specific to each species
+  time.slope(geometry, group = species_index, weights = std_year, model = spde_const) # can add constr = TRUE to make constrain to zero in the SPDE definition, which allows us to compare relative to mean condition
+  collector(collector_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))+
+  scorer(scorer_factor, model = "iid", constr = TRUE, hyper = list(pc_prec))
+
+
+
+
+# formula, with "." meaning "add all the model components":
+year_formula <- Endo_status_liberal ~ .
+svc_formula <- Endo_status_liberal ~ .
+
+
+
+# Now run the models
+
+
+year.fit <- bru(year_components,
+           like(
+             formula = year_formula,
+             family = "binomial",
+             Ntrials = 1,
+             data = endo_herb
+           ),
+           options = list(
+             control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
+             control.inla = list(int.strategy = "eb"),
+             verbose = TRUE
+           )
+)
+
+svc.fit <- bru(svc_components,
+                     like(
+                       formula = svc_formula,
+                       family = "binomial",
+                       Ntrials = 1,
+                       data = endo_herb),
+                     options = list(
+                       control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
+                       control.inla = list(int.strategy = "eb"),
+                       verbose = TRUE
+                     )
+)
+
+saveRDS(svc.fit, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/svc_fit.Rds")
+saveRDS(mesh, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_scv_fit.Rds")
+saveRDS(year.fit, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/year_fit.Rds")
+saveRDS(mesh, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_year_fit.Rds")
+
+year.fit <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/year_fit.Rds")
+year.fit$dic$dic
+
+saveRDS(svc.fit, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/svc_fit_GRANDMEAN.Rds")
+svc.fit <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/svc_fit_GRANDMEAN.Rds")
+
+svc.fit <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/svc_fit.Rds")
+mesh <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_scv_fit.Rds")
+
+svc.fit$dic$dic
+svc.fit$mode$mode.status
+
+svc.fit$summary.fixed
+svc.fit$summary.random
+
+svc.fit$summary.random$fixed
 
 
 
@@ -573,19 +649,17 @@ validation.pred1 <- predict(
   fit,
   newdata = data1,
   formula = ~ invlogit(int.species1 + year.species1 + 
-                         space +  space.species1 + 
+                         space + space.species1 + 
                          time.species1 + 
-                         herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                         scorer + collector)) 
 
 validation.pred2 <- predict(
   fit,
   newdata = data2,
   formula = ~ invlogit(int.species2 + year.species2 + 
-                         space + space.species3 + 
+                         space + space.species2 + 
                          time.species2 + 
-                         herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                         scorer + collector)) 
 
 validation.pred3 <- predict(
   fit,
@@ -593,8 +667,7 @@ validation.pred3 <- predict(
   formula = ~ invlogit(int.species3 + year.species3 +
                        space + space.species3 + 
                        time.species3 +
-                       herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                       scorer + collector)) 
 
 validation.pred <- bind_rows(tibble(validation.pred1), tibble(validation.pred2), tibble(validation.pred3)) %>% 
   arrange(row_number)
@@ -640,6 +713,52 @@ cov.plot <- plot(spde.posterior(fit, "time.slope", what = "matern.covariance"))
 cov.plot
 
 
+
+### Trying out mesh proj May 15, 2024
+pm   = svc.fit$summary.random$space.int$mean # posterior mean values of spatial random field
+sd =  svc.fit$summary.random$space.int$sd # uncertainty on posterior mean of spatial random field
+
+
+
+
+xlim <- range(mesh$loc[, 1])
+ylim <- range(mesh$loc[, 2])
+grd_dims <- round(c(x = diff(range(xlim))/50, y = diff(range(ylim))/50))
+
+# make mesh projector to get model summaries from the mesh to the mapping grid
+mesh_proj <- fm_evaluator(
+  mesh,
+  xlim = xlim, ylim = ylim, dims = grd_dims,
+)
+
+index = inla.spde.make.index(name = 'spde',
+                             n.spde = mesh$n,
+                             n.group = length(unique(endo_herb$species_index)))
+
+pmf <- list() # six years of data
+for (i in 1:length(unique(endo_herb$species_index))){
+  pmf[[i]] <- inla.mesh.project(mesh_proj, pm[index$spde.group==i])
+}
+
+
+sp_df_all = data.frame()
+for (y in c(1:length(unique(endo_herb$species_index)))){
+  grid  = expand.grid(X = mesh_proj$x, Y = mesh_proj$y)
+  sp_df = data.frame(x = grid[,1],
+                     y = grid[,2],
+                     z = as.vector(pmf[[y]]))
+  sp_df$species = rep(y, nrow(sp_df))
+  sp_df_all = rbind(sp_df, sp_df_all)
+}
+
+
+ggplot(sp_df_all, aes(x, y, z = z)) +
+  geom_raster(aes(fill = z)) +
+  labs(title = "Spatial random field", fill="Spatial field", x = "X", y = "Y") +
+  theme(text = element_text(size = 25, family = "helveticanow")) +
+  facet_wrap(~species)
+
+
 ################################################################################################################################
 ##########  Getting and plotting prediction from overall trend model  ###############
 ################################################################################################################################
@@ -647,7 +766,7 @@ cov.plot
 min_year <- min(data$std_year)
 max_year <- max(data$std_year)
 preddata <- expand.grid(species_index = c(1,2,3), std_year = seq(min_year, max_year, length.out = 1000),
-                        collector_index = 9999, scorer_index = 9999, herbarium_index = 9999) %>% 
+                        collector_factor = NA, scorer_factor = NA) %>% 
   mutate(species = case_when(species_index == 1 ~ species_names[1],
                              species_index == 2 ~ species_names[2],
                              species_index == 3 ~ species_names[3]))
@@ -662,22 +781,19 @@ sd_year <- sd(data$year)
 year.pred.aghy <- predict(
   fit,
   newdata = preddata[preddata$species_index == 1,],
-  formula = ~ invlogit(int.species1 + year.species1 + scorer_eval(scorer_index) + collector_eval(collector_index)),
-  n.samples = 200) %>% 
+  formula = ~ invlogit(int.species1 + year.species1)) %>% 
   mutate(year = std_year + mean_year)
 
 year.pred.agpe <- predict(
   fit,
   newdata = preddata[preddata$species_index == 2,],
-  formula = ~ invlogit(int.species2 + year.species2 + scorer_eval(scorer_index) + collector_eval(collector_index)),
-  n.samples = 200) %>% 
+  formula = ~ invlogit(int.species2 + year.species2)) %>% 
   mutate(year = std_year + mean_year)
 
 year.pred.elvi <- predict(
   fit,
   newdata = preddata[preddata$species_index == 3,],
-  formula = ~ invlogit(int.species3 + year.species3 + scorer_eval(scorer_index) + collector_eval(collector_index)),
-  n.samples = 200) %>% 
+  formula = ~ invlogit(int.species3 + year.species3)) %>% 
   mutate(year = std_year + mean_year)
 
 year.pred <- bind_rows(year.pred.aghy, year.pred.agpe, year.pred.elvi)
@@ -699,9 +815,9 @@ endo_herb_binned <- endo_herb %>%
 
 
 year_trend <- ggplot(year.pred) +
+  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample, color = species))+
   # geom_linerange(data = endo_herb_binned, aes(x = mean_year, ymin = mean_endo-se_endo, ymax = mean_endo+se_endo))+
   geom_point(data =endo_herb, aes(x = year, y = Endo_status_liberal), shape = "|")+
-  geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample, color = species))+
   geom_line(aes(year, mean)) +
   geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
   geom_ribbon(aes(year, ymin = mean - 1 * sd, ymax = mean + 1 * sd), alpha = 0.2) +
@@ -742,65 +858,42 @@ year_plot <- year_hist + year_trend +
   
 year_plot
 ggsave(year_plot, filename = "year_plot.png", width = 7, height = 5)
+ggsave(year_plot, filename = "year_plot_withscorer.png", width = 7, height = 5)
 
 
 
 # Making a plot of the posteriors:
 
-format <- theme(panel.grid.minor = element_line(linewidth = 0.1, linetype = 'dashed',colour = "grey"),
-                axis.title = element_text(size = rel(2)),
-                axis.text = element_text(size = rel(.5)),
-                title = element_text(size = rel(.4)),
-                plot.margin = unit(c(.1,.1,.1,.1), "cm"))
+format <- theme(panel.grid.minor = element_line(linewidth = 0.1, linetype = 'dashed',colour = "grey"))
 
-int_aghy <- plot(fit, "int.species1")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[1], y = "Probability Density", x = "Intercept")
-int_agpe <- plot(fit, "int.species2")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[2], color = species_colors[2], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[2], y = "Probability Density", x = "Intercept")
-int_elvi <- plot(fit, "int.species3")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[3], color = species_colors[3], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[3], y = "Probability Density", x = "Intercept")
-int_posterior <- int_aghy + int_agpe + int_elvi + plot_layout(ncol = 1, axis_titles = "collect")
-# int_posterior
+int_aghy <- plot(fit, "int.species1")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_agpe <- plot(fit, "int.species2")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[2], color = species_colors[2], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_elvi <- plot(fit, "int.species3")+ lims(x = c(-5,5)) + geom_vline(xintercept = fit$summary.fixed$mean[3], color = species_colors[3], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+int_posterior <- int_aghy + int_agpe + int_elvi + plot_layout(ncol = 1)
+int_posterior
 
 
 
-year_aghy <- plot(fit, "year.species1", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species1$mean, color = species_colors[1], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format + labs(title = " ", y = "Probability Density", x = "Slope", color  = "")
-year_agpe <- plot(fit, "year.species2", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species2$mean, color = species_colors[2], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format + labs(title = " ", y = "Probability Density", x = "Slope", color  = "") 
-year_elvi <- plot(fit, "year.species3", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species3$mean, color = species_colors[3], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format + labs(title = " ", y = "Probability Density", x = "Slope", color  = "") 
-year_posterior <- year_aghy + year_agpe + year_elvi + plot_layout(ncol = 1, axis_titles = "collect")
-# year_posterior
+year_aghy <- plot(fit, "year.species1", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species1$mean, color = species_colors[1], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_agpe <- plot(fit, "year.species2", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species2$mean, color = species_colors[2], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_elvi <- plot(fit, "year.species3", index = 1) + lims(x = c(-.01,.025)) + geom_vline(xintercept = fit$summary.random$year.species3$mean, color = species_colors[3], linewidth = 1.5) + geom_vline(xintercept = 0) + theme_classic() + format
+year_posterior <- year_aghy + year_agpe + year_elvi + plot_layout(ncol = 1)
+year_posterior
 
 
-
-
-int_posterior_wrap <- int_posterior + plot_annotation(tag_levels = list(c("A", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
-
-year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
+int_posterior_wrap <- int_posterior + plot_annotation(tag_levels = list(c("A", "", "")))
+year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B", "", "")))
 
 posterior_plot <- wrap_elements(int_posterior_wrap)|wrap_elements(year_posterior_wrap)
-# posterior_plot
-ggsave(posterior_plot, filename = "posterior_plot.png", width = 4.5, height = 3.5)
-
+posterior_plot
 
 ################################################################################################################################
 ##########  Plotting the posteriors of scorer and collector effects ###############
 ################################################################################################################################
-hlist <- vector("list", NROW(fit$summary.random$herbarium))
-for (i in seq_along(hlist)) hlist[[i]] <- plot(fit, "herbarium", index = i) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = hlist, cols = 3)
-
-
-
 
 slist <- vector("list", NROW(fit$summary.random$scorer))
 for (i in seq_along(slist)) slist[[i]] <- plot(fit, "scorer", index = i) + lims(x = c(-2.5,2.5))
 multiplot(plotlist = slist, cols = 3)
-
-
-
-random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
-
-clist <- vector("list", NROW(random_collectors))
-for (i in 1:length(random_collectors)) clist[[i]] <- plot(fit, "collector", index = random_collectors[i]) + lims(x = c(-.1,.1))
-multiplot(plotlist = clist, cols = 3)
-
 
 plot(fit, "scorer")
 plot(fit, "collector")
@@ -879,6 +972,9 @@ ggplot()+
 vrt_aghy@data <- expand.grid(std_year = rep(1, length.out = length(vrt_aghy)),
                        species_index = 1,
                        species = species_names[1])
+vrt@data <- expand.grid(std_year = rep(1, length.out = length(vrt)),
+                       species_index = 3,
+                       species = species_names[3])
 
 vrt_agpe@data <- expand.grid(std_year = rep(1, length.out = length(vrt_agpe)),
                              species_index = 2,
@@ -900,6 +996,17 @@ svc.pred_elvi <- predict(fit,
                          vrt_elvi, 
                          formula = ~ ( exp(year.species3+ time.species3)-1)*100)
 
+svc.pred <- predict(fit, 
+                         vrt, 
+                         formula = ~ ( exp(year.species3  + time.species3)-1)*100)
+
+svc.pred <- predict(fit, 
+                    vrt, 
+                    formula = ~ (space))
+
+svc.pred <- predict(fit, 
+                    vrt, 
+                    formula = ~ (space + space.species2))
 
 
 # make a base map
@@ -1266,12 +1373,12 @@ ggsave(svc_space_map, filename = "svc_space_map_year.png", width = 6, height = 1
 
 contemp.aghy <- contemp_surveys %>% 
     filter(SpeciesID == "AGHY") %>% 
-    mutate(herbarium_index = 9999, collector_index = 9999, scorer_index = NA, species_index = 1, species = species_names[1]) %>% 
+    mutate(collector_factor = NA, scorer_factor = NA, species_index = 1, species = species_names[1]) %>% 
     st_transform(epsg6703km)
 
 contemp.elvi <- contemp_surveys %>% 
   filter(SpeciesID == "ELVI") %>% 
-  mutate(herbarium_index = 9999, collector_index = 9999, scorer_index = NA, species_index = 3, species = species_names[3]) %>% 
+  mutate(collector_factor = NA, scorer_factor = NA, species_index = 3, species = species_names[3]) %>% 
   st_transform(epsg6703km)
 
 
@@ -1285,7 +1392,7 @@ contemp.elvi <- contemp_surveys %>%
     fit,
     newdata = contemp.aghy,
     formula = ~ invlogit(int.species1 + year.species1 + space + space.species1 + time.species1 + 
-                           scorer_eval(scorer_index) + collector_eval(collector_index))) %>% 
+                           scorer + collector)) %>% 
     mutate(year = std_year + mean_year)
 
   
@@ -1293,7 +1400,7 @@ contemp.elvi <- contemp_surveys %>%
     fit,
     newdata = contemp.elvi,
     formula = ~ invlogit(int.species3 + year.species3 + space.species3 + time.species3 + 
-                           scorer_eval(scorer_index) + collector_eval(collector_index))) %>% 
+                           scorer + collector)) %>% 
     mutate(year = std_year + mean_year)
 
 
@@ -1353,6 +1460,140 @@ rocobj$auc
 
 
 
+
+
+
+data(gorillas, package = "inlabru")
+
+
+
+
+matern <- INLA::inla.spde2.pcmatern(gorillas$mesh,
+                                    prior.sigma = c(0.1, 0.01),
+                                    prior.range = c(0.01, 0.01)
+)
+
+# Define domain of the LGCP as well as the model components (spatial SPDE effect and Intercept)
+
+cmp <- coordinates ~ mySmooth(main = coordinates, model = matern) + Intercept(1)
+
+# Fit the model, with "eb" instead of full Bayes
+fit_gorillas <- lgcp(cmp, gorillas$nests,
+            samplers = gorillas$boundary,
+            domain = list(coordinates = gorillas$mesh),
+            options = list(control.inla = list(int.strategy = "eb"))
+)
+
+
+
+
+vrt_gorillas <- fm_pixels(gorillas$mesh, format = "sp")
+
+# we obtain these vertices as a SpatialPointsDataFrame
+
+ggplot() +
+  gg(gorillas$mesh) +
+  gg(vrt_gorillas, color = "red")
+
+
+
+mySmooth <- predict(fit_gorillas, vrt_gorillas, ~mySmooth)
+
+
+ggplot() +
+  gg(gorillas$mesh) +
+  gg(mySmooth, aes(color = mean), size = 3)
+
+
+
+
+ggplot() +
+  gg(gorillas$mesh, color = mySmooth$mean)
+
+
+
+
+pxl <- fm_pixels(gorillas$mesh, format = "sp")
+mySmooth2 <- predict(fit, pxl, ~mySmooth)
+
+# This will give us a SpatialPixelDataFrame with the columns we are looking for
+
+head(mySmooth2)
+ggplot() +
+  gg(mySmooth2)
+
+
+# will be able to use "mask" argument to remove pixels outside of species distribution object
+pred.df <- fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(10,10))
+# pred.df$decade <- 1900
+year <- rep(1900, n = dim(pred.df)^2)
+
+
+# 
+pred.df_m <- merge(as.data.frame(pred.df),year)
+
+
+
+spdf <- SpatialPointsDataFrame(coords = pred.df, data = pred.df_m)
+int1 <- predict(fit, 
+                newdata = spdf, 
+                formula = ~ list(space = space_int,
+                                 space_time = Intercept + space_int + year))
+
+
+ggplot(data = int1$space) +gg(aes(fill = mean))
+  # geom_point(data =endo_herb, aes(x = year, y = Endo_status_liberal))+
+  geom_spatraster(data = int1$space, aes(fill = mean))
+  geom_line(aes(year, mean)) +
+  geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
+  geom_ribbon(aes(year, ymin = mean - 1 * sd, ymax = mean + 1 * sd), alpha = 0.2) +
+  lims(y = c(0,1))
+
+
+
+
+
+
+
+
+###### Trying to get prediction from the year effect #####
+
+decade.pred <- predict(
+  fit,
+  data.frame(decade = seq(1800, 2020, by = 10)),
+  formula = ~ decade_eval(decade),
+  include = character(0) # Not needed from version 2.8.0
+)
+
+
+
+decade.pred <- decade.pred$median
+
+
+ggplot(decade.pred) +
+  geom_line(aes(decade, mean))+
+  geom_ribbon(aes(decade,ymin = q0.025,ymax = q0.975),alpha = 0.2) +
+  geom_ribbon(aes(decade,ymin = mean - 1 * sd,ymax = mean + 1 * sd),alpha = 0.2)
+
+
+
+
+
+
+pred.y_data <- pred.y_data[1:9] %>% 
+  mutate(decade = year)
+
+vrt <- fm_vertices(mesh, format = "sp")
+pred <- predict(fit, vrt, ~ space_int)
+
+
+class(pred)
+head(vrt)
+head(pred)
+
+
+ggplot() +
+  gg(mesh, color = mean)
 
 ##### Post-hoc correlations with climate drivers #####
 
