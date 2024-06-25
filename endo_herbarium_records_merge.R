@@ -1709,6 +1709,7 @@ ppt_autumn_cv_difference %>% st_transform(epsg6703km)
     coords.x2 = = st_coordinates(.)[, 1],
 )
 
+
 ######### Next extracting these climate values at our points. ####
 # we can extract them at the georeferenced coordinates and also across the grid of points we are using for prediction
 
@@ -1768,6 +1769,53 @@ bdry_polygon_list <- readRDS(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
 
 
 # THese are the pixels across space for which we will extract climate
+
+vrt_aghy <- readRDS(file = "aghy_distribution_df.rds")
+vrt_agpe <- readRDS(file = "agpe_distribution_df.rds")
+vrt_elvi <- readRDS(file = "elvi_distribution_df.rds")
+
+
+dd_crs <- "GEOGCRS[\"NAD83\",\n    DATUM[\"North American Datum 1983\",\n        ELLIPSOID[\"GRS 1980\",6378137,298.257222101004,\n            LENGTHUNIT[\"metre\",1]]],\n    PRIMEM[\"Greenwich\",0,\n        ANGLEUNIT[\"degree\",0.0174532925199433]],\n    CS[ellipsoidal,2],\n        AXIS[\"geodetic latitude (Lat)\",north,\n            ORDER[1],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        AXIS[\"geodetic longitude (Lon)\",east,\n            ORDER[2],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n    ID[\"EPSG\",4269]]"
+
+vrt_aghy_dd <- vrt_aghy  %>% 
+  spTransform(dd_crs)
+
+
+
+
+prism_diff_pred_df <- tibble(lon = vrt_aghy_dd@coords[,1], lat = vrt_aghy_dd@coords[,2],
+                             tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, vrt_aghy_dd@coords)),
+                             tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, vrt_aghy_dd@coords)),
+                             tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, vrt_aghy_dd@coords)),
+                             tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, vrt_aghy_dd@coords)),
+                             ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, vrt_aghy_dd@coords)),
+                             ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, vrt_aghy_dd@coords)),
+                             ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, vrt_aghy_dd@coords)),
+                             ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, vrt_aghy_dd@coords)),
+                             
+                             tmean_annual_sd_diff = unlist(terra::extract(tmean_annual_sd_difference, vrt_aghy_dd@coords)),
+                             tmean_spring_sd_diff = unlist(terra::extract(tmean_spring_sd_difference, vrt_aghy_dd@coords)),
+                             tmean_summer_sd_diff = unlist(terra::extract(tmean_summer_sd_difference, vrt_aghy_dd@coords)),
+                             tmean_autumn_sd_diff = unlist(terra::extract(tmean_autumn_sd_difference, vrt_aghy_dd@coords)),
+                             ppt_annual_sd_diff = unlist(terra::extract(ppt_annual_sd_difference, vrt_aghy_dd@coords)),
+                             ppt_spring_sd_diff = unlist(terra::extract(ppt_spring_sd_difference, vrt_aghy_dd@coords)),
+                             ppt_summer_sd_diff = unlist(terra::extract(ppt_summer_sd_difference, vrt_aghy_dd@coords)),
+                             ppt_autumn_sd_diff = unlist(terra::extract(ppt_autumn_sd_difference, vrt_aghy_dd@coords)),
+                             
+                             tmean_annual_cv_diff = unlist(terra::extract(tmean_annual_cv_difference, vrt_aghy_dd@coords)),
+                             tmean_spring_cv_diff = unlist(terra::extract(tmean_spring_cv_difference, vrt_aghy_dd@coords)),
+                             tmean_summer_cv_diff = unlist(terra::extract(tmean_summer_cv_difference, vrt_aghy_dd@coords)),
+                             tmean_autumn_cv_diff = unlist(terra::extract(tmean_autumn_cv_difference, vrt_aghy_dd@coords)),
+                             ppt_annual_cv_diff = unlist(terra::extract(ppt_annual_cv_difference, vrt_aghy_dd@coords)),
+                             ppt_spring_cv_diff = unlist(terra::extract(ppt_spring_cv_difference, vrt_aghy_dd@coords)),
+                             ppt_summer_cv_diff = unlist(terra::extract(ppt_summer_cv_difference, vrt_aghy_dd@coords)),
+                             ppt_autumn_cv_diff = unlist(terra::extract(ppt_autumn_cv_difference, vrt_aghy_dd@coords)))
+
+
+
+
+
+
 
 epsg6703degree <- "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=km +no_defs"
 vrt_list <- list()
