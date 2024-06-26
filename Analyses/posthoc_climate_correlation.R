@@ -325,6 +325,14 @@ elvi_prism_diff_pred_df <- tibble(lon = vrt_elvi_dd@coords[,1], lat = vrt_elvi_d
 
 write_csv(elvi_prism_diff_pred_df, file = "elvi_prism_diff_pred_df.csv")
 
+
+######### reading in and looking at the prism data from above ####
+
+aghy_prism_diff_pred_df <- read_csv("aghy_prism_diff_pred_df.csv")
+agpe_prism_diff_pred_df <- read_csv("agpe_prism_diff_pred_df.csv")
+elvi_prism_diff_pred_df <- read_csv("elvi_prism_diff_pred_df.csv")
+
+
 # dim(elvi_prism_diff_pred_df)
 
 ggplot()+
@@ -342,7 +350,8 @@ svc.pred_climate <- aghy_prism_diff_pred_df %>%
 svc.pred_climate_subsample <- svc.pred_climate %>% 
 group_by(species) %>%
 sample_n(size =200) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(Intercept = 1)
 
 # ggplot(svc.pred_climate_subsample)+
 #   geom_point(aes(x = coords.x1, y = coords.x2, color = ppt_spring_sd_diff))+
@@ -351,7 +360,7 @@ sample_n(size =200) %>%
 
 svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>% 
   pivot_longer(cols = contains("_diff")) %>% 
-  filter(!grepl("cv", name))
+  filter(!grepl("cv", name)) 
   # filter(!grepl("tmean_spring", name)) %>% 
   # filter(!grepl("tmean_summer", name)) %>% 
   # filter(!grepl("tmean_autumn", name)) 
@@ -362,7 +371,7 @@ ppt_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("ppt
   geom_point(aes(x = value, y = q0.5, color = species), alpha = .2)+
   geom_smooth(aes(x = value, y = q0.5, group = species, fill = species), color = "black", method = "lm")+
   scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name)+species, scales = "free", nrow = 3) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
   theme(text = element_text(size = 8))+
   theme_light()+
   labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
@@ -373,7 +382,7 @@ ppt_sd_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("
   geom_point(aes(x = value, y = mean,color = species), alpha = .2)+
   geom_smooth(aes(x = value, y = mean, group = species, fill = species), color = "black", method = "lm")+
   scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name)+species, scales = "free", nrow = 3) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
   theme(strip.text = element_text(size = rel(400)))+
   theme_light()+
   labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
@@ -384,10 +393,10 @@ tmean_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("t
   geom_point(aes(x = value, y = q0.5, color = species), alpha = .2)+
   geom_smooth(aes(x = value, y = q0.5, group = species, fill = species), color = "black", method = "lm")+
   scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name)+species, scales = "free", nrow = 3) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
   theme(text = element_text(size = 8))+
   theme_light()+
-  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Temp. (C)"))
 tmean_regression_plot
 
 
@@ -395,18 +404,18 @@ tmean_sd_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl
   geom_point(aes(x = value, y = mean,color = species), alpha = .2)+
   geom_smooth(aes(x = value, y = mean, group = species, fill = species), color = "black", method = "lm")+
   scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name)+species, scales = "free", nrow = 3) +
+  facet_wrap(~species+ factor(name), nrow = 3) +
   theme(strip.text = element_text(size = rel(400)))+
   theme_light()+
-  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Temp. (C)"))
 tmean_sd_regression_plot
 
 
 ######### perform a regression with INLA to test the relationship between change in prevalence and change in seasonal climate ####
-cmp <- ~ Intercept(1) + spring_ppt(main = ~0 + ppt_spring_diff, model = "fixed") + summer_ppt(main = ~0 + ppt_summer_diff, model = "fixed") + autumn_ppt(main = ~0 + ppt_autumn_diff, model = "fixed") +
-         spring_ppt_sd(main = ~0 + ppt_spring_sd_diff, model = "fixed") + summer_ppt_sd(main = ~0 + ppt_summer_sd_diff, model = "fixed") + autumn_ppt_sd(main = ~0 + ppt_autumn_sd_diff, model = "fixed") +
-         spring_tmean(main = ~0 + tmean_spring_diff, model = "fixed") + summer_tmean(main = ~0 + tmean_summer_diff, model = "fixed") + autumn_tmean(main = ~0 + tmean_autumn_diff, model = "fixed") +
-         spring_tmean_sd(main = ~0 + tmean_spring_sd_diff, model = "fixed") + summer_tmean_sd(main = ~0 + tmean_summer_sd_diff, model = "fixed") + autumn_tmean_sd(main = ~0 + tmean_autumn_sd_diff, model = "fixed")
+cmp <- ~ Intercept(main = Intercept, model = "linear", mean.linear=0, prec.linear=0.001) + spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
   
 fml.climate <- mean ~ Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
   spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
@@ -536,36 +545,355 @@ prediction_df <- bind_rows(prediction_df_aghy, prediction_df_agpe, prediction_df
          variable == "autumn_tmean" & name == "tmean_autumn_diff"|
          variable == "spring_tmean_sd" & name == "tmean_spring_sd_diff"|
          variable == "summer_tmean_sd" & name == "tmean_summer_sd_diff"|
-         variable == "autumn_tmean_sd" & name == "tmean_autumn_sd_diff")
+         variable == "autumn_tmean_sd" & name == "tmean_autumn_sd_diff") %>% 
+  mutate(name = fct_relevel(name, c('tmean_spring_diff', 'tmean_summer_diff', "tmean_autumn_diff",
+                                    'tmean_spring_sd_diff', 'tmean_summer_sd_diff', "tmean_autumn_sd_diff",
+                                    'ppt_spring_diff', 'ppt_summer_diff', "ppt_autumn_diff",
+                                    'ppt_spring_sd_diff', 'ppt_summer_sd_diff', "ppt_autumn_sd_diff"))) %>% 
+  mutate(moment = case_when(grepl("sd", name) ~ "sd",
+                            !grepl("sd", name) ~ "mean"),
+         variable_group = case_when(grepl("tmean", variable) ~ "Temperature",
+                                    grepl("ppt", variable) ~ "Precipitation"))
+
+
+climate_labels <- c(
+  ppt_spring_diff = "Spring", 
+  ppt_summer_diff = "Summer", 
+  ppt_autumn_diff = "Autumn",
+  ppt_spring_sd_diff = "Spring", 
+  ppt_summer_sd_diff = "Summer", 
+  ppt_autumn_sd_diff = "Autumn",
+  tmean_spring_diff = "Spring", 
+  tmean_summer_diff = "Summer", 
+  tmean_autumn_diff = "Autumn",
+  tmean_spring_sd_diff = "Spring", 
+  tmean_summer_sd_diff = "Summer", 
+  tmean_autumn_sd_diff = "Autumn",
+  mean = "Mean",
+  sd = "Standard Deviation"
+)
 
 
 
-
-
-
-climate_trend <- ggplot(filter(prediction_df, grepl("tmean", name))) +
+tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", name))) +
   # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
-  facet_wrap(~species + name,nrow = 3, scales = "free")+
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
-  labs(y = "Endophyte Prevalence", x = "Year", color = "Species", size = "Sample Size")+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
   theme_light()+
-  theme(#strip.background = element_blank(),
-        legend.text = element_text(face = "italic"))
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+        )
   # lims(y = c(0,1))
 
-climate_trend
-
-######### plot of marginals ####
+tmean_trend
 
 
-plot(fit, varname = "tmean_annual_sd_diff")
+tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
 
-flist <- vector("list", NROW(fit$summary.random$fixed_effects))
-for (i in seq_along(flist)) flist[[i]] <- plot(fit, "fixed_effects", index = 1:3) +geom_vline(aes(xintercept = 0))
+tmean_sd_trend
+
+
+
+ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(1)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+ppt_trend
+
+
+ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+ppt_sd_trend
+
+
+
+
+
+
+
+  
+climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "A")
+
+ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot.png", width = 16, height = 12)
+
+######### version of plot separating by species ####
+
+
+
+
+
+
+
+aghy_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_trend
+
+aghy_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_sd_trend
+
+
+aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_trend
+
+aghy_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_sd_trend 
+
+
+
+AGHY_climate_trends_plot <- (aghy_tmean_trend | aghy_ppt_trend)/(aghy_tmean_sd_trend|aghy_ppt_sd_trend)
+
+
+
+
+
+aghy_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+             labeller = labeller(name =climate_labels,
+                                 moment = climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_trend
+
+aghy_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_sd_trend
+
+
+aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_trend
+
+aghy_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_sd_trend 
+
+
+
+AGHY_climate_trends_plot <- (aghy_tmean_trend | aghy_ppt_trend)/(aghy_tmean_sd_trend|aghy_ppt_sd_trend)
+  
+
+
+
+
+###### Plotting the posterior distributions ###################################################
+
+plot(fit, varname = "spring_ppt")
+
+flist <- vector("list", NROW(fit$summary.fixed$ppt_spring))
+for (i in seq_along(flist)) flist[[i]] <- plot(fit, "spring_ppt", index = i) +geom_vline(aes(xintercept = 0))
 multiplot(plotlist = flist, cols = 3)
 
 
