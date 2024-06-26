@@ -1078,126 +1078,25 @@ rocobj$auc
 
 
 
-##### Post-hoc correlations with climate drivers #####
-
-# Read in the saved rasters which have the calculated change in climate.
-
-# reading in the change in climate normals (1895-1925 and 1990-2020)
-
-
-write_csv(elvi_prism_diff_pred_df, file = "elvi_prism_diff_pred_df.csv")
 
 
 
-aghy_prism_diff_pred_df <- read_csv(file = "aghy_prism_diff_pred_df.csv") 
-agpe_prism_diff_pred_df <- read_csv(file = "agpe_prism_diff_pred_df.csv") 
-elvi_prism_diff_pred_df <- read_csv(file = "elvi_prism_diff_pred_df.csv") 
 
 
-# mutate(across(contains("ppt_"), ~.x*.1)) # changing the units of the change in precip. to be 10ths of millimeters
-# prism_for_plotting <- prism_diff_pred_df %>% 
-#   filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2)  
 
 
-ggplot()+
-  gg(elvi_prism_diff_pred_df, aes(color = tmean_annual_cv_diff))
-
-ggplot()+
-  gg(svc.pred_elvi, aes(color = mean))
-# Merging the climate date with our predicted temporal slopes
-
-points <- prism_diff_pred_df %>%
-  dplyr::select(lon, lat) 
-
-
-# getting the pixel values of slopes as a dataframe
-svc.pred_aghy <- readRDS( file = "svc.pred_aghy.Rds")
-svc.pred_agpe <- readRDS( file = "svc.pred_agpe.Rds")
-svc.pred_elvi <- readRDS( file = "svc.pred_elvi.Rds")
-
-svc.pred_aghy_df <- svc.pred_aghy %>% 
-  st_as_sf(coords = c("lon", "lat"), crs = epsg6703km, remove = FALSE) %>% 
-  mutate(
-    coords.x1 = st_coordinates(.)[, 1],
-    coords.x2 = st_coordinates(.)[, 2]
-  ) %>% 
-  as.data.frame() %>% 
-  mutate(origin = "svc")
-
-
-svc.pred_aghy_merged <- svc.pred_aghy_df %>% 
-  full_join(aghy_prism_diff_pred_df, by = c("geometry"))
-
-
-trend_df <- svc.pred_aghy_merged
-
-trend_df <- bind_rows(as_tibble(svc.pred[[1]]), as_tibble(svc.pred[[3]]), as_tibble(svc.pred[[2]]), .id = "column_label")
-
-# 
-# ggplot(data=trend_df)+
-#   geom_tile(aes(x = coords.x1, y = coords.x2, fill = mean))
-
-
-# pred_change_merge <- pred_ %>% 
-pred_change_merge <- trend_df  
-  left_join(prism_diff_pred_df) %>% 
-  filter(tmean_annual_cv_diff <25 & tmean_annual_cv_diff>-2) 
-distinct()  
-na.omit() %>% 
-  mutate(lat = as.numeric(lat), lon = as.numeric(lon)) 
-
-pred_change_merge_subsample <- pred_change_merge 
-  # group_by(species) %>% 
-  sample_n(size =200)
-
-ggplot(data=pred_change_merge_subsample)+
-  geom_tile(aes(x = lon, y = lat, fill = mean))
-
-pred_change_merge_long <- pred_change_merge_subsample %>% 
-  pivot_longer(cols = contains("_diff")) %>% 
-  filter(!grepl("sd", name)) %>% 
-  filter(!grepl("tmean_spring", name)) %>% 
-  filter(!grepl("tmean_summer", name)) %>% 
-  filter(!grepl("tmean_autumn", name)) 
-
-
-# Looking at the data
-ppt_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("ppt", name)&!grepl("cv", name) & !grepl("annual", name)))+
-  geom_point(aes(x = value, y = mean), alpha = .2)+
-  geom_smooth(aes(x = value, y = mean), color = "black", method = "lm")+
-  scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name, levels = c("ppt_spring_diff", "ppt_summer_diff", "ppt_autumn_diff")), labeller = as_labeller(c("ppt_spring_diff" = "Change in Spring Ppt.", "ppt_summer_diff" = "Change in Summer Ppt.", "ppt_autumn_diff" = "Change in Autumn Ppt.")), scales = "free", nrow = 3) +
-  theme(text = element_text(size = 8))+
+###### Making a map to show where the contemp predictions ###########
+contemp_map <- ggplot()+
+  geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
+  geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
+  geom_point(data = endo_herb, aes(x = lon, y = lat),shape = 4, alpha = .3, size = 1.2)+
+  geom_point(data = contemp_surveys, aes(x = lon, y = lat, color = SpeciesID))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  scale_color_manual(values = c(species_colors[1], species_colors[3]))+
   theme_light()+
-  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
-ppt_regression_plot
+  theme(legend.text = element_text(face = "italic"))+
+  labs(x = "Longitude", y = "Latitude", color = "Host Species")
+contemp_map
+ggsave(contemp_map, filename = "contemp_surveys_map.png", width = 7, height = 4)
 
 
-ggsave(ppt_regression_plot, filename = "ppt_regression_plot_ESA.png", height = 6, width = 4)
-
-
-ppt_CV_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("ppt", name)&grepl("cv", name) & !grepl("annual", name)))+
-  geom_point(aes(x = value, y = mean), alpha = .2)+
-  geom_smooth(aes(x = value, y = mean), color = "black", method = "lm")+
-  scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name, levels = c("ppt_spring_cv_diff", "ppt_summer_cv_diff", "ppt_autumn_cv_diff")), labeller = as_labeller(c("ppt_spring_cv_diff" = "Change in Spring Ppt. CV", "ppt_summer_cv_diff" = "Change in Summer Ppt. CV", "ppt_autumn_cv_diff" = "Change in Autumn Ppt. CV ")), scales = "free", nrow = 3) +
-  theme(strip.text = element_text(size = rel(400)))+
-  theme_light()+
-  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
-ppt_CV_regression_plot
-
-
-ggsave(ppt_CV_regression_plot, filename = "ppt_CV_regression_plot_ESA.png", height = 6, width = 4)
-
-
-tmean_regression_plot <- ggplot(filter(pred_change_merge_long, grepl("tmean", name)))+
-  geom_point(aes(x = value, y = mean), alpha = .2)+
-  geom_smooth(aes(x = value, y = mean), color = "black", method = "lm")+
-  scale_color_manual(values = species_colors) +
-  facet_wrap(~factor(name, levels = c("tmean_annual_diff", "tmean_annual_cv_diff")), labeller = as_labeller(c("tmean_annual_diff" = "Change in Annual Temp.", "tmean_annual_cv_diff" = "Change in Temp. CV ")),scales = "free", nrow = 3) +
-  theme(text = element_text(size = 4))+
-  theme_light()+
-  labs(y = "Trend in endophyte prevalence", x = expression("Change in mean temp. ("*degree*"C)"))
-tmean_regression_plot
-
-ggsave(tmean_regression_plot, filename = "tmean_regression_plot_ESA.png", height = 5, width = 4)
