@@ -150,7 +150,7 @@ collections_map <- ggplot()+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
 # collections_map
-ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
+# ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
 
 endo_status_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
@@ -165,7 +165,7 @@ endo_status_map <- ggplot()+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
 # endo_status_map
 
-ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
+# ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
 
 
 
@@ -302,7 +302,7 @@ mesh_plot <- ggplot() +
   coord_sf()+
   theme_bw() +
   labs(x = "", y = "")
-ggsave(mesh_plot, filename = "Plots/mesh_plot.png", width = 6, height = 6)
+# ggsave(mesh_plot, filename = "Plots/mesh_plot.png", width = 6, height = 6)
 
 # make spde
 # The priors from online tutorials are :   # P(practic.range < 0.05) = 0.01 # P(sigma > 1) = 0.01
@@ -757,6 +757,10 @@ saveRDS(svc.pred_aghy, file = "svc.pred_aghy.Rds")
 saveRDS(svc.pred_agpe, file = "svc.pred_agpe.Rds")
 saveRDS(svc.pred_elvi, file = "svc.pred_elvi.Rds")
 
+svc.pred_aghy <- readRDS(file = "svc.pred_aghy.Rds")
+svc.pred_agpe <- readRDS(file = "svc.pred_agpe.Rds")
+svc.pred_elvi <- readRDS(file = "svc.pred_elvi.Rds")
+
 
 
 # make a base map
@@ -789,7 +793,7 @@ svc_time_map_AGHY <- ggplot()+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[1], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_AGHY
 
 
@@ -801,7 +805,7 @@ svc_time_map_AGPE <- ggplot()+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_AGPE
 
 
@@ -813,13 +817,13 @@ svc_time_map_ELVI <- ggplot()+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
   labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_ELVI
 
 
 
 svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
-ggsave(svc_time_map, filename = "svc_time_map.png")
+ggsave(svc_time_map, filename = "Plots/svc_time_map.png", width = 15, height = 5)
 
 
 
@@ -836,7 +840,7 @@ svc_time_map_AGHY.CI <- ggplot()+
   scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent", limits = trendrange.CI)+
   labs(title = species_names[1], y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_AGHY.CI
 
 
@@ -848,7 +852,7 @@ svc_time_map_AGPE.CI <- ggplot()+
   scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent",  limits = trendrange.CI)+
   labs(title = species_names[2], y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_AGPE.CI
 
 
@@ -860,138 +864,19 @@ svc_time_map_ELVI.CI <- ggplot()+
   scale_fill_gradient(low = "white", high = "deeppink4", na.value = "transparent",  limits = trendrange.CI)+
   labs(title = species_names[3], y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.title = element_text(face = "italic"))
+  theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
 # svc_time_map_ELVI.CI
 
 
 
 svc_time_map.CI <- svc_time_map_AGHY.CI + svc_time_map_AGPE.CI + svc_time_map_ELVI.CI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
-ggsave(svc_time_map.CI, filename = "svc_time_map.CI.png")
+ggsave(svc_time_map.CI, filename = "Plots/svc_time_map.CI.png", width = 15, height = 5)
 
 
 
 
 
 
-
-
-### Now making a plot of the uncertainty range
-
-
-
-
-
-
-for (s in 1:3){
-  vrt <- NA
-  data <- endo_herb_list[[s]]
-  mesh <- mesh_list[[s]]
-  bdry_polygon <- bdry_polygon_list[[s]]
-  
-  vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
-  
-  vrt@data <- data.frame(std_year = rep(mean(data$std_year), length.out = length(vrt)),
-                         spp_code = rep(species_codes[s], length.out = length(vrt)),
-                         species = rep(species_names[s], length.out = length(vrt)))
-  
-  # vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
-  
-  
-  ggplot()+
-    gg(mesh)+
-    gg(vrt, color = "red")
-  
-  
-  
-  svc.pred[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$svc_fit, 
-                           vrt, 
-                           formula = ~ (exp(time.slope)-1)*100)
-  
-}
-
-# make a base map
-world_map <- st_as_sf(maps::map("world", plot = FALSE, fill = TRUE)) %>%
-  st_transform(epsg6703km)
-states_map <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
-  st_transform(epsg6703km)
-
-
-
-
-
-
-dim(vrt)
-# dim(svc.pred$prev)
-# 
-# dim(svc.pred$space_pred)
-dim(svc.pred[[1]])
-
-# ggplot()+
-#   gg(svc.pred$prev, aes(fill = mean))+
-#   scale_fill_viridis_c(option = "plasma", na.value = "transparent", begin = 0, end = 1)
-# 
-# 
-# ggplot()+
-#   gg(svc.pred$space_pred, aes(fill = mean))+
-#   scale_fill_viridis_c(option = "turbo", na.value = "transparent")
-# SEtting a common color scale across
-
-
-
-
-
-min_trend <- max(max(svc.pred[[1]]$mean),max(svc.pred[[2]]$mean), max(svc.pred[[3]]$mean))
-
-max_trend <- min(min(svc.pred[[1]]$mean),min(svc.pred[[2]]$mean),min(svc.pred[[3]]$mean))
-
-trendrange <- range(svc.pred[[1]]$mean, svc.pred[[2]]$mean, svc.pred[[3]]$mean)
-
-
-space_x <- range(svc.pred[[1]]@coords[,1], svc.pred[[2]]@coords[,1], svc.pred[[3]]@coords[,1])
-space_y <- range(svc.pred[[1]]@coords[,2], svc.pred[[2]]@coords[,2], svc.pred[[3]]@coords[,2])
-
-
-svc_time_map_AGHY <- ggplot()+
-  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  coord_sf(xlim = space_x, ylim = space_y)+
-  gg(svc.pred[[1]], aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[1], fill = "% change/year", y = "Latitude", x = "Longitude")+
-  theme_light()+
-  theme(plot.title = element_text(face = "italic"))
-# svc_time_map_AGHY
-
-svc_time_map_AGPE<- ggplot()+
-  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred[[2]], aes(fill = mean))+
-  coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
-  theme_light()+
-  theme(plot.title = element_text(face = "italic"))
-
-
-# svc_time_map_AGPE
-
-
-svc_time_map_ELVI<- ggplot()+
-  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred[[3]], aes(fill = mean))+
-  coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
-  theme_light()+
-  theme(plot.title = element_text(face = "italic"))
-# svc_time_map_ELVI
-
-
-
-svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI +
-  plot_layout(ncol = 1, guides = 'collect') + plot_annotation(tag_levels = "A")
-ggsave(svc_time_map, filename = "svc_time_map.png", width = 6, height = 12)
 
 
 
