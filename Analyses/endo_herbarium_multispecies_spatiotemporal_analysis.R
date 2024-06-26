@@ -414,8 +414,8 @@ validation.pred1 <- predict(
   formula = ~ invlogit(int.species1 + year.species1 + 
                          space +  space.species1 + 
                          time.species1 + 
-                         herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                         scorer_eval(scorer_index) + collector_eval(scorer_index)),
+  n.samples = 100) 
 
 validation.pred2 <- predict(
   fit,
@@ -423,8 +423,8 @@ validation.pred2 <- predict(
   formula = ~ invlogit(int.species2 + year.species2 + 
                          space + space.species3 + 
                          time.species2 + 
-                         herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                         scorer_eval(scorer_index) + collector_eval(scorer_index)),
+  n.samples = 100) 
 
 validation.pred3 <- predict(
   fit,
@@ -432,19 +432,20 @@ validation.pred3 <- predict(
   formula = ~ invlogit(int.species3 + year.species3 +
                          space + space.species3 + 
                          time.species3 +
-                         herbarium_eval(herbarium_index) + scorer_eval(scorer_index) + collector_eval(scorer_index)),
-  n.samples = 500) 
+                         scorer_eval(scorer_index) + collector_eval(scorer_index)),
+  n.samples = 100) 
 
 validation.pred <- bind_rows(tibble(validation.pred1), tibble(validation.pred2), tibble(validation.pred3)) %>% 
   arrange(row_number)
 
 rocobj <- pROC::roc(endo_herb$Endo_status_liberal, validation.pred$mean)
 
-ggroc(rocobj) 
-
+ROC_training_plot <- ggroc(rocobj) 
+ggsave(ROC_training_plot, filename = "Plots/ROC_training_plot.png", width = 4, height = 4)
 
 # AUC values
 rocobj$auc
+# 0.7892
 
 
 # Taking alot of material from this blog post: https://inlabru-org.github.io/inlabru/articles/2d_lgcp_covars.html
@@ -502,6 +503,7 @@ year.pred.aghy <- predict(
   fit,
   newdata = preddata[preddata$species_index == 1,],
   formula = ~ invlogit(int.species1 + year.species1 + scorer_eval(scorer_index) + collector_eval(collector_index)),
+  probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
   n.samples = 100) %>% 
   mutate(year = std_year + mean_year)
 
@@ -509,6 +511,7 @@ year.pred.agpe <- predict(
   fit,
   newdata = preddata[preddata$species_index == 2,],
   formula = ~ invlogit(int.species2 + year.species2 + scorer_eval(scorer_index) + collector_eval(collector_index)),
+  probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
   n.samples = 100) %>% 
   mutate(year = std_year + mean_year)
 
@@ -516,6 +519,7 @@ year.pred.elvi <- predict(
   fit,
   newdata = preddata[preddata$species_index == 3,],
   formula = ~ invlogit(int.species3 + year.species3 + scorer_eval(scorer_index) + collector_eval(collector_index)),
+  probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
   n.samples = 100) %>% 
   mutate(year = std_year + mean_year)
 
@@ -543,16 +547,17 @@ year_trend <- ggplot(year.pred) +
   geom_point(data = endo_herb_binned, aes(x = mean_year, y = mean_endo, size = sample, color = species))+
   geom_line(aes(year, mean)) +
   geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
-  geom_ribbon(aes(year, ymin = mean - 1 * sd, ymax = mean + 1 * sd), alpha = 0.2) +
+  geom_ribbon(aes(year, ymin = q0.25, ymax = q0.75), alpha = 0.2) +
   facet_wrap(~species)+
   scale_color_manual(values = species_colors)+
   labs(y = "Endophyte Prevalence", x = "Year", color = "Species", size = "Sample Size")+
   theme_light()+
   theme(strip.background = element_blank(),
-        legend.text = element_text(face = "italic"))+
+        legend.text = element_text(face = "italic"),
+        plot.margin = unit(c(0,.1,.1,.1), "line"))+
   lims(y = c(0,1))
 
-year_trend
+# year_trend
 
 
 # Making a histogram of the data
@@ -563,24 +568,26 @@ year_hist <- ggplot()+
   facet_wrap(~species)+
   theme_classic()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(face = "italic"))+
-  theme(axis.line = element_blank(),
+        strip.text = element_text(face = "italic"),
+        axis.line = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.title.x = element_blank())+
+        axis.ticks.length.x = unit(0,'lines'),
+        axis.title.x = element_blank(),
+        plot.margin = unit(c(0,1,0,1), "line"))+
   labs(y = "# of Specimens")+
   guides(fill = "none")
-year_hist
+# year_hist
 
 
 
 
 
-year_plot <- year_hist + year_trend + 
-  plot_layout(ncol = 1, heights = c(1,2)) + plot_annotation(tag_levels = "A")
+year_plot <- year_hist/year_trend +
+ plot_layout(ncol = 1, heights = c(1, 2))+ plot_annotation(tag_levels = "A") &   theme(plot.tag.position = c(-0, .96))
 
 year_plot
-ggsave(year_plot, filename = "year_plot.png", width = 7, height = 5)
+ggsave(year_plot, filename = "Plots/year_plot.png", width = 7, height = 5)
 
 
 
@@ -592,7 +599,7 @@ format <- theme(panel.grid.minor = element_line(linewidth = 0.1, linetype = 'das
                 title = element_text(size = rel(.4)),
                 plot.margin = unit(c(.1,.1,.1,.1), "cm"))
 
-int_aghy <- plot(fit, "int.species1")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[1], y = "Probability Density", x = "Intercept")
+int_aghy <- plot(fit, "int.species1", size = 10)+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[1], color = species_colors[1], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[1], y = "Probability Density", x = "Intercept")
 int_agpe <- plot(fit, "int.species2")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[2], color = species_colors[2], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[2], y = "Probability Density", x = "Intercept")
 int_elvi <- plot(fit, "int.species3")+ lims(x = c(-4.4,4)) + geom_vline(xintercept = fit$summary.fixed$mean[3], color = species_colors[3], linewidth = .5) + geom_vline(xintercept = 0) + theme_classic() + format+ labs(title = species_names[3], y = "Probability Density", x = "Intercept")
 int_posterior <- int_aghy + int_agpe + int_elvi + plot_layout(ncol = 1, axis_titles = "collect")
@@ -615,23 +622,20 @@ year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B",
 
 posterior_plot <- wrap_elements(int_posterior_wrap)|wrap_elements(year_posterior_wrap)
 # posterior_plot
-ggsave(posterior_plot, filename = "posterior_plot.png", width = 4.5, height = 3.5)
+ggsave(posterior_plot, filename = "Plots/posterior_plot.png", width = 6, height = 5)
 
 
 ################################################################################################################################
 ##########  Plotting the posteriors of scorer and collector effects ###############
 ################################################################################################################################
-hlist <- vector("list", NROW(fit$summary.random$herbarium))
-for (i in seq_along(hlist)) hlist[[i]] <- plot(fit, "herbarium", index = i) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = hlist, cols = 3)
-
-
-
+random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
 
 slist <- vector("list", NROW(fit$summary.random$scorer))
 for (i in seq_along(slist)) slist[[i]] <- plot(fit, "scorer", index = i) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = slist, cols = 3)
-
+multiplot(plotlist = slist, cols = 5)
+pdf(file = "Plots/scorer_posterior_plot.pdf",  width = 8, height = 12)
+multiplot(plotlist = slist, cols = 5)
+dev.off()
 
 
 random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
@@ -639,7 +643,9 @@ random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
 clist <- vector("list", NROW(random_collectors))
 for (i in 1:length(random_collectors)) clist[[i]] <- plot(fit, "collector", index = random_collectors[i]) + lims(x = c(-.1,.1))
 multiplot(plotlist = clist, cols = 3)
-
+pdf(file = "Plots/collector_posterior_plot.pdf",  width = 8, height = 12)
+multiplot(plotlist = clist, cols = 3)
+dev.off()
 
 plot(fit, "scorer")
 plot(fit, "collector")
@@ -715,9 +721,9 @@ vrt_agpe <- readRDS(file = "agpe_distribution_df.rds")
 vrt_elvi <- readRDS(file = "elvi_distribution_df.rds")
 
 
-ggplot()+
-  gg(mesh)+
-  gg(vrt_aghy, color = "red")
+# ggplot()+
+#   gg(mesh)+
+#   gg(vrt_aghy, color = "red")
 
 
 vrt_aghy@data <- expand.grid(std_year = rep(1, length.out = length(vrt_aghy)),
