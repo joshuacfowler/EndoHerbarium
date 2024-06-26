@@ -874,30 +874,6 @@ ggsave(svc_time_map.CI, filename = "Plots/svc_time_map.CI.png", width = 15, heig
 
 
 
-
-
-
-
-
-
-#########
-######### Trying to get weighted spatial posterior #####
-#########
-
-
-LambdaE <- predict(
-  svc.fit,
-  fm_int(mesh, bdry),
-  ~ sum(weight * space.int)
-)
-LambdaE
-
-
-
-icpt <- predict(svc.fit, NULL, ~ c(space_int= space.int_latent))
-plot(icpt)
-
-
 ################################################################################################################################
 ##########  Plotting the spatial Intercepts ###############
 ################################################################################################################################
@@ -1050,8 +1026,10 @@ contemp_lon <- ggplot(contemp.pred)+
   geom_linerange(aes(x = lon, ymin = `q0.025`, ymax = `q0.975`, color = species), alpha = .8)+
   geom_point(aes(x = lon, y = mean), shape = 4) + 
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  guides(color = "none")+
   ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Longitude", color = "Species", size = "Sample Size")+
-  facet_wrap(~species) + theme_classic()
+  facet_wrap(~species) + theme_classic()+ theme(strip.background = element_blank(),
+                                                strip.text = element_text(size = rel(1.2)))
 # contemp_lon
 
 
@@ -1062,8 +1040,10 @@ contemp_lat <- ggplot(contemp.pred)+
   geom_linerange(aes(x = lat, ymin = `q0.025`, ymax = `q0.975`, color = species))+
   geom_point(aes(x = lat, y = mean), shape = 4) +
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  guides(color = "none")+
   ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Latitude",  color = "Species", size = "Sample Size")+
-  facet_wrap(~species) + theme_classic()
+  facet_wrap(~species) + theme_classic() + theme(strip.background = element_blank(),
+                                                 strip.text = element_blank())
 # contemp_lat
 
 contemp_obspred <- ggplot(contemp.pred)+
@@ -1072,27 +1052,29 @@ contemp_obspred <- ggplot(contemp.pred)+
   geom_point(aes(x = mean, y = endo_prev), shape = 4)+
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
   lims(x = c(0,1), y = c(0,1)) + labs(y = "Observed", x = "Predicted",  color = "Species")+
-  facet_wrap(~species) + theme_classic()
+  facet_wrap(~species) + theme_classic()+ theme(strip.background = element_blank(),
+                                                strip.text = element_blank())
 # contemp_obspred
 
 
 
-contemp_test_plot <- contemp_obspred + contemp_lon + contemp_lat+
+contemp_test_plot <- contemp_lon + contemp_lat+contemp_obspred +
   plot_layout(ncol = 1, guides = "collect") + plot_annotation(tag_levels = "A")
 contemp_test_plot
-ggsave(contemp_test_plot, filename = "contemp_test_plot.png", width = 10, height = 4)
+ggsave(contemp_test_plot, filename = "Plots/contemp_test_plot.png", width = 10, height = 10)
 ###
 
 # now looking at the ROC and AUC values for the contemporary dataset choosing only one plant from each population
 # however we only have this information for AGHY
 rocobj <- pROC::roc(contemp_random_sample$endo_status, contemp.pred.aghy$mean)
 
-ggroc(rocobj) 
+ROC_test_plot <- ggroc(rocobj) 
+ggsave(ROC_test_plot, filename = "Plots/ROC_test_plot.png", width = 4, height = 4)
 
 
 # AUC values
 rocobj$auc
-
+#0.7463
 
 
 
