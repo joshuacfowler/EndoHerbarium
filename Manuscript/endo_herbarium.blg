@@ -1,75 +1,73 @@
-This is BibTeX, Version 0.99d
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: endo_herbarium.aux
-Reallocating 'name_of_file' (item size: 1) to 9 items.
 The style file: plainnat.bst
-Reallocating 'name_of_file' (item size: 1) to 15 items.
 Database file #1: endo_herbarium.bib
 Repeated entry---line 288 of file endo_herbarium.bib
  : @article{fine1975vectors
  :                         ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 854 of file endo_herbarium.bib
+Repeated entry---line 861 of file endo_herbarium.bib
  : @article{afkhami2012fungal
  :                           ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1060 of file endo_herbarium.bib
+Repeated entry---line 1067 of file endo_herbarium.bib
  : @article{brem2001epichloe
  :                          ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1238 of file endo_herbarium.bib
+Repeated entry---line 1245 of file endo_herbarium.bib
  : @article{aitken2008adaptation
  :                              ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1282 of file endo_herbarium.bib
+Repeated entry---line 1289 of file endo_herbarium.bib
  : @article{hillerislambers2013will
  :                                 ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1509 of file endo_herbarium.bib
+Repeated entry---line 1516 of file endo_herbarium.bib
  : @article{kazenel2015mutualistic
  :                                ,
 I'm skipping whatever remains of this entry
 Warning--I didn't find a database entry for ""
 Warning--empty journal in Rprism2015
-You've used 90 entries,
+You've used 96 entries,
             2773 wiz_defined-function locations,
-            1128 strings with 25723 characters,
-and the built_in function-call counts, 52289 in all, are:
-= -- 4497
-> -- 3994
-< -- 24
-+ -- 1338
-- -- 1248
-* -- 4942
-:= -- 8212
-add.period$ -- 277
-call.type$ -- 90
-change.case$ -- 680
-chr.to.int$ -- 90
-cite$ -- 181
-duplicate$ -- 1885
-empty$ -- 3633
-format.name$ -- 1366
-if$ -- 10607
+            1160 strings with 26955 characters,
+and the built_in function-call counts, 55547 in all, are:
+= -- 4783
+> -- 4217
+< -- 26
++ -- 1413
+- -- 1317
+* -- 5247
+:= -- 8718
+add.period$ -- 295
+call.type$ -- 96
+change.case$ -- 721
+chr.to.int$ -- 96
+cite$ -- 193
+duplicate$ -- 2009
+empty$ -- 3877
+format.name$ -- 1443
+if$ -- 11271
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 88
-newline$ -- 463
-num.names$ -- 360
-pop$ -- 1210
+missing$ -- 94
+newline$ -- 493
+num.names$ -- 384
+pop$ -- 1281
 preamble$ -- 1
-purify$ -- 590
+purify$ -- 625
 quote$ -- 0
-skip$ -- 1552
+skip$ -- 1649
 stack$ -- 0
-substring$ -- 2242
-swap$ -- 111
+substring$ -- 2400
+swap$ -- 117
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 990
+type$ -- 1056
 warning$ -- 1
-while$ -- 428
+while$ -- 457
 width$ -- 0
-write$ -- 1184
+write$ -- 1262
 (There were 6 error messages)

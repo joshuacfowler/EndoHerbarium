@@ -1,4 +1,4 @@
-\begin{thebibliography}{90}
+\begin{thebibliography}{96}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -147,6 +147,15 @@ Kerri~M Crawford, John~M Land, and Jennifer~A Rudgers.
   preference and performance.
 \newblock \emph{Oecologia}, 164:\penalty0 431--444, 2010.
 
+\bibitem[Crossley et~al.(2022)Crossley, Meehan, Moran, Glassberg, Snyder, and
+  Davis]{crossley2022opposing}
+Michael~S Crossley, Timothy~D Meehan, Matthew~D Moran, Jeffrey Glassberg,
+  William~E Snyder, and Andrew~K Davis.
+\newblock Opposing global change drivers counterbalance trends in breeding
+  north american monarch butterflies.
+\newblock \emph{Global change biology}, 28\penalty0 (15):\penalty0 4726--4735,
+  2022.
+
 \bibitem[Daly and Bryant(2013)]{daly2013prism}
 Christopher Daly and Kirk Bryant.
 \newblock The prism climate and weather system—an introduction.
@@ -252,6 +261,14 @@ Paul~EM Fine.
 \newblock \emph{Annals of the New York Academy of Sciences}, 266\penalty0
   (1):\penalty0 173--194, 1975.
 
+\bibitem[Fowler et~al.(2024)Fowler, Ziegler, Whitney, Rudgers, and
+  Miller]{fowler2024microbial}
+Joshua~C Fowler, Shaun Ziegler, Kenneth~D Whitney, Jennifer~A Rudgers, and
+  Tom~EX Miller.
+\newblock Microbial symbionts buffer hosts from the demographic costs of
+  environmental stochasticity.
+\newblock \emph{Ecology Letters}, 27\penalty0 (5):\penalty0 e14438, 2024.
+
 \bibitem[Frade et~al.(2008)Frade, De~Jongh, Vermeulen, Van~Bleijswijk, and
   Bak]{frade2008variation}
 PR~Frade, F~De~Jongh, F~Vermeulen, J~Van~Bleijswijk, and RPM Bak.
@@ -299,6 +316,20 @@ J~Mason Heberling and David~J Burke.
 \newblock \emph{Applications in plant sciences}, 7\penalty0 (4):\penalty0
   e01223, 2019.
 
+\bibitem[Hijmans and Graham(2006)]{hijmans2006ability}
+Robert~J Hijmans and Catherine~H Graham.
+\newblock The ability of climate envelope models to predict the effect of
+  climate change on species distributions.
+\newblock \emph{Global change biology}, 12\penalty0 (12):\penalty0 2272--2281,
+  2006.
+
+\bibitem[Hijmans et~al.(2017)Hijmans, Phillips, Leathwick, Elith, and
+  Hijmans]{hijmans2017package}
+Robert~J Hijmans, Steven Phillips, John Leathwick, Jane Elith, and Maintainer
+  Robert~J Hijmans.
+\newblock Package ‘dismo’.
+\newblock \emph{Circles}, 9\penalty0 (1):\penalty0 1--68, 2017.
+
 \bibitem[HilleRisLambers et~al.(2013)HilleRisLambers, Harsch, Ettinger, Ford,
   and Theobald]{hillerislambers2013will}
 Janneke HilleRisLambers, Melanie~A Harsch, Ailene~K Ettinger, Kevin~R Ford, and
@@ -321,6 +352,13 @@ Nick~JB Isaac, Marta~A Jarzyna, Petr Keil, Lea~I Dambly, Philipp~H
 \newblock Data integration for large-scale models of species distributions.
 \newblock \emph{Trends in ecology \& evolution}, 35\penalty0 (1):\penalty0
   56--67, 2020.
+
+\bibitem[Jim{\'e}nez-Valverde(2012)]{jimenez2012insights}
+Alberto Jim{\'e}nez-Valverde.
+\newblock Insights into the area under the receiver operating characteristic
+  curve (auc) as a discrimination measure in species distribution modelling.
+\newblock \emph{Global Ecology and Biogeography}, 21\penalty0 (4):\penalty0
+  498--507, 2012.
 
 \bibitem[Kahle et~al.(2019)Kahle, Wickham, and Kahle]{kahle2019package}
 David Kahle, Hadley Wickham, and Maintainer~David Kahle.
@@ -381,6 +419,12 @@ Finn Lindgren, H{\aa}vard Rue, and Johan Lindstr{\"o}m.
   fields: the stochastic partial differential equation approach.
 \newblock \emph{Journal of the Royal Statistical Society: Series B (Statistical
   Methodology)}, 73\penalty0 (4):\penalty0 423--498, 2011.
+
+\bibitem[Liu et~al.(2005)Liu, Berry, Dawson, and Pearson]{liu2005selecting}
+Canran Liu, Pam~M Berry, Terence~P Dawson, and Richard~G Pearson.
+\newblock Selecting thresholds of occurrence in the prediction of species
+  distributions.
+\newblock \emph{Ecography}, 28\penalty0 (3):\penalty0 385--393, 2005.
 
 \bibitem[McFall-Ngai et~al.(2013)McFall-Ngai, Hadfield, Bosch, Carey,
   Domazet-Lo{\v{s}}o, Douglas, Dubilier, Eberl, Fukami, Gilbert,
