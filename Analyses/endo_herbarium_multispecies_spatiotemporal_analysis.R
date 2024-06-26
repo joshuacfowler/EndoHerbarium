@@ -150,7 +150,7 @@ collections_map <- ggplot()+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
 # collections_map
-# ggsave(collections_map, filename = "collections_map.png", width = 7, height = 4)
+ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
 
 endo_status_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
@@ -165,7 +165,7 @@ endo_status_map <- ggplot()+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
 # endo_status_map
 
-# ggsave(endo_status_map, filename = "endo_status_map.png", width = 10, height = 5)
+ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
 
 
 
@@ -296,13 +296,13 @@ mesh <- fm_mesh_2d_inla(
 # plot(mesh)
 
 
-ggplot() +
+mesh_plot <- ggplot() +
   gg(data = mesh) +
   geom_point(data = data, aes(x = easting, y = northing, col = species), size = 1) +
   coord_sf()+
   theme_bw() +
   labs(x = "", y = "")
-
+ggsave(mesh_plot, filename = "Plots/mesh_plot.png", width = 6, height = 6)
 
 # make spde
 # The priors from online tutorials are :   # P(practic.range < 0.05) = 0.01 # P(sigma > 1) = 0.01
@@ -393,167 +393,6 @@ fit$summary.fixed
 fit$summary.random
 
 
-
-
-
-
-df <- data.frame(year = 0, species_index= 1)
-
-space.int.post <- generate(svc.fit,df, formula = ~space.int, n.samples = 10)
-
-
-inla.posterior.sample(svc.fit)
-
-evaluate_model(svc.fit, state = list(species_index = 1))
-
-
-bc <- bincount(result = year.fit,
-               observations = endo_herb,
-               breaks = seq(0,max(coords[,2]), length = 12),
-               predictor = (Endo_status_liberal ~ invlogit(fixed_effects)))
-
-ipoints()
-
-ips <- fm_int(domain = list(coordinates = mesh, species_index = 1))
-names(svc.fit$marginals.random)
-
-plot(year.fit, "scorer", index = 1)
-icpt <- predict(year.fit, NULL, ~ c(fixed_effects = fixed_effects_latent))
-plot(icpt)
-
-slist <- vector("list", NROW(year.fit$summary.random$scorer))
-for (i in seq_along(slist)) slist[[i]] <- plot(year.fit, "scorer", index = i) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = slist, cols = 3)
-
-slist <- vector("list", NROW(year.fit$summary.random$fixed_effects))
-for (i in seq_along(slist)) slist[[i]] <- plot(year.fit, "fixed_effects", index = i) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = slist, cols = 3)
-
-
-flist <- vector("list", NROW(svc.fit$summary.fixed))
-for (i in seq_along(flist)) flist[[i]] <- plot(svc.fit, rownames(svc.fit$summary.fixed)[i]) + lims(x = c(-2.5,2.5))
-multiplot(plotlist = flist, cols = 3)
-
-plot(spde.posterior(svc.fit, "space.int", "range"))
-plot(spde.posterior(svc.fit, "space.int", "variance"))
-
-plot(spde.posterior(svc.fit, "time.slope", "range"))
-plot(spde.posterior(svc.fit, "time.slope", "variance"))
-
-
-
-# generate integration points to calculate overall posterior for spde represent weighted average
-iset <- inla.spde.make.index('i', n.spde = spde$n.spde,
-                             n.group = k)
-ips <- fm_int(domain = list( coordinates = mesh), samplers = bdry_polygon)
-
-
-year.pred <- predict(
-  svc.fit,
-  newdata = data.frame(species_index = 2, std_year = seq(1:10)),
-  formula = ~ invlogit(Intercept + space.int_latent + time.slope_latent)
-)
-
-ggplot(year.pred)+
-  geom_histogram(aes(x = mean))
-geom_line(aes(x = std_year, y = mean))
-
-
-nsamp <- 100
-df <- data.frame(species_index = 2, std_year = rep(1, length.out = nsamp))
-smp <- generate(svc.fit, df, ~ data.frame(Intercept), n.samples = nsamp)
-
-df$samp <- unlist(smp)
-
-plot(df$std_year, df$samp, type = "p")
-hist(df$samp)
-
-
-
-nsamp <- 100
-df <- data.frame(species_index = 2, std_year = rep(1, length.out = nsamp))
-smp <- generate(svc.fit, df, ~ data.frame(time.slope), n.samples = nsamp)
-
-df$samp <- unlist(smp)
-
-plot(df$std_year, df$samp, type = "p")
-hist(df$samp)
-
-
-ppxl <- fm_pixels(mesh, format = "sp")
-ppxl_all <- fm_cprod(ppxl, data.frame(std_year = seq(1,100,length.out = 10)))
-
-
-
-
-lambda1 <- predict(
-  svc.fit,
-  ppxl_all,
-  ~ data.frame(std_year = time.slope)
-)
-
-
-
-fit.list <- list(year_fit = year.fit, svc_fit = svc.fit)
-
-fit_lists[[species_codes[s]]] <- list(fit.list)
-
-mesh_list[[s]] <- mesh
-bdry_polygon_list[[s]] <- bdry_polygon
-
-}
-
-
-saveRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists_withscorer.Rds")
-
-saveRDS(mesh_list, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_list_withscorer.Rds")
-saveRDS(bdry_polygon_list, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/boundary_polygon_list.Rds")
-
-fit_lists_withoutscorer <- readRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists.Rds")
-
-
-fit_lists <- readRDS(fit_lists, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/fit_lists_withscorer.Rds")
-mesh_list <- readRDS( file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/mesh_list_withscorer.Rds")
-bdry_polygon_list <- readRDS( file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/Model_Output/boundary_polygon_list.Rds")
-
-
-fit_lists$AGHY[[1]]$year_fit$dic$dic
-fit_lists$AGHY[[1]]$svc_fit$dic$dic
-
-fit_lists$AGPE[[1]]$year_fit$dic$dic
-fit_lists$AGPE[[1]]$svc_fit$dic$dic
-
-fit_lists$ELVI[[1]]$year_fit$dic$dic
-fit_lists$ELVI[[1]]$svc_fit$dic$dic
-
-
-fit_lists_withoutscorer$AGHY[[1]]$year_fit$dic$dic
-fit_lists_withoutscorer$AGHY[[1]]$svc_fit$dic$dic
-
-fit_lists_withoutscorer$AGPE[[1]]$year_fit$dic$dic
-fit_lists_withoutscorer$AGPE[[1]]$svc_fit$dic$dic
-
-fit_lists_withoutscorer$ELVI[[1]]$year_fit$dic$dic
-fit_lists_withoutscorer$ELVI[[1]]$svc_fit$dic$dic
-
-
-fit_lists$AGHY[[1]]$year_fit$mode$mode.status
-fit_lists$AGHY[[1]]$svc_fit$mode$mode.status
-
-fit_lists$AGPE[[1]]$year_fit$mode$mode.status
-fit_lists$AGPE[[1]]$svc_fit$mode$mode.status
-
-fit_lists$ELVI[[1]]$year_fit$mode$mode.status
-fit_lists$ELVI[[1]]$svc_fit$mode$mode.status
-
-# 
-# fit$summary.fixed
-# fit$summary.random
-# 
-# fit$summary.hyperpar
-
-
-
 ################################################################################################################################
 ##########  Assessing model fit     ###############
 ################################################################################################################################
@@ -610,7 +449,7 @@ rocobj$auc
 
 # Taking alot of material from this blog post: https://inlabru-org.github.io/inlabru/articles/2d_lgcp_covars.html
 
-# plotting the spde range and sd posteriors
+########## plotting the spde range and sd posteriors ################
 spde.range <- spde.posterior(fit, "space", what = "range")
 spde.var <- spde.posterior(fit, "space", what = "variance")
 
