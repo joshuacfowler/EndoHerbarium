@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  26 JUN 2024 19:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  27 JUN 2024 12:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -163,6 +163,13 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
 LaTeX Info: Redefining \[ on input line 2817.
 LaTeX Info: Redefining \] on input line 2818.
 )
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2017/04/05 v2.0i Standard LaTeX package
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1enc.def
+File: t1enc.def 2017/04/05 v2.0i Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+))
 (/usr/local/texlive/2018/texmf-dist/tex/latex/titlesec/block.tss
 File: block.tss 2016/03/15
 )
@@ -187,28 +194,24 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 
 LaTeX Warning: Label `eq:trends' multiply defined.
 
-
-LaTeX Warning: Label `eq:trends' multiply defined.
-
 )
 \openout1 = `endo_herbarium.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Try loading font information for OT1+pplx on input line 61.
-
- (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1pplx.fd
-File: ot1pplx.fd 2004/09/06 font definitions for OT1/pplx.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Try loading font information for T1+pplx on input line 63.
+ (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/t1pplx.fd
+File: t1pplx.fd 2004/09/06 font definitions for T1/pplx.
 )
 (/usr/local/texlive/2018/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -279,25 +282,36 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for OML+zplm on input line 63.
+LaTeX Font Info:    Try loading font information for T1+cmss on input line 65.
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmss.fd
+File: t1cmss.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Try loading font information for OT1+pplx on input line 65.
+
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1pplx.fd
+File: ot1pplx.fd 2004/09/06 font definitions for OT1/pplx.
+)
+LaTeX Font Info:    Try loading font information for OML+zplm on input line 65.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMS+zplm on input line 63.
+LaTeX Font Info:    Try loading font information for OMS+zplm on input line 65.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMX+zplm on input line 63.
+LaTeX Font Info:    Try loading font information for OMX+zplm on input line 65.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Try loading font information for OT1+zplm on input line 63.
+LaTeX Font Info:    Try loading font information for OT1+zplm on input line 65.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1zplm.fd
@@ -305,85 +319,76 @@ File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 ) [1
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Font shape `OT1/pplx/bx/n' in size <14.4> not available
-(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 92.
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <14.4> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 94.
  [2] [3] [4]
-[5] [6]
-Overfull \hbox (0.49138pt too wide) in paragraph at lines 188--199
-\OT1/pplx/m/n/10.95 with a 10% NaOH so-lu-tion, then stained the seeds with ani
--line blue-lactic acid stain and squashed
+[5] [6] [7]
+Overfull \hbox (0.49138pt too wide) in paragraph at lines 193--204
+\T1/pplx/m/n/10.95 with a 10% NaOH so-lu-tion, then stained the seeds with ani-
+line blue-lactic acid stain and squashed
  []
 
-[7]
-<collections_map.png, id=30, 505.89pt x 289.08pt>
-File: collections_map.png Graphic file (type png)
-<use collections_map.png>
-Package pdftex.def Info: collections_map.png  used on input line 202.
+<../Plots/collections_map.png, id=30, 505.89pt x 289.08pt>
+File: ../Plots/collections_map.png Graphic file (type png)
+<use ../Plots/collections_map.png>
+Package pdftex.def Info: ../Plots/collections_map.png  used on input line 207.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
-LaTeX Font Info:    Font shape `OT1/pplx/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/pplx/b/n' tried instead on input line 203.
-LaTeX Font Info:    Font shape `OT1/pplx/bx/it' in size <10.95> not available
-(Font)              Font shape `OT1/pplx/b/it' tried instead on input line 203.
-
-
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 208.
+LaTeX Font Info:    Font shape `T1/pplx/bx/it' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/it' tried instead on input line 208.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[8] [9 <./collections_map.png>]
-Overfull \hbox (27.13887pt too wide) in paragraph at lines 230--234
-[]\OT1/pplx/m/n/10.95 First, to quan-tify global trends in en-do-phyte preva-le
-nce, we mod-eled en-do-phyte pres-ence/absences
- []
-
-[10] [11] [12] [13] [14]
-<year_plot.png, id=57, 505.89pt x 361.35pt>
-File: year_plot.png Graphic file (type png)
-<use year_plot.png>
-Package pdftex.def Info: year_plot.png  used on input line 330.
+[8] [9 <../Plots/collections_map.png>] [10] [11] [12] [13] [14]
+<../Plots/year_plot.png, id=57, 505.89pt x 361.35pt>
+File: ../Plots/year_plot.png Graphic file (type png)
+<use ../Plots/year_plot.png>
+Package pdftex.def Info: ../Plots/year_plot.png  used on input line 335.
 (pdftex.def)             Requested size: 469.75502pt x 335.54477pt.
- [15] [16 <./year_plot.png>]
+ [15] [16 <../Plots/year_plot.png>]
 <svc_time_map.png, id=64, 433.62pt x 867.24pt>
 File: svc_time_map.png Graphic file (type png)
 <use svc_time_map.png>
-Package pdftex.def Info: svc_time_map.png  used on input line 350.
+Package pdftex.def Info: svc_time_map.png  used on input line 355.
 (pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
  [17]
-Overfull \vbox (25.7568pt too high) has occurred while \output is active []
+Overfull \vbox (25.74586pt too high) has occurred while \output is active []
 
 
 [18 <./svc_time_map.png>]
-Overfull \hbox (8.86877pt too wide) in paragraph at lines 363--370
-\OT1/pplx/m/n/10.95 tial bi-ases in-tro-duced by col-lec-tors and by in-di-vid-
-u-als who quan-ti-fied en-do-phyte pres-ence/absence
+Overfull \hbox (8.86877pt too wide) in paragraph at lines 368--375
+\T1/pplx/m/n/10.95 tial bi-ases in-tro-duced by col-lec-tors and by in-di-vid-u
+-als who quan-ti-fied en-do-phyte pres-ence/absence
  []
 
 <random_fx_plot.png, id=71, 578.16pt x 433.62pt>
 File: random_fx_plot.png Graphic file (type png)
 <use random_fx_plot.png>
-Package pdftex.def Info: random_fx_plot.png  used on input line 374.
+Package pdftex.def Info: random_fx_plot.png  used on input line 379.
 (pdftex.def)             Requested size: 375.80544pt x 281.84966pt.
 [19]
 <svc_space_map.png, id=76, 433.62pt x 867.24pt>
 File: svc_space_map.png Graphic file (type png)
 <use svc_space_map.png>
-Package pdftex.def Info: svc_space_map.png  used on input line 390.
+Package pdftex.def Info: svc_space_map.png  used on input line 395.
 (pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
  [20 <./random_fx_plot.png>]
-Overfull \vbox (25.7568pt too high) has occurred while \output is active []
+Overfull \vbox (25.74586pt too high) has occurred while \output is active []
 
 
 [21 <./svc_space_map.png>]
 <tmean_regression_plot_ESA.png, id=83, 289.08pt x 361.35pt>
 File: tmean_regression_plot_ESA.png Graphic file (type png)
 <use tmean_regression_plot_ESA.png>
-Package pdftex.def Info: tmean_regression_plot_ESA.png  used on input line 418.
+Package pdftex.def Info: tmean_regression_plot_ESA.png  used on input line 423.
 
 (pdftex.def)             Requested size: 328.82707pt x 411.05557pt.
  [22]
 <ppt_regression_plot_ESA.png, id=87, 289.08pt x 433.62pt>
 File: ppt_regression_plot_ESA.png Graphic file (type png)
 <use ppt_regression_plot_ESA.png>
-Package pdftex.def Info: ppt_regression_plot_ESA.png  used on input line 424.
+Package pdftex.def Info: ppt_regression_plot_ESA.png  used on input line 429.
 (pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
  [23 <./tmean_regression_plot_ESA.png>]
 Overfull \vbox (45.61812pt too high) has occurred while \output is active []
@@ -393,7 +398,7 @@ Overfull \vbox (45.61812pt too high) has occurred while \output is active []
 <ppt_CV_regression_plot_ESA.png, id=94, 289.08pt x 433.62pt>
 File: ppt_CV_regression_plot_ESA.png Graphic file (type png)
 <use ppt_CV_regression_plot_ESA.png>
-Package pdftex.def Info: ppt_CV_regression_plot_ESA.png  used on input line 431
+Package pdftex.def Info: ppt_CV_regression_plot_ESA.png  used on input line 436
 .
 (pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
 
@@ -404,73 +409,72 @@ Overfull \vbox (45.61812pt too high) has occurred while \output is active []
 <contemp_test_plot.png, id=99, 722.7pt x 289.08pt>
 File: contemp_test_plot.png Graphic file (type png)
 <use contemp_test_plot.png>
-Package pdftex.def Info: contemp_test_plot.png  used on input line 444.
+Package pdftex.def Info: contemp_test_plot.png  used on input line 449.
 (pdftex.def)             Requested size: 469.75502pt x 187.90417pt.
  [26 <./contemp_test_plot.png>] [27]
 [28] [29] [30] [31]
-<endo_status_map.png, id=119, 722.7pt x 361.35pt>
-File: endo_status_map.png Graphic file (type png)
-<use endo_status_map.png>
-Package pdftex.def Info: endo_status_map.png  used on input line 560.
+<../Plots/endo_status_map.png, id=119, 722.7pt x 361.35pt>
+File: ../Plots/endo_status_map.png Graphic file (type png)
+<use ../Plots/endo_status_map.png>
+Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 565.
 (pdftex.def)             Requested size: 469.75502pt x 234.88023pt.
-<mesh_plot.png, id=120, 505.89pt x 289.08pt>
-File: mesh_plot.png Graphic file (type png)
-<use mesh_plot.png>
-Package pdftex.def Info: mesh_plot.png  used on input line 566.
-(pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
- [32 <./endo_status_map.png>]
-<density_plot.png, id=125, 289.08pt x 216.81pt>
+<../Plots/mesh_plot.png, id=120, 433.62pt x 433.62pt>
+File: ../Plots/mesh_plot.png Graphic file (type png)
+<use ../Plots/mesh_plot.png>
+Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 572.
+(pdftex.def)             Requested size: 469.75502pt x 469.7781pt.
+ [32 <../Plots/endo_status_map.png>]
+<density_plot.png, id=124, 289.08pt x 216.81pt>
 File: density_plot.png Graphic file (type png)
 <use density_plot.png>
-Package pdftex.def Info: density_plot.png  used on input line 572.
+Package pdftex.def Info: density_plot.png  used on input line 579.
 (pdftex.def)             Requested size: 375.80544pt x 281.86949pt.
- [33 <./mesh_plot.png>]
-<ROC_plot.png, id=130, 501.875pt x 501.875pt>
+ [33 <../Plots/mesh_plot.png>]
+<ROC_plot.png, id=128, 501.875pt x 501.875pt>
 File: ROC_plot.png Graphic file (type png)
 <use ROC_plot.png>
-Package pdftex.def Info: ROC_plot.png  used on input line 579.
+Package pdftex.def Info: ROC_plot.png  used on input line 586.
 (pdftex.def)             Requested size: 234.8775pt x 234.87808pt.
-
-[34 <./density_plot.png>]
-<fixed_plot.png, id=134, 361.35pt x 361.35pt>
+ [34 <./density_plot.png>]
+<fixed_plot.png, id=133, 361.35pt x 361.35pt>
 File: fixed_plot.png Graphic file (type png)
 <use fixed_plot.png>
-Package pdftex.def Info: fixed_plot.png  used on input line 585.
+Package pdftex.def Info: fixed_plot.png  used on input line 592.
 (pdftex.def)             Requested size: 469.75502pt x 469.76047pt.
  [35 <./ROC_plot.png>]
-<test_data_map.png, id=139, 722.7pt x 578.16pt>
+<test_data_map.png, id=138, 722.7pt x 578.16pt>
 File: test_data_map.png Graphic file (type png)
 <use test_data_map.png>
-Package pdftex.def Info: test_data_map.png  used on input line 591.
+Package pdftex.def Info: test_data_map.png  used on input line 598.
 (pdftex.def)             Requested size: 469.75502pt x 375.80836pt.
  [36 <./fixed_plot.png>]
-<ppt_change_maps.png, id=143, 1084.05pt x 1445.4pt>
+<ppt_change_maps.png, id=142, 1084.05pt x 1445.4pt>
 File: ppt_change_maps.png Graphic file (type png)
 <use ppt_change_maps.png>
-Package pdftex.def Info: ppt_change_maps.png  used on input line 597.
+Package pdftex.def Info: ppt_change_maps.png  used on input line 604.
 (pdftex.def)             Requested size: 375.80544pt x 501.06754pt.
 
 [37 <./test_data_map.png>]
-Overfull \vbox (9.32524pt too high) has occurred while \output is active []
+Overfull \vbox (9.3143pt too high) has occurred while \output is active []
 
 
 [38 <./ppt_change_maps.png>]
-<tmean_change_maps.png, id=151, 1084.05pt x 433.62pt>
+<tmean_change_maps.png, id=150, 1084.05pt x 433.62pt>
 File: tmean_change_maps.png Graphic file (type png)
 <use tmean_change_maps.png>
-Package pdftex.def Info: tmean_change_maps.png  used on input line 604.
+Package pdftex.def Info: tmean_change_maps.png  used on input line 611.
 (pdftex.def)             Requested size: 469.75502pt x 187.90198pt.
-<prevalence_map_CI.png, id=152, 1084.05pt x 722.7pt>
+<prevalence_map_CI.png, id=151, 1084.05pt x 722.7pt>
 File: prevalence_map_CI.png Graphic file (type png)
 <use prevalence_map_CI.png>
-Package pdftex.def Info: prevalence_map_CI.png  used on input line 612.
+Package pdftex.def Info: prevalence_map_CI.png  used on input line 619.
 (pdftex.def)             Requested size: 469.75502pt x 313.16995pt.
  [39 <./tmean_change_maps.png>]
-<climate_corr_heatmap_subsample.png, id=156, 722.7pt x 505.89pt>
+<climate_corr_heatmap_subsample.png, id=155, 722.7pt x 505.89pt>
 File: climate_corr_heatmap_subsample.png Graphic file (type png)
 <use climate_corr_heatmap_subsample.png>
 Package pdftex.def Info: climate_corr_heatmap_subsample.png  used on input line
- 619.
+ 626.
 (pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
  [40 <./prevalence_map_CI.png>]
 
@@ -478,57 +482,63 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [41 <./climate_corr_heatmap_subsample.png>] (./endo_herbarium.bbl [42] [43]
 [44] [45] [46]
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 309.
+
+ (/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
 Underfull \hbox (badness 10000) in paragraph at lines 343--346
-[]\OT1/pplx/m/n/10.95 IPCC.  Cli-mate change 2021: The phys-i-cal sci-ence ba-s
-is, 2021.  URL
+[]\T1/pplx/m/n/10.95 IPCC.  Cli-mate change 2021: The phys-i-cal sci-ence ba-si
+s, 2021.  URL
  []
 
 [47] [48] [49] [50] [51]
-Underfull \hbox (badness 4995) in paragraph at lines 642--651
-[]\OT1/pplx/m/n/10.95 Shripad D. Tul-japurkar.  Pop-u-la-tion dy-nam-ics in var
-i-able en-vi-ron-ments. III. Evo-
+Underfull \hbox (badness 4995) in paragraph at lines 651--660
+[]\T1/pplx/m/n/10.95 Shripad D. Tul-japurkar.  Pop-u-la-tion dy-nam-ics in vari
+-able en-vi-ron-ments. III. Evo-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 642--651
-\OT1/pplx/m/n/10.95 lu-tion-ary dy-nam-ics of r-selection.  \OT1/pplx/m/it/10.9
-5 The-o-ret-i-cal Pop-u-la-tion Bi-ol-ogy\OT1/pplx/m/n/10.95 , 21(1):141--165,
+Underfull \hbox (badness 10000) in paragraph at lines 651--660
+\T1/pplx/m/n/10.95 lu-tion-ary dy-nam-ics of r-selection.  \T1/pplx/m/it/10.95 
+The-o-ret-i-cal Pop-u-la-tion Bi-ol-ogy\T1/pplx/m/n/10.95 , 21(1):141--165,
  []
 
 
-Underfull \hbox (badness 7777) in paragraph at lines 642--651
-\OT1/pplx/m/n/10.95 Febru-ary 1982.  ISSN 0040-5809.  doi: 10.1016/0040-5809(82
-)90010-7.  URL
+Underfull \hbox (badness 7777) in paragraph at lines 651--660
+\T1/pplx/m/n/10.95 Febru-ary 1982.  ISSN 0040-5809.  doi: 10.1016/0040-5809(82)
+90010-7.  URL
  []
 
-[52]) [53] (./endo_herbarium.aux)
+[52] [53]) [54] (./endo_herbarium.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 4020 strings out of 492649
- 58056 string characters out of 6129622
- 134807 words of memory out of 5000000
- 7785 multiletter control sequences out of 15000+600000
- 38645 words of font info for 98 fonts, out of 8000000 for 9000
+ 4284 strings out of 492649
+ 61414 string characters out of 6129622
+ 133000 words of memory out of 5000000
+ 8032 multiletter control sequences out of 15000+600000
+ 58075 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,9n,35p,812b,414s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
-exlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
-xlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texl
-ive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texliv
+ 41i,9n,35p,812b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
+live/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texl
+ive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texliv
 e/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/
-2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/2018
-/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-
-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/f
-onts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/ty
-pe1/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (53 pages, 8065993 bytes).
+/2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/201
+8/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb></usr/local/texlive/2018/
+texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb></usr/local/texlive/2018/te
+xmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-dis
+t/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/font
+s/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1
+/urw/palatino/uplri8a.pfb>
+Output written on endo_herbarium.pdf (54 pages, 8171978 bytes).
 PDF statistics:
- 240 PDF objects out of 1000 (max. 8388607)
- 151 compressed objects within 2 object streams
+ 243 PDF objects out of 1000 (max. 8388607)
+ 154 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  96 words of extra memory for PDF output out of 10000 (max. 10000000)
 

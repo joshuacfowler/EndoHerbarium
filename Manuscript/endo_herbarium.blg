@@ -29,45 +29,45 @@ Repeated entry---line 1516 of file endo_herbarium.bib
 I'm skipping whatever remains of this entry
 Warning--I didn't find a database entry for ""
 Warning--empty journal in Rprism2015
-You've used 96 entries,
+You've used 97 entries,
             2773 wiz_defined-function locations,
-            1160 strings with 26955 characters,
-and the built_in function-call counts, 55547 in all, are:
-= -- 4783
-> -- 4217
+            1165 strings with 27239 characters,
+and the built_in function-call counts, 56271 in all, are:
+= -- 4843
+> -- 4283
 < -- 26
-+ -- 1413
-- -- 1317
-* -- 5247
-:= -- 8718
-add.period$ -- 295
-call.type$ -- 96
-change.case$ -- 721
-chr.to.int$ -- 96
-cite$ -- 193
-duplicate$ -- 2009
-empty$ -- 3877
-format.name$ -- 1443
-if$ -- 11271
++ -- 1435
+- -- 1338
+* -- 5321
+:= -- 8833
+add.period$ -- 298
+call.type$ -- 97
+change.case$ -- 731
+chr.to.int$ -- 97
+cite$ -- 195
+duplicate$ -- 2030
+empty$ -- 3920
+format.name$ -- 1465
+if$ -- 11415
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 94
-newline$ -- 493
-num.names$ -- 384
-pop$ -- 1281
+missing$ -- 95
+newline$ -- 498
+num.names$ -- 388
+pop$ -- 1299
 preamble$ -- 1
-purify$ -- 625
+purify$ -- 634
 quote$ -- 0
-skip$ -- 1649
+skip$ -- 1668
 stack$ -- 0
-substring$ -- 2400
-swap$ -- 117
+substring$ -- 2433
+swap$ -- 118
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1056
+type$ -- 1067
 warning$ -- 1
-while$ -- 457
+while$ -- 462
 width$ -- 0
-write$ -- 1262
+write$ -- 1275
 (There were 6 error messages)

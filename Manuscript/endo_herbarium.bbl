@@ -1,4 +1,4 @@
-\begin{thebibliography}{96}
+\begin{thebibliography}{97}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -389,6 +389,15 @@ Mikhail~V Kozlov, Irina~V Sokolova, Vitali Zverev, Alexander~A Egorov,
   Mikhail~Y Goncharov, and Elena~L Zvereva.
 \newblock Biases in estimation of insect herbivory from herbarium specimens.
 \newblock \emph{Scientific Reports}, 10\penalty0 (1):\penalty0 12298, 2020.
+
+\bibitem[Lee et~al.(2024)Lee, Alecrim, Miller, Forrest, Heberling, Primack, and
+  Sargent]{lee2024phenological}
+Benjamin~R Lee, Evelyn~F Alecrim, Tara~K Miller, Jessica~RK Forrest, J~Mason
+  Heberling, Richard~B Primack, and Risa~D Sargent.
+\newblock Phenological mismatch between trees and wildflowers: Reconciling
+  divergent findings in two recent analyses.
+\newblock \emph{Journal of Ecology}, 112\penalty0 (6):\penalty0 1184--1199,
+  2024.
 
 \bibitem[Lendemer et~al.(2020)Lendemer, Thiers, Monfils, Zaspel, Ellwood,
   Bentley, LeVan, Bates, Jennings, Contreras, et~al.]{lendemer2020extended}
