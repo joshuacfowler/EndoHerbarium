@@ -243,34 +243,27 @@ By including a random effect for collectors and for scorers, we attempted to acc
 
 
 We performed model fitting using the inlabru R package \citep{}.
-Global parameters $\mathrm{A}$, and $\mathrm{T}$, and i.i.d. random effects were given penalized complexity priors $\chi$ and $\omega$. 
+Global intercept and slope parameters $\mathrm{A}$, and $\mathrm{T}$, were given vague priors.
+Scorer and collector random effects, $\chi$ and $\omega$, were given penalized complexity priors, with distributions approximating a Normal distribution with standard deviation of 5. 
 Each spatially-structured parameter depended on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
 The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles encompassing the study area (Fig. \ref{fig:meshplot}).
 Priors, termed ''range" and "variance", define the distance of spatial decay described by the Mat\'{e}rn covariance function.
 Priors for results presented in the main text reflect a range of \josh{XX}{} kilometers. 
 We found that model results were sensitive to this choice, and so tested a range of priors (from XX kilometers to XX kilometers) and meshes (Supplemental Material), finding that model results were qualitatively similar, i.e. the same direction of effects across space, but that the magnitude and uncertainty varied. 
+%In all cases, posterior modes were \tom{stable}{Assessed how?} and equal to zero, indicating successful numeric convergence.
 
 
-\subsection*{Validating the model with in-sample and out-of-sample tests}
-
-
-
-In all cases, posterior modes were \tom{stable}{Assessed how?} and equal to zero, indicating successful numeric convergence.
-We assessed model fit with graphical posterior predictive checks (Fig. A3).
-\tom{The model performed adequately at classifying the historical data, comparing the accuracy of predictions from the model with observed data (avg. AUC = 0.77; Fig. A4). }{Maybe move this to validation section, and then have both in-sample and out-of-sample approaches.}
-
-
-
-We evaluated the predictive ability of the model using contemporary endophyte surveys as out-of-sample test data, \tom{an important but rarely used strategy in ecological studies \cite{tredennick2021practical}.}{This is the type of thing to emphasize in the intro? Are there any other collections-based papers that have done anything like this?? None to my knowledge.} \josh{}{Add Benjamin lee paper, maybe? it's not just herbaria, but kind of related}
+\subsection*{Validating model performance with in-sample and out-of-sample tests}
+We evaluated the predictive ability of the model using both in-sample training data from the herbarium surveys, and with out-of-sample test data from contemporary endophyte surveys, \tom{an important but rarely used strategy in ecological studies \cite{tredennick2021practical}.}{This is the type of thing to emphasize in the intro? Are there any other collections-based papers that have done anything like this?? None to my knowledge.} \josh{}{Add Benjamin lee paper, maybe? it's not just herbaria, but kind of related}
 We used data from contemporary surveys of endophyte prevalence  in \emph{A. hyemalis} and \emph{E. virginicus} in Texas and the southern US. 
 Surveys of \emph{E. virginicus} were conducted in 2013 as described in \citet{sneck2017variation}, and \tom{surveys of \emph{A. hyemalis} took place between 2015 and 2020}{We have added more recent AGHY survey data. I am not sure if you have access to this but you should definitely use it. Karl or I can point you to the right file.}.
 Population surveys of \emph{A. hyemalis} were initially designed to cover longitudinal variation in endophyte prevalence towards its range edge, while surveys of \emph{E. virginicus} were designed to cover latitudinal variation along its range edge. 
-In total, we visited 43 populations of \emph{A. hyemalis} and 20 populations of \emph{E. virginicus} across the south-central US, with emphasis on Texas and neighboring states (Fig \tom{A4}{This is now A6. Good reminder to use the ref function.}).
-During surveys, we collected seeds from up to 30 individuals per location  (average number of plants sampled: 22.9).
+In total, we visited 43 populations of \emph{A. hyemalis} and 20 populations of \emph{E. virginicus} across the south-central US, with emphasis on Texas and neighboring states (Fig \ref{fig:contempsurveysmap}).
+During surveys, we collected seeds from up to 30 individuals per location  (average number of plants sampled: $22.9$).
 We quantified the endophyte status of each individual with staining microscopy as described for the herbarium surveys (with 5-10 seeds scored per individual), and calculated the prevalence of endophytes within the population (proportion of symbiotic plants divided by the number of sampled plants).
-For each population, we compared the observed fraction of endophyte-symbiotic hosts to the predicted probability of endophyte occurrence $\hat{P}$ derived from the model based on location and year, with collector and scorer random effects fixed at zero. 
-\tom{The contemporary survey period (2013-2020) is at the most recent edge of the time period encompassed by the historical observations used for model fitting.
-We compared the model's prediction for these locations to the observed population prevalence.}{It is not clear if you are testing model 1 (``global trend'') or model 2 (``spatially varying trends'').}
+For each population, we compared the observed fraction of endophyte-symbiotic hosts to the predicted probability of endophyte occurrence $\hat{P}$ derived from the model based on location and year. 
+The contemporary survey period (2013-2020) is at the most recent edge of the time period encompassed by the historical observations used for model fitting.
+We compared the model's prediction for these locations to the observed population prevalence.
 
 \subsection*{Assessing the role of climate drivers}
 We assessed how the magnitude of climate change may have driven changes in endophyte prevalence by assessing correlations between changes in climate and changes in endophyte prevalence predicted from our spatial model at evenly spaced pixels across the study area.
@@ -301,24 +294,9 @@ Among this suite of variables, we chose to include \josh{mean spring temperature
 We fit maximum entropy (MaxEnt) models using the maxent function in the package dismo \citep{hijmans2017package}. 
 \josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
 We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
-The performances of models were evaluated with AUC \josh{AUC}{can we add these values?} \citep{jimenez2012insights}. 
+The performance of models was evaluated with AUC \josh{AUC}{can we add these values?} \citep{jimenez2012insights}. 
 To convert the continuous predicted probabilities into binary presence - absence maps, we used the  training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}. 
 These binary maps serve as boundaries in presented maps of change in endophyte prevalence, and outline the set of pixels used in our analysis of climate correlates with trends in endophyte prevalence
-
-
-
-%We evaluated how predicted changes in endophyte prevalence ($\Delta{P}$) correlated with %changes in seasonal climate at a grid of points across the study area using linear regression.
-
-%\begin{subequations}
-	%\label{eq:climate}
-	%\begin{align}
-		%\Delta{P} \sim Normal(\mu, \sigma)\\
-		%\mu = \beta_{0} + \alpha_{1}*\Delta{Precip_{spring}} + %\alpha_{2}*\Delta{Precip_{summer}} + \alpha_{3}*\Delta{Precip_{autumn} }+ \\ %\alpha_{4}*\Delta{Temp_{spring}} + \alpha_{5}*\Delta{Temp_{summer}}  + %\alpha_{6}*\Delta{Temp_{autumn}} 
-%	\end{align}
-%\end{subequations}
-
- %The change in prevalence is determined by an intercept $\beta_{0}$ slopes specific to the seasonal %changes in preciptation ($\alpha_{1}$, $\alpha_{2}$, and $\alpha_{3}$) and in mean %temperature ($\alpha_{4}$, $\alpha_{5}$, and $\alpha_{6}$).
- %We fit models for each host species separately with rINLA using default vague priors.
 		
 \section*{Results}
 \subsection*{How has endophyte prevalence changed over time?}
@@ -436,14 +414,15 @@ Correlations using only a subsampling of pixels were qualitatively similar to th
 
 
 \subsubsection*{Performance on test data}
-We found that while the model predicts broader regional trends in endophyte prevalence present in the contemporary survey data such as declining endophyte prevalence towards western longitudes in \emph{A. hyemalis} (Fig. 6 B-C), however the contemporary data contains additional variability at smaller scales not captured by our sampling of herbarium specimens.
+We found that while the model predicts broader regional trends in endophyte prevalence present in the contemporary survey data such as declining endophyte prevalence towards western longitudes in \emph{A. hyemalis} (Fig. \ref{fig:contemptestplot} B-C), however the contemporary data contains additional variability at smaller scales not captured by our sampling of herbarium specimens.
 We interpreted this to mean that the model captured regional spatial dynamics, but underpredicts local scale dynamics. 
 We discuss potential model improvements in the Discussion.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{contemp_test_plot.png}
+	\includegraphics[width = \linewidth]{../Plots/contemp_test_plot.png}
 	\caption{\textbf{Predicted vs observed endophyte prevalence for contemporary test data.} (A) The model, trained on historic herbarium collection data, performed modestly at predicting contemporary endophyte prevalence in \emph{A. hyemalis}, as indicated by some overlap of predicted 95\% CI with the 1:1 line, however contemporary test data generally had more variance between populations than model predictions. The model did recapitulate broader regional trends across (B) longitude and (C) latitude. Point size in panels B and C reflect sample sizes of contemporary endophyte population surveys.}
+	\label{fig:contemptestplot}
 \end{figure}
 
 \section*{Discussion}
@@ -566,7 +545,7 @@ Beyond host-microbe symbioses, building these types of models would work towards
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width = \linewidth]{../Plots/mesh_plot.png}
-		\caption{\textbf{Delauney triangulation mesh used to estimate spatial dependence between data points}. Grey lines indicate edges of triangles used to define distances between observations. Red points indicate locations of sampled herbarium specimens, and the blue outlines show the international borders used to define the edge of the mesh along coastlines.}
+		\caption{\textbf{Triangulation mesh used to estimate spatial dependence between data points}. Grey lines indicate edges of triangles used to define distances between observations. Colored points indicate locations of sampled herbarium specimens for each host species, and the blue line shows the convex hull and coastline used to define the edge of the mesh around the data points. The thick black line shows the convex hull defining a buffer space around the edge of the mesh to reduce the influence of edge effects on model estimates.}
 		\label{fig:meshplot}
 	\end{figure}
 
@@ -579,8 +558,17 @@ Beyond host-microbe symbioses, building these types of models would work towards
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width = .5\linewidth]{ROC_plot.png}
-		\caption{\textbf{ROC plot showing model performance classifying observations according to endophyte status.} The curves show adequate model performance for observed (top) and test (bottom) data. The AUC for each is 0.77.}
+		\includegraphics[width = .5\linewidth]{../Plots/ROC_training_plot.png}
+		\caption{\textbf{ROC plot showing model performance classifying observations according to endophyte status within the in-sample data.} The curves show adequate model performance for observed data. The AUC value is 0.77.}
+				\label{fig:ROCtraining}
+	\end{figure}
+	
+		
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width = .5\linewidth]{../Plots/ROC_test_plot.png}
+		\caption{\textbf{ROC plot showing model performance classifying observations according to endophyte status within the out-of-sample data.} The curves show adequate model performance for test data. The AUC value is 0.77.}
+		\label{fig:ROCtest}
 	\end{figure}
 
 \begin{figure}[H]
@@ -591,8 +579,9 @@ Beyond host-microbe symbioses, building these types of models would work towards
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{test_data_map.png}
+	\includegraphics[width = \linewidth]{../Plots/contemp_surveys_map.png}
 	\caption{\textbf{Locations of contemporary surveys of endophytes in \emph{A. hyemalis} used as "test" data (red points), relative to the historical collection data (black crosses).}}
+	\label{fig:contempsurveysmap}
 \end{figure}
 
 	\begin{figure}[H]

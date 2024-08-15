@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  15 AUG 2024 15:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  15 AUG 2024 16:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -341,20 +341,20 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 <../Plots/year_plot.png, id=57, 505.89pt x 361.35pt>
 File: ../Plots/year_plot.png Graphic file (type png)
 <use ../Plots/year_plot.png>
-Package pdftex.def Info: ../Plots/year_plot.png  used on input line 331.
+Package pdftex.def Info: ../Plots/year_plot.png  used on input line 309.
 (pdftex.def)             Requested size: 469.75502pt x 335.54477pt.
  [15] [16 <../Plots/year_plot.png>]
 <svc_time_map.png, id=64, 433.62pt x 867.24pt>
 File: svc_time_map.png Graphic file (type png)
 <use svc_time_map.png>
-Package pdftex.def Info: svc_time_map.png  used on input line 351.
+Package pdftex.def Info: svc_time_map.png  used on input line 329.
 (pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
  [17]
 Overfull \vbox (25.74586pt too high) has occurred while \output is active []
 
 
 [18 <./svc_time_map.png>]
-Overfull \hbox (8.86877pt too wide) in paragraph at lines 364--371
+Overfull \hbox (8.86877pt too wide) in paragraph at lines 342--349
 \T1/pplx/m/n/10.95 tial bi-ases in-tro-duced by col-lec-tors and by in-di-vid-u
 -als who quan-ti-fied en-do-phyte pres-ence/absence
  []
@@ -362,13 +362,13 @@ Overfull \hbox (8.86877pt too wide) in paragraph at lines 364--371
 <random_fx_plot.png, id=71, 578.16pt x 433.62pt>
 File: random_fx_plot.png Graphic file (type png)
 <use random_fx_plot.png>
-Package pdftex.def Info: random_fx_plot.png  used on input line 375.
+Package pdftex.def Info: random_fx_plot.png  used on input line 353.
 (pdftex.def)             Requested size: 375.80544pt x 281.84966pt.
 [19]
 <svc_space_map.png, id=76, 433.62pt x 867.24pt>
 File: svc_space_map.png Graphic file (type png)
 <use svc_space_map.png>
-Package pdftex.def Info: svc_space_map.png  used on input line 391.
+Package pdftex.def Info: svc_space_map.png  used on input line 369.
 (pdftex.def)             Requested size: 281.85587pt x 563.73903pt.
  [20 <./random_fx_plot.png>]
 Overfull \vbox (25.74586pt too high) has occurred while \output is active []
@@ -378,14 +378,14 @@ Overfull \vbox (25.74586pt too high) has occurred while \output is active []
 <tmean_regression_plot_ESA.png, id=83, 289.08pt x 361.35pt>
 File: tmean_regression_plot_ESA.png Graphic file (type png)
 <use tmean_regression_plot_ESA.png>
-Package pdftex.def Info: tmean_regression_plot_ESA.png  used on input line 419.
+Package pdftex.def Info: tmean_regression_plot_ESA.png  used on input line 397.
 
 (pdftex.def)             Requested size: 328.82707pt x 411.05557pt.
  [22]
 <ppt_regression_plot_ESA.png, id=87, 289.08pt x 433.62pt>
 File: ppt_regression_plot_ESA.png Graphic file (type png)
 <use ppt_regression_plot_ESA.png>
-Package pdftex.def Info: ppt_regression_plot_ESA.png  used on input line 425.
+Package pdftex.def Info: ppt_regression_plot_ESA.png  used on input line 403.
 (pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
  [23 <./tmean_regression_plot_ESA.png>]
 Overfull \vbox (45.61812pt too high) has occurred while \output is active []
@@ -395,7 +395,7 @@ Overfull \vbox (45.61812pt too high) has occurred while \output is active []
 <ppt_CV_regression_plot_ESA.png, id=94, 289.08pt x 433.62pt>
 File: ppt_CV_regression_plot_ESA.png Graphic file (type png)
 <use ppt_CV_regression_plot_ESA.png>
-Package pdftex.def Info: ppt_CV_regression_plot_ESA.png  used on input line 432
+Package pdftex.def Info: ppt_CV_regression_plot_ESA.png  used on input line 410
 .
 (pdftex.def)             Requested size: 328.82707pt x 493.26668pt.
 
@@ -403,82 +403,97 @@ Overfull \vbox (45.61812pt too high) has occurred while \output is active []
 
 
 [25 <./ppt_CV_regression_plot_ESA.png>]
-<contemp_test_plot.png, id=99, 722.7pt x 289.08pt>
-File: contemp_test_plot.png Graphic file (type png)
-<use contemp_test_plot.png>
-Package pdftex.def Info: contemp_test_plot.png  used on input line 445.
-(pdftex.def)             Requested size: 469.75502pt x 187.90417pt.
- [26 <./contemp_test_plot.png>] [27]
-[28] [29] [30] [31]
-<../Plots/endo_status_map.png, id=119, 722.7pt x 361.35pt>
+<../Plots/contemp_test_plot.png, id=99, 722.7pt x 722.7pt>
+File: ../Plots/contemp_test_plot.png Graphic file (type png)
+<use ../Plots/contemp_test_plot.png>
+Package pdftex.def Info: ../Plots/contemp_test_plot.png  used on input line 423
+.
+(pdftex.def)             Requested size: 469.75502pt x 469.76045pt.
+ [26]
+Overfull \vbox (24.26904pt too high) has occurred while \output is active []
+
+
+[27 <../Plots/contemp_test_plot.png>] [28] [29] [30] [31] [32]
+<../Plots/endo_status_map.png, id=122, 722.7pt x 361.35pt>
 File: ../Plots/endo_status_map.png Graphic file (type png)
 <use ../Plots/endo_status_map.png>
-Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 561.
+Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 540.
 (pdftex.def)             Requested size: 469.75502pt x 234.88023pt.
-<../Plots/mesh_plot.png, id=120, 433.62pt x 433.62pt>
+<../Plots/mesh_plot.png, id=123, 433.62pt x 433.62pt>
 File: ../Plots/mesh_plot.png Graphic file (type png)
 <use ../Plots/mesh_plot.png>
-Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 568.
+Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 547.
 (pdftex.def)             Requested size: 469.75502pt x 469.7781pt.
- [32 <../Plots/endo_status_map.png>]
-<density_plot.png, id=124, 289.08pt x 216.81pt>
+ [33 <../Plots/endo_status_map.png>]
+Overfull \vbox (1.16673pt too high) has occurred while \output is active []
+
+
+[34 <../Plots/mesh_plot.png>]
+<density_plot.png, id=130, 289.08pt x 216.81pt>
 File: density_plot.png Graphic file (type png)
 <use density_plot.png>
-Package pdftex.def Info: density_plot.png  used on input line 575.
+Package pdftex.def Info: density_plot.png  used on input line 554.
 (pdftex.def)             Requested size: 375.80544pt x 281.86949pt.
- [33 <../Plots/mesh_plot.png>]
-<ROC_plot.png, id=128, 501.875pt x 501.875pt>
-File: ROC_plot.png Graphic file (type png)
-<use ROC_plot.png>
-Package pdftex.def Info: ROC_plot.png  used on input line 582.
-(pdftex.def)             Requested size: 234.8775pt x 234.87808pt.
- [34 <./density_plot.png>]
-<fixed_plot.png, id=133, 361.35pt x 361.35pt>
+<../Plots/ROC_training_plot.png, id=131, 289.08pt x 289.08pt>
+File: ../Plots/ROC_training_plot.png Graphic file (type png)
+<use ../Plots/ROC_training_plot.png>
+Package pdftex.def Info: ../Plots/ROC_training_plot.png  used on input line 561
+.
+(pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
+ [35 <./density_plot.png>]
+<../Plots/ROC_test_plot.png, id=135, 289.08pt x 289.08pt>
+File: ../Plots/ROC_test_plot.png Graphic file (type png)
+<use ../Plots/ROC_test_plot.png>
+Package pdftex.def Info: ../Plots/ROC_test_plot.png  used on input line 569.
+(pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
+ [36 <../Plots/ROC_training_plot.png>]
+<fixed_plot.png, id=139, 361.35pt x 361.35pt>
 File: fixed_plot.png Graphic file (type png)
 <use fixed_plot.png>
-Package pdftex.def Info: fixed_plot.png  used on input line 588.
+Package pdftex.def Info: fixed_plot.png  used on input line 576.
 (pdftex.def)             Requested size: 469.75502pt x 469.76047pt.
- [35 <./ROC_plot.png>]
-<test_data_map.png, id=138, 722.7pt x 578.16pt>
-File: test_data_map.png Graphic file (type png)
-<use test_data_map.png>
-Package pdftex.def Info: test_data_map.png  used on input line 594.
-(pdftex.def)             Requested size: 469.75502pt x 375.80836pt.
- [36 <./fixed_plot.png>]
-<ppt_change_maps.png, id=142, 1084.05pt x 1445.4pt>
+ [37 <../Plots/ROC_test_plot.png>]
+<../Plots/contemp_surveys_map.png, id=144, 505.89pt x 289.08pt>
+File: ../Plots/contemp_surveys_map.png Graphic file (type png)
+<use ../Plots/contemp_surveys_map.png>
+Package pdftex.def Info: ../Plots/contemp_surveys_map.png  used on input line 5
+82.
+(pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
+ [38 <./fixed_plot.png>]
+<ppt_change_maps.png, id=148, 1084.05pt x 1445.4pt>
 File: ppt_change_maps.png Graphic file (type png)
 <use ppt_change_maps.png>
-Package pdftex.def Info: ppt_change_maps.png  used on input line 600.
+Package pdftex.def Info: ppt_change_maps.png  used on input line 589.
 (pdftex.def)             Requested size: 375.80544pt x 501.06754pt.
 
-[37 <./test_data_map.png>]
+[39 <../Plots/contemp_surveys_map.png>]
 Overfull \vbox (9.3143pt too high) has occurred while \output is active []
 
 
-[38 <./ppt_change_maps.png>]
-<tmean_change_maps.png, id=150, 1084.05pt x 433.62pt>
+[40 <./ppt_change_maps.png>]
+<tmean_change_maps.png, id=155, 1084.05pt x 433.62pt>
 File: tmean_change_maps.png Graphic file (type png)
 <use tmean_change_maps.png>
-Package pdftex.def Info: tmean_change_maps.png  used on input line 607.
+Package pdftex.def Info: tmean_change_maps.png  used on input line 596.
 (pdftex.def)             Requested size: 469.75502pt x 187.90198pt.
-<prevalence_map_CI.png, id=151, 1084.05pt x 722.7pt>
+<prevalence_map_CI.png, id=156, 1084.05pt x 722.7pt>
 File: prevalence_map_CI.png Graphic file (type png)
 <use prevalence_map_CI.png>
-Package pdftex.def Info: prevalence_map_CI.png  used on input line 615.
+Package pdftex.def Info: prevalence_map_CI.png  used on input line 604.
 (pdftex.def)             Requested size: 469.75502pt x 313.16995pt.
- [39 <./tmean_change_maps.png>]
-<climate_corr_heatmap_subsample.png, id=155, 722.7pt x 505.89pt>
+ [41 <./tmean_change_maps.png>]
+<climate_corr_heatmap_subsample.png, id=160, 722.7pt x 505.89pt>
 File: climate_corr_heatmap_subsample.png Graphic file (type png)
 <use climate_corr_heatmap_subsample.png>
 Package pdftex.def Info: climate_corr_heatmap_subsample.png  used on input line
- 622.
+ 611.
 (pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
- [40 <./prevalence_map_CI.png>]
+ [42 <./prevalence_map_CI.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[41 <./climate_corr_heatmap_subsample.png>] (./endo_herbarium.bbl [42] [43]
-[44] [45] [46]
+[43 <./climate_corr_heatmap_subsample.png>] (./endo_herbarium.bbl [44] [45]
+[46] [47] [48]
 LaTeX Font Info:    Try loading font information for T1+cmtt on input line 309.
 
  (/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmtt.fd
@@ -489,7 +504,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 343--346
 s, 2021.  URL
  []
 
-[47] [48] [49] [50] [51]
+[49] [50] [51] [52] [53]
 Underfull \hbox (badness 4995) in paragraph at lines 651--660
 []\T1/pplx/m/n/10.95 Shripad D. Tul-japurkar.  Pop-u-la-tion dy-nam-ics in vari
 -able en-vi-ron-ments. III. Evo-
@@ -507,12 +522,12 @@ Underfull \hbox (badness 7777) in paragraph at lines 651--660
 90010-7.  URL
  []
 
-[52] [53]) [54] (./endo_herbarium.aux) ) 
+[54] [55]) [56] (./endo_herbarium.aux) ) 
 Here is how much of TeX's memory you used:
- 4283 strings out of 492649
- 61408 string characters out of 6129622
- 132961 words of memory out of 5000000
- 8032 multiletter control sequences out of 15000+600000
+ 4292 strings out of 492649
+ 61805 string characters out of 6129622
+ 133000 words of memory out of 5000000
+ 8040 multiletter control sequences out of 15000+600000
  57716 words of font info for 104 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  41i,9n,35p,812b,435s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -528,10 +543,10 @@ tt1095.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplb8a.
 pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></
 usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/loc
 al/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (54 pages, 8171715 bytes).
+Output written on endo_herbarium.pdf (56 pages, 8545258 bytes).
 PDF statistics:
- 243 PDF objects out of 1000 (max. 8388607)
- 154 compressed objects within 2 object streams
+ 250 PDF objects out of 1000 (max. 8388607)
+ 159 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 96 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 101 words of extra memory for PDF output out of 10000 (max. 10000000)
 
