@@ -298,10 +298,12 @@ mesh <- fm_mesh_2d_inla(
 
 mesh_plot <- ggplot() +
   gg(data = mesh) +
-  geom_point(data = data, aes(x = easting, y = northing, col = species), size = 1) +
+  geom_point(data = data, aes(x = easting, y = northing, fill = species), color = "grey29", size  = 1, shape = 21) +
   coord_sf()+
   theme_bw() +
-  labs(x = "", y = "")
+  scale_fill_manual(values = species_colors)+
+  labs(x = "", y = "", color = "Species")
+# mesh_plot
 # ggsave(mesh_plot, filename = "Plots/mesh_plot.png", width = 6, height = 6)
 
 # make spde
@@ -339,7 +341,7 @@ pc_prec <- list(prior = "pcprec", param = c(1, 0.1))
 
 # version of the model with multiple likelihoods
 
-cmp <- ~  space(geometry, model = spde) + space.species1(geometry, model = spde) + space.species2(geometry, model = spde) + + space.species3(geometry, model = spde) +
+cmp <- ~  space(geometry, model = spde) + space.species1(geometry, model = spde) + space.species2(geometry, model = spde) + space.species3(geometry, model = spde) +
   time.species1(geometry, weights = std_year, model = spde) + time.species2(geometry, weights = std_year, model = spde) + time.species3(geometry, weights = std_year, model = spde) +
   + int.species1(1) + int.species2(1) + int.species3(1)+
   + year.species1(main = ~0 + std_year, model = "fixed") + year.species2(main = ~0 + std_year, model = "fixed") + year.species3(main = ~0 + std_year, model = "fixed")+
