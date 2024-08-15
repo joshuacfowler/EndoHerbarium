@@ -1756,7 +1756,7 @@ prism_diff_df <- tibble(lon = coords[,1], lat = coords[,2],
                         ppt_autumn_cv_diff = unlist(terra::extract(ppt_autumn_cv_difference, coords)))
 write_csv(prism_diff_df, file = "prism_diff_df.csv")
 
-
+prism_diff_df <- read_csv(file = "prism_diff_df.csv")
 # this is the coordinates we are using for the spatial model prediction currently
 # this is the set of data for which we want predictions
 
@@ -1777,7 +1777,7 @@ vrt_elvi <- readRDS(file = "elvi_distribution_df.rds")
 
 dd_crs <- "GEOGCRS[\"NAD83\",\n    DATUM[\"North American Datum 1983\",\n        ELLIPSOID[\"GRS 1980\",6378137,298.257222101004,\n            LENGTHUNIT[\"metre\",1]]],\n    PRIMEM[\"Greenwich\",0,\n        ANGLEUNIT[\"degree\",0.0174532925199433]],\n    CS[ellipsoidal,2],\n        AXIS[\"geodetic latitude (Lat)\",north,\n            ORDER[1],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        AXIS[\"geodetic longitude (Lon)\",east,\n            ORDER[2],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n    ID[\"EPSG\",4269]]"
 
-vrt_aghy_dd <- svc.pred_aghy  %>% 
+vrt_aghy_dd <- vrt_aghy  %>% 
   spTransform(dd_crs)
 
 vrt_agpe_dd <- vrt_agpe  %>% 
@@ -1788,7 +1788,7 @@ vrt_elvi_dd <- vrt_elvi  %>%
 
 
 
-aghy_prism_diff_pred_df <- tibble(lon = svc.pred_aghy@coords[,1], lat = svc.pred_aghy@coords[,2],
+aghy_prism_diff_pred_df <- tibble(lon = vrt_aghy_dd@coords[,1], lat = vrt_aghy_dd@coords[,2],
                              tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, vrt_aghy_dd@coords)),
                              tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, vrt_aghy_dd@coords)),
                              tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, vrt_aghy_dd@coords)),
