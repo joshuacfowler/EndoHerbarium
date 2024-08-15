@@ -211,8 +211,8 @@ The following analyses in the main text used the liberal status, but we repeated
 
 
 \subsection*{Modeling spatial and temporal changes in endophyte prevalence}
-We assessed spatial and temporal changes in endophyte prevalence across each host distribution, first quantifying the ``global'' trends, aggregating across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
-To appropriately account for the spatial non-independence of geo-referenced occurrences, we used an approximate Bayesian method, Integrated Nested Laplace Approximation (INLA), to construct spatio-temporal models of endophyte prevalence.
+We assessed spatial and temporal changes in endophyte prevalence across each host distribution, quantifying the ``global'' temporal trends, aggregating across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
+To appropriately account for the spatial non-independence of geo-referenced \josh{occurrences}{spelling?}, we used an approximate Bayesian method, Integrated Nested Laplace Approximation (INLA), to construct spatio-temporal models of endophyte prevalence.
 INLA provides a computationally efficient method of ascertaining parameter posterior distributions for certain models that can be formulated as latent Gausssian Models \cite{rue2009approximate}.
 Many common statistical models, including structured and unstructured mixed-effects models, can be represented as latent Gaussian Models.
 We incorporated spatial heterogeneity into this analysis using spatially-structured intercept and slope parameters implemented as stochastic partial differential equation (SPDE) approximations of a continuous spatial Guassian process. 
@@ -223,7 +223,7 @@ We estimated global and spatially-varying trends in endophyte prevalence using a
 For each host species $h$, endophyte presence/absence of the $i^{th}$ specimen ($P_{[h]i}$) was modeled as a Bernoulli response variable with expected probability of endophyte occurrence $\hat{P}_{[h]i}$.
 We modeled $\hat{P}_{[h]i}$ as a linear function of intercept $ \mathrm{A}_{[h]i}$ and slope $\mathrm{T}_{[h]}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{[h_{1}]l[i]}$ and slopes $\tau_{[h_{1}]l[i]}$ associated with location ($l[i]$, a unique latitude-longitude combination).
 The joint-model structure allowed us to share variance terms across focal species to account for dependence associated with the collection of specimens and identification of endophytes. 
-We included the spatial random effect $\delta_{l[i]}$, intended to account for residual spatial variation, and $\chi_{c[i]}$ and $\omega_{s[i]}$ i.i.d.-random effects indexed for each collector identity ($c[i]$), and scorer identity ($s[i]$) of the $i^{th}$ specimen
+Shared variance terms included the spatially-dependent random effect $\delta_{l[i]}$, intended to account for residual spatial variation, and $\chi_{c[i]}$ and $\omega_{s[i]}$ i.i.d.-random effects indexed for each collector identity ($c[i]$), and scorer identity ($s[i]$) of the $i^{th}$ specimen.
 
 
 \begin{subequations}
@@ -235,53 +235,33 @@ We included the spatial random effect $\delta_{l[i]}$, intended to account for r
 	\end{align}
 \end{subequations}
 
-Each spatially-structured parameter depended on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
-The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles across our study area (Fig. \ref{fig:meshplot}).
-
-
-
-
 
 Previous work suggests that behavior of historical botanists and uneven sampling may introduce biases into ecological inferences made from historic collections \cite{kozlov2020biases}. 
 Prolific collectors who contribute thousands of specimens may be more or less likely to collect certain species, or specimens with certain traits \cite{daru2018widespread}. 
 Similarly, the process of scoring seeds for hyphae involved several student researchers who, even with standardized training, may vary in their likelihood of positively identifying \emph{Epichloë} hyphae. 
-By including a random effect for collectors and for scorers, we attempted to accound for variance across individual researchers that may bias our predictions of changes in endophyte prevalence.
-\tom{Models for each host species were fit separately.}{It would be great to pull all species into one model and have them share variance terms for the random effects. I suspect such a model would give better and more stable estimates.}
-\tom{}{I updated the notation in ways that make more sense to me, but you should check that this is true to the actual model (I think it is). Also, a more complete presentation of this model would show the variance terms for $\alpha$, $\chi$, and $\omega$. I presume the latter two are Gaussian but I don't know how to represent the distribution of $\alpha$.}
+By including a random effect for collectors and for scorers, we attempted to account for variance across individual researchers that may bias our predictions of changes in endophyte prevalence.
 
 
-Second, to quantify how temporal trends may vary spatially, we repeated the modelling above, but incorporated a spatially-varying coefficient for collection year:
-\begin{subequations}
-	\label{eq:trends}
-	\begin{align}
-		logit(\hat{P}_{i}) = \alpha_{l[i]} + \beta_{l[i]}*year_i + \chi_{c[i]} + \omega_{s[i]} 
-	\end{align}
-\end{subequations}
-The spatially-varying year slope $\beta_{l}$ allowed us to flexibly estimate variation in the temporal trajectory of endophyte change at locations across the study region.
+We performed model fitting using the inlabru R package \citep{}.
+Global parameters $\mathrm{A}$, and $\mathrm{T}$, and i.i.d. random effects were given penalized complexity priors $\chi$ and $\omega$. 
+Each spatially-structured parameter depended on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
+The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles encompassing the study area (Fig. \ref{fig:meshplot}).
+Priors, termed ''range" and "variance", define the distance of spatial decay described by the Mat\'{e}rn covariance function.
+Priors for results presented in the main text reflect a range of \josh{XX}{} kilometers. 
+We found that model results were sensitive to this choice, and so tested a range of priors (from XX kilometers to XX kilometers) and meshes (Supplemental Material), finding that model results were qualitatively similar, i.e. the same direction of effects across space, but that the magnitude and uncertainty varied. 
 
-\tom{For both models, spatially-structured random intercepts ($\alpha_{l}$) and slopes ($\beta_{l}$) were constructed using stochastic partial differential equations (SPDE) that depend on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
-The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles across our study area (Fig A2).}{This paragraph would be a place to describe the variance terms for the other random effects.}
 
-We performed model fitting using the inlabru R package \citep{}, \tom{with vague priors}{I thought you needed informative priors on the spatial decay parameters}, and compared models with different sizes of mesh, \tom{which had little effect on the resulting model estimates}{That'sa good but you still need to state what mesh size you used and what that means, biologically.}.
-Each \tom{mesh}{You have not defined what you mean by ``mesh''.} was bounded by the predicted host distribution, described below.
-Posterior modes were \tom{stable}{Assessed how?} indicating that numeric convergence was successful.
+\subsection*{Validating the model with in-sample and out-of-sample tests}
+
+
+
+In all cases, posterior modes were \tom{stable}{Assessed how?} and equal to zero, indicating successful numeric convergence.
 We assessed model fit with graphical posterior predictive checks (Fig. A3).
 \tom{The model performed adequately at classifying the historical data, comparing the accuracy of predictions from the model with observed data (avg. AUC = 0.77; Fig. A4). }{Maybe move this to validation section, and then have both in-sample and out-of-sample approaches.}
 
-\subsection*{Modeling distributions of host species}
-We modeled  epicloe host species distribution to predict their occurrences in space and time as continuous and binary maps of potential presences. 
-These maps were used as a backbone to predict endophyte prevalence on epicloe host species. 
-The species distribution models were built following the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}. 
-We used the observed presence of the host species collected from GBIF from 1990 to 2020. These occurrences were corrected for spatial autocorrelation due to sampling bias by thinning the occurrences to the spatial scale of the climatic variables. The climatic variables were temperature of the spring, precipitation of the spring  and precipitation of the summer. We preferred these variables because they were not correlated (Variance Inflation Factor $>$ 0.7) and also allowed the model to account for the influence of seasonal climate variation on species presence.
-The occurrence data was split into 75\% for model training and 25\% for model testing. We fitted the model using maximum entropy (MaxEnt) using the maxent function in the package dismo \citep{hijmans2017package}. 
-MaxEnt was preferred because it does not generate response curves that may cause unpredictable behavior when applied to new climates \citep{hijmans2006ability}.
- We used 10000 pseudo-absences as background points. 
- To convert the continuous predicted probabilities into binary presence - absence maps, we used the  training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}. 
-The performances of the model were evaluated using the AUC \citep{jimenez2012insights}. 
 
 
-\subsection*{Validating the model with an out-of-sample test}
-We evaluated the predictive ability of the model using contemporary endophyte surveys as out-of-sample test data, \tom{an important but rarely used strategy in ecological studies \cite{tredennick2021practical}.}{This is the type of thing to emphasize in the intro? Are there any other collections-based papers that have done anything like this?? None to my knowledge.} 
+We evaluated the predictive ability of the model using contemporary endophyte surveys as out-of-sample test data, \tom{an important but rarely used strategy in ecological studies \cite{tredennick2021practical}.}{This is the type of thing to emphasize in the intro? Are there any other collections-based papers that have done anything like this?? None to my knowledge.} \josh{}{Add Benjamin lee paper, maybe? it's not just herbaria, but kind of related}
 We used data from contemporary surveys of endophyte prevalence  in \emph{A. hyemalis} and \emph{E. virginicus} in Texas and the southern US. 
 Surveys of \emph{E. virginicus} were conducted in 2013 as described in \citet{sneck2017variation}, and \tom{surveys of \emph{A. hyemalis} took place between 2015 and 2020}{We have added more recent AGHY survey data. I am not sure if you have access to this but you should definitely use it. Karl or I can point you to the right file.}.
 Population surveys of \emph{A. hyemalis} were initially designed to cover longitudinal variation in endophyte prevalence towards its range edge, while surveys of \emph{E. virginicus} were designed to cover latitudinal variation along its range edge. 
@@ -309,6 +289,22 @@ To evaluate whether areas that have experienced the greatest changes in endophyt
 Calculating correlations from many pixels across the study region risks articially inflating confidence in our results due to large sample sizes, and \tom{so we repeated this calculation using only a random subsample of 100 pixels across the study region}{100 seems like a low number to me. What if we did this for all of the herbarium collection locations?}.
 \tom{}{Are the methods above repeated for each species separately?}
 \tom{}{I cut the notation for the Gaussian model for now because it is a pretty simple model and the notation may be overkill, plus because I changed your tau's to beta's there were betas on both sides of the tilde, which was confusing/annoying. Happy have the notation back if you prefer it. I am also a little confused because the appendix has spearman correlations but there are no methods here for where those come from.}
+
+
+\subsection*{Modeling distributions of host species}
+We modeled the distribution of each host species to generate maps on which we predicted the dynamics of \emph{Epichloë} symbionts.
+We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}, using \josh{presence-only observations of the host species from GBIF between 1990 to 2020 }{How many data points does this end up being?}.
+To reduce the potential influence of sampling bias and spatial autocorrelation, we thinned the occurrences to the spatial scale \josh{()}{I think this is 4km, but need to check} of our selected climatic predictors. 
+We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
+We calculated the mean and standard devation of seasonal temperature and precipitation across 1990 to 2020. 
+Among this suite of variables, we chose to include \josh{mean spring temperature, mean spring precipitation, and mean summer temperature}{is this list accurate? my re-running my climate analysis means we ought to re-run the sdm's, and use SD instead of CV, so we can update this list based on whatever is appropriate}, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probabilty of each host species in space and time.
+We fit maximum entropy (MaxEnt) models using the maxent function in the package dismo \citep{hijmans2017package}. 
+\josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
+We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
+The performances of models were evaluated with AUC \josh{AUC}{can we add these values?} \citep{jimenez2012insights}. 
+To convert the continuous predicted probabilities into binary presence - absence maps, we used the  training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}. 
+These binary maps serve as boundaries in presented maps of change in endophyte prevalence, and outline the set of pixels used in our analysis of climate correlates with trends in endophyte prevalence
+
 
 
 %We evaluated how predicted changes in endophyte prevalence ($\Delta{P}$) correlated with %changes in seasonal climate at a grid of points across the study area using linear regression.
