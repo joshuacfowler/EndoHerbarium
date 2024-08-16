@@ -269,14 +269,14 @@ We compared the model's prediction for these locations to the observed populatio
 We assessed how the magnitude of climate change may have driven changes in endophyte prevalence by assessing correlations between changes in climate and changes in endophyte prevalence predicted from our spatial model at evenly spaced pixels across the study area.
 We first downloaded monthly temperature and precipitation rasters from the PRISM climate group \citep{daly2013prism} covering the time period between 1895 and 2020 using the 'prism' R package \citep{Rprism2015}. 
 Prism provides reconstructions of historic climate variables across the United States by spatially-interpolating weather station data \citep{diLuzio2008constructing}. 
-We calculated 30-year climate normals for annual and seasonal mean temperature and cumulative precipitation for the recent (1990 to 2020) and historic (1895 to 1925) periods.
+We calculated 30-year climate normals for seasonal mean temperature and cumulative precipitation for the recent (1990 to 2020) and historic (1895 to 1925) periods.
 We used three four-month seasons within the year (Spring: January, February, March, April; Summer: May; June, July, August; Autumn: September, October, November, December). 
-This division of seasons allowed us to quantify differences in climate associated with the two ``cool'' seasons, when we expect our focal species to be most biologically active (\emph{A. hyemalis} flowering phenology: Spring; \emph{E. virginicus}: Spring and Summer; \emph{A. perennans}: Fall). 
+This division of seasons allowed us to quantify differences in climate associated with the two ``cool'' seasons, when we expected our focal species to be most biologically active (\emph{A. hyemalis} flowering phenology: Spring; \emph{E. virginicus}: Spring and Summer; \emph{A. perennans}: Fall). 
 In addition to mean climate conditions, environmental variability itself can influence population dynamics \cite{tuljapurkar_population_1982} and changes in variability are a key prediction of climate change models \cite{stocker2013technical, ipcc_2021}.
-Therefore we calculated the coefficient of variation (CV) during each period for each annual and seasonal climate driver as the interannual standard deviation divided by the mean across each 30-year period.
-We then took the difference between recent and historic periods for the mean and CV for each climate driver \tom{(Fig. A5)}{This is Figure A7 -- Can you make the color scale on these diverging at zero?}.
-Because initial analyses indicated a high degree of collinearity between seasonal and annual changes in temperature, we used annual temperature only, along with annual and seasonal precipitation, in the subsequent analysis.
-All together, this left us with measurements of change in 10 potential climate drivers: the mean and coefficient of variation of annual temperature, as well as the mean and coefficient of variation of cumulative annual precipitation, cumulative spring precipitation, cumulative summer precipitation, and cumulative autumn precipitation \jacob{(Fig A8-A9)}{ The species names are not clear  on Fig A9. I suggest increase the font siize }.
+Therefore, we calculated the standard deviation for each annual and seasonal climate driver across each 30-year period.
+We then took the difference between recent and historic periods for the mean and standard deviation for each climate driver (Figs. \ref{fig:AGHY_climate_covariates}-\ref{fig:ELVI_climate_covariates}).
+%Because initial analyses indicated a high degree of collinearity between seasonal and annual changes in temperature, we used annual temperature only, along with annual and seasonal precipitation, in the subsequent analysis.
+All together, we assessed twelve potential climate drivers: the mean and standardiation of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation, cumulative precipitation, and cumulative precipitation.
 
 To evaluate whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change), \tom{we modeled spatially varying slopes of endophyte change through time ($\beta_{l}$) as a linear function of environmental covariates, with a Gaussian error distribution. }{I think we need to account for uncertainty in the slopes. They are outputs of a (quasi) Bayesian model so we should be able to propagate all the uncertainty in the posterior disgtribution.}
 Calculating correlations from many pixels across the study region risks articially inflating confidence in our results due to large sample sizes, and \tom{so we repeated this calculation using only a random subsample of 100 pixels across the study region}{100 seems like a low number to me. What if we did this for all of the herbarium collection locations?}.
@@ -376,7 +376,7 @@ Interpreting our models with the inclusion of the scorer effect thus provides co
 
 \subsection*{What is the relationship between variation in temporal trends in endophyte prevalence and changes in climate drivers?}
 
-We found that trends in endophyte prevalence were strongly associated with seasonal climate change drivers (Fig. 6).
+We found that trends in endophyte prevalence were strongly associated with seasonal climate change drivers (Fig. \ref{fig:climate_correlation_plot}).
 For the majority of the study region, the climate has become wetter and cooler over the last century (Fig. A7-A8), a consequence of regional variation in global climate change \cite{ipcc_2021}. 
 Within the study region, spatially heterogeneous environmental changes were predictive of changes in endophyte prevalence. 
 For example, strong increases in prevalence within \emph{E. virginicus} were most associated with declines in Summer precipitation  (a negative correlation in Fig. 7) as well as with increases in the year-to-year variability of annual temperature (a positive correlation in Fig. 7). 
@@ -394,22 +394,11 @@ Correlations using only a subsampling of pixels were qualitatively similar to th
 \josh{}{Only have plotted results for AGHY right now.}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = .7\linewidth]{tmean_regression_plot_ESA.png}
-	\caption{\textbf{Correlations between changes in climate drivers and changes in endophyte prevalence.} Color denotes the Spearman correlation coefficient between the relative rate of change in endophyte prevalence and the change in annual mean temperature ($^oC$) and total annual and seasonal precipitation (mm), as well as the change in the coefficient of variation of each climate driver. Positive correlation coefficients indicate that greater increases in a climate driver were associated with larger increases in endophyte prevalence, while negative values indicate that . Asteriks denote correlation coefficients $> .3$ or $< -.3$.}
+	\includegraphics[width = .7\linewidth]{../Plots/climate_trends_plot.png}
+	\caption{\textbf{Correlations between changes in climate drivers and changes in endophyte prevalence.} Lines show relationships between seasonal climate covariates and spatially-varying trends in endophyte prevalence for each host species, along with 96\% CI.}
+	\label{fig:climate_correlation_plot}
 \end{figure}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = .7\linewidth]{ppt_regression_plot_ESA.png}
-	\caption{\textbf{Correlations between changes in climate drivers and changes in endophyte prevalence.} Color denotes the Spearman correlation coefficient between the relative rate of change in endophyte prevalence and the change in annual mean temperature ($^oC$) and total annual and seasonal precipitation (mm), as well as the change in the coefficient of variation of each climate driver. Positive correlation coefficients indicate that greater increases in a climate driver were associated with larger increases in endophyte prevalence, while negative values indicate that . Asteriks denote correlation coefficients $> .3$ or $< -.3$.}
-\end{figure}
-
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = .7\linewidth]{ppt_CV_regression_plot_ESA.png}
-	\caption{\textbf{Correlations between changes in climate drivers and changes in endophyte prevalence.} Color denotes the Spearman correlation coefficient between the relative rate of change in endophyte prevalence and the change in annual mean temperature ($^oC$) and total annual and seasonal precipitation (mm), as well as the change in the coefficient of variation of each climate driver. Positive correlation coefficients indicate that greater increases in a climate driver were associated with larger increases in endophyte prevalence, while negative values indicate that . Asteriks denote correlation coefficients $> .3$ or $< -.3$.}
-\end{figure}
 
 
 
@@ -586,16 +575,24 @@ Beyond host-microbe symbioses, building these types of models would work towards
 
 	\begin{figure}[H]
 	\centering
-	\includegraphics[width = .8\linewidth]{ppt_change_maps.png}
-	\caption{\textbf{Change in precipitation between the periods 1895-1925 and 1990-2020.} Color represents change in annual or seasonal total precipitation (A,C,E,G) and in the coeffiecient of variation of annual or seasonal total precipitation (B,D,F,H). Maps show the study area of \emph{A. hyemalis}. Map pixels used in correlation analysis with endophyte change were pulled from studies areas specific to each host species. }
+	\includegraphics[width = .8\linewidth]{../Plots/AGHY_climate_change_plot.png}
+	\caption{\textbf{Change in seasonal climate variables between the periods 1895-1925 and 1990-2020.} Color represents change in (A) seasonal temperature and (B) seasonal precipitation. Maps show pixels covering the modeled distribution of \emph{A. hyemalis} used in post-hoc climate correlation analysis.}
+	\label{fig:AGHY_climate_covariates}
 \end{figure}
 
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width = \linewidth]{tmean_change_maps.png}
-		\caption{\textbf{Change in temperature between the periods 1895-1925 and 1990-2020.} Color represents change in annual mean temperature (A) and in the coeffiecient of variation of annual mean temperature (B). Maps show the study area of \emph{A. hyemalis}. Map pixels used in correlation analysis with endophyte change were pulled from studies areas specific to each host species.}
-	\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = .8\linewidth]{../Plots/AGPE_climate_change_plot.png}
+	\caption{\textbf{Change in seasonal climate variables between the periods 1895-1925 and 1990-2020.} Color represents change in (A) seasonal temperature and (B) seasonal precipitation. Maps show pixels covering the modeled distribution of \emph{A. perennans} used in post-hoc climate correlation analysis.}
+	\label{fig:AGPE_climate_covariates}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = .8\linewidth]{../Plots/ELVI_climate_change_plot.png}
+	\caption{\textbf{Change in seasonal climate variables between the periods 1895-1925 and 1990-2020.} Color represents change in (A) seasonal temperature and (B) seasonal precipitation. Maps show pixels covering the modeled distribution of \emph{E. virginicus} used in post-hoc climate correlation analysis.}
+	\label{fig:ELVI_climate_covariates}
+\end{figure}
 
 
 
