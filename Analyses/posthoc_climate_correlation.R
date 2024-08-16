@@ -224,7 +224,6 @@ vrt_elvi_dd <- svc.pred_elvi  %>%
   spTransform(dd_crs)
 
 
-
 aghy_prism_diff_pred_df <- tibble(lon = vrt_aghy_dd@coords[,1], lat = vrt_aghy_dd@coords[,2],
                                   coords.x1 = svc.pred_aghy@coords[,1], coords.x2 = svc.pred_aghy@coords[,2],
                                   tmean_annual_diff = as.numeric(unlist(terra::extract(tmean_annual_difference, vrt_aghy_dd@coords))),
@@ -332,8 +331,91 @@ aghy_prism_diff_pred_df <- read_csv("aghy_prism_diff_pred_df.csv")
 agpe_prism_diff_pred_df <- read_csv("agpe_prism_diff_pred_df.csv")
 elvi_prism_diff_pred_df <- read_csv("elvi_prism_diff_pred_df.csv")
 
+# Plotting the change in climate at our pixel values
 
-# dim(elvi_prism_diff_pred_df)
+prism_diff_pred_df <- aghy_prism_diff_pred_df %>% 
+  full_join(agpe_prism_diff_pred_df) %>% 
+  full_join(elvi_prism_diff_pred_df) %>% 
+  pivot_longer(contains("_diff")) %>% 
+  separate(name, into = c("climate", "season"), sep = "_", extra = "drop", remove = FALSE) %>% 
+  filter(!grepl("_cv_", name) & ! grepl("annual", name)) %>% 
+  mutate(season_f = factor(season, level = c("spring", "summer", "autumn")),
+         moment = case_when(grepl("_sd_", name) ~ "sd",
+                            TRUE ~ "mean"))
+  
+
+
+AGHY_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "A. hyemalis"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+AGHY_tmean_change_plot
+
+AGHY_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "A. hyemalis"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGHY_ppt_change_plot
+
+
+AGHY_climate_change_plot <- AGHY_tmean_change_plot/AGHY_ppt_change_plot + plot_annotation(tag_levels = "A")
+
+ggsave(AGHY_climate_change_plot, filename = "Plots/AGHY_climate_change_plot.png", width = 8, height = 10)
+
+
+
+AGPE_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "A. perennans"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGPE_tmean_change_plot
+
+AGPE_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "A. perennans"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGPE_ppt_change_plot
+
+
+AGPE_climate_change_plot <- AGPE_tmean_change_plot/AGPE_ppt_change_plot + plot_annotation( tag_levels = "A")
+
+ggsave(AGPE_climate_change_plot, filename = "Plots/AGPE_climate_change_plot.png", width = 8, height = 10)
+
+
+
+ELVI_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "E. virginicus"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+# ELVI_tmean_change_plot
+
+ELVI_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "E. virginicus"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# ELVI_ppt_change_plot
+
+
+ELVI_climate_change_plot <- ELVI_tmean_change_plot/ELVI_ppt_change_plot + plot_annotation( tag_levels = "A")
+
+ggsave(ELVI_climate_change_plot, filename = "Plots/ELVI_climate_change_plot.png", width = 8, height = 10)
+
+
+
+
+
 
 ggplot()+
   geom_tile(data = elvi_prism_diff_pred_df, aes(x = coords.x1, y = coords.x2, fill = tmean_autumn_diff))+
