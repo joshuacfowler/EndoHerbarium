@@ -1,4 +1,4 @@
-\begin{thebibliography}{97}
+\begin{thebibliography}{100}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -134,6 +134,13 @@ Keith Clay and Christopher Schardl.
 \newblock \emph{the american naturalist}, 160\penalty0 (S4):\penalty0
   S99--S127, 2002.
 
+\bibitem[Clayton et~al.(1993)Clayton, Bernardinelli, and
+  Montomoli]{clayton1993spatial}
+David~G Clayton, Luisa Bernardinelli, and Cristina Montomoli.
+\newblock Spatial correlation in ecological analysis.
+\newblock \emph{International journal of epidemiology}, 22\penalty0
+  (6):\penalty0 1193--1202, 1993.
+
 \bibitem[Craven et~al.(2001)Craven, Hsiau, Leuchtmann, Hollin, and
   Schardl]{craven2001multigene}
 KD~Craven, PTW Hsiau, A~Leuchtmann, W~Hollin, and CL~Schardl.
@@ -238,6 +245,11 @@ Yuan-Wen Duan, Haibao Ren, Tao Li, Lin-Lin Wang, Zhi-Qiang Zhang, Yan-Li Tu,
 \newblock A century of pollination success revealed by herbarium specimens of
   seed pods.
 \newblock \emph{New Phytologist}, 224\penalty0 (4):\penalty0 1512--1517, 2019.
+
+\bibitem[Edwards et~al.()Edwards, Mishler, and Davis]{edwards2024university}
+Erika~J Edwards, Brent~D Mishler, and Charles~D Davis.
+\newblock University herbaria are uniquely important.
+\newblock \emph{Trends in Plant Science}.
 
 \bibitem[Engel et~al.(2022)Engel, Mette, and Falk]{engel2022spatial}
 Markus Engel, Tobias Mette, and Wolfgang Falk.
@@ -657,6 +669,13 @@ Shripad~D. Tuljapurkar.
 \newblock \doi{10.1016/0040-5809(82)90010-7}.
 \newblock URL
   \url{http://www.sciencedirect.com/science/article/pii/0040580982900107}.
+
+\bibitem[Urdangarin et~al.(2023)Urdangarin, Goicoa, and
+  Ugarte]{urdangarin2023evaluating}
+Arantxa Urdangarin, Tom{\'a}s Goicoa, and Mar{\'\i}a~Dolores Ugarte.
+\newblock Evaluating recent methods to overcome spatial confounding.
+\newblock \emph{Revista Matem{\'a}tica Complutense}, 36\penalty0 (2):\penalty0
+  333--360, 2023.
 
 \bibitem[Vikuk et~al.(2019)Vikuk, Young, Lee, Nagabhyru, Krischke, Mueller, and
   Krauss]{vikuk2019infection}

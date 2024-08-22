@@ -28,46 +28,48 @@ Repeated entry---line 1516 of file endo_herbarium.bib
  :                                ,
 I'm skipping whatever remains of this entry
 Warning--I didn't find a database entry for ""
+Warning--empty year in edwards2024university
+Warning--empty year in edwards2024university
 Warning--empty journal in Rprism2015
-You've used 97 entries,
+You've used 100 entries,
             2773 wiz_defined-function locations,
-            1165 strings with 27239 characters,
-and the built_in function-call counts, 56271 in all, are:
-= -- 4843
-> -- 4283
+            1182 strings with 27760 characters,
+and the built_in function-call counts, 57718 in all, are:
+= -- 4970
+> -- 4373
 < -- 26
-+ -- 1435
-- -- 1338
-* -- 5321
-:= -- 8833
-add.period$ -- 298
-call.type$ -- 97
-change.case$ -- 731
-chr.to.int$ -- 97
-cite$ -- 195
-duplicate$ -- 2030
-empty$ -- 3920
-format.name$ -- 1465
-if$ -- 11415
++ -- 1465
+- -- 1365
+* -- 5456
+:= -- 9055
+add.period$ -- 307
+call.type$ -- 100
+change.case$ -- 749
+chr.to.int$ -- 100
+cite$ -- 203
+duplicate$ -- 2092
+empty$ -- 4035
+format.name$ -- 1495
+if$ -- 11710
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 95
-newline$ -- 498
-num.names$ -- 388
-pop$ -- 1299
+missing$ -- 98
+newline$ -- 513
+num.names$ -- 400
+pop$ -- 1336
 preamble$ -- 1
-purify$ -- 634
+purify$ -- 649
 quote$ -- 0
-skip$ -- 1668
+skip$ -- 1709
 stack$ -- 0
-substring$ -- 2433
-swap$ -- 118
+substring$ -- 2495
+swap$ -- 121
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1067
-warning$ -- 1
-while$ -- 462
+type$ -- 1100
+warning$ -- 3
+while$ -- 475
 width$ -- 0
-write$ -- 1275
+write$ -- 1312
 (There were 6 error messages)
