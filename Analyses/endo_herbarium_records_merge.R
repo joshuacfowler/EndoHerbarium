@@ -11,7 +11,9 @@ library(lubridate)
 library(ggmap)
 library(prism) # to import prism raster files
 library(terra)
+library(sf)
 library(INLA) # using this here to work with the shape boundary
+library(inlabru) # using this here for some plotting stuff
 
 ################################################################################
 ############ Read in digitized herbarium records ############################### 
@@ -1667,6 +1669,14 @@ ppt_autumn_cv_difference <- terra::diff(terra::rast(list(ppt_autumn_old_cv, ppt_
 
 
 # changing the crs of these rasters to match the pixels of our mesh
+# converting the lat long to epsg 6703km in km
+# define a crs
+epsg6703km <- paste(
+  "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5",
+  "+lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83",
+  "+units=km +no_defs"
+)
+
 raster::crs(tmean_annual_difference) <- epsg6703km
 raster::crs(tmean_spring_difference) <- epsg6703km
 raster::crs(tmean_summer_difference) <- epsg6703km
@@ -1701,13 +1711,13 @@ raster::crs(ppt_autumn_cv_difference) <- epsg6703km
 
 
 
-ppt_autumn_cv_difference %>% st_transform(epsg6703km)
-  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE)
-  st_transform(epsg6703km) %>% 
-  mutate(
-    coords.x1 = st_coordinates(.)[, 1],
-    coords.x2 = = st_coordinates(.)[, 1],
-)
+# ppt_autumn_cv_difference %>% st_transform(epsg6703km)
+#   st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE)
+#   st_transform(epsg6703km) %>% 
+#   mutate(
+#     coords.x1 = st_coordinates(.)[, 1],
+#     coords.x2 = = st_coordinates(.)[, 1],
+# )
 
 
 ######### Next extracting these climate values at our points. ####
@@ -1822,7 +1832,9 @@ aghy_prism_diff_pred_df <- tibble(lon = vrt_aghy_dd@coords[,1], lat = vrt_aghy_d
     coords.x2 = st_coordinates(.)[, 2]
   ) %>% 
   as.data.frame() %>% 
-  mutate(origin = "prism") 
+  mutate(origin = "prism") %>% 
+  mutate(species = "A. hyemalis")
+
 
 write_csv(aghy_prism_diff_pred_df, file = "aghy_prism_diff_pred_df.csv")
 
@@ -1860,7 +1872,9 @@ agpe_prism_diff_pred_df <- tibble(lon = vrt_agpe_dd@coords[,1], lat = vrt_agpe_d
     coords.x2 = st_coordinates(.)[, 2]
   ) %>% 
   as.data.frame() %>% 
-  mutate(origin = "prism") 
+  mutate(origin = "prism") %>% 
+  mutate(species = "A. perennans")
+
 
 write_csv(agpe_prism_diff_pred_df, file = "agpe_prism_diff_pred_df.csv")
 
@@ -1899,11 +1913,30 @@ elvi_prism_diff_pred_df <- tibble(lon = vrt_elvi_dd@coords[,1], lat = vrt_elvi_d
     coords.x2 = st_coordinates(.)[, 2]
   ) %>% 
   as.data.frame() %>% 
-  mutate(origin = "prism") 
+  mutate(origin = "prism") %>% 
+  mutate(species = "E. virginicus")
 
 write_csv(elvi_prism_diff_pred_df, file = "elvi_prism_diff_pred_df.csv")
 
 
+# Plotting the change in climate at our pixel values
+
+prism_diff_pred_df <- aghy_prism_diff_pred_df %>% 
+  full_join(agpe_prism_diff_pred_df) %>% 
+  full_join(elvi_prism_diff_pred_df) %>% 
+  pivot_longer(contains("_diff"))
+  
+
+ggplot(filter(prism_diff_pred_df, grepl("tmean", name) & !grepl("_cv_", name) ))+
+  geom_point(aes(x = lon, y = lat, color = value), shape = 15) +
+  facet_wrap(~species + name)
+  scale_fill_b
+
+
+
+
+ggplot(prism_diff_pred_df)+
+  geom_point(aes(x = lon, y = lat, color = ppt_annual_diff))
 
 
 
@@ -1911,9 +1944,13 @@ write_csv(elvi_prism_diff_pred_df, file = "elvi_prism_diff_pred_df.csv")
 epsg6703degree <- "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=km +no_defs"
 vrt_list <- list()
 
+species_codes <- c("AGHY", "AGPE", "ELVI")
+species_names <- c("A. hyemalis", "A. perennans", "E. virginicus")
+
+
 for (s in 1:3){
   vrt <- NA
-  mesh <- mesh_list[[s]]
+  mesh <- mesh_lists[[s]]
   bdry_polygon <- bdry_polygon_list[[s]]
   
   vrt_list[[species_codes[s]]] <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))
@@ -1925,47 +1962,47 @@ vrt_df <- vrt_df %>%
          lon = st_coordinates(vrt_df)[,2])
 
 ggplot()+
-  gg(mesh_list[[1]])+
+  gg(mesh_lists[[1]])+
   gg(vrt_list[[1]], color = "red")
 
 ggplot()+
-  gg(mesh_list[[2]])+
+  gg(mesh_lists[[2]])+
   gg(vrt_list[[2]], color = "red")
 
 ggplot()+
-  gg(mesh_list[[3]])+
+  gg(mesh_lists[[3]])+
   gg(vrt_list[[3]], color = "red")
 
 
 vrt_list[[1]]@coords
 
 prism_diff_pred_df <- tibble(lon = vrt_list[[1]]@coords[,1], lat = vrt_list[[1]]@coords[,2],
-                             tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, vrt_list[[1]]@coords)))
-                             tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, coords_pred)),
-                             tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, coords_pred)),
-                             tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, coords_pred)),
-                             ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, coords_pred)),
-                             ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, coords_pred)),
-                             ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, coords_pred)),
-                             ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, coords_pred)),
+                             tmean_annual_diff = unlist(terra::extract(tmean_annual_difference, vrt_list[[1]]@coords)),
+                             tmean_spring_diff = unlist(terra::extract(tmean_spring_difference, vrt_list[[1]]@coords)),
+                             tmean_summer_diff = unlist(terra::extract(tmean_summer_difference, vrt_list[[1]]@coords)),
+                             tmean_autumn_diff = unlist(terra::extract(tmean_autumn_difference, vrt_list[[1]]@coords)),
+                             ppt_annual_diff = unlist(terra::extract(ppt_annual_difference, vrt_list[[1]]@coords)),
+                             ppt_spring_diff = unlist(terra::extract(ppt_spring_difference, vrt_list[[1]]@coords)),
+                             ppt_summer_diff = unlist(terra::extract(ppt_summer_difference, vrt_list[[1]]@coords)),
+                             ppt_autumn_diff = unlist(terra::extract(ppt_autumn_difference, vrt_list[[1]]@coords)),
                              
-                             tmean_annual_sd_diff = unlist(terra::extract(tmean_annual_sd_difference, coords_pred)),
-                             tmean_spring_sd_diff = unlist(terra::extract(tmean_spring_sd_difference, coords_pred)),
-                             tmean_summer_sd_diff = unlist(terra::extract(tmean_summer_sd_difference, coords_pred)),
-                             tmean_autumn_sd_diff = unlist(terra::extract(tmean_autumn_sd_difference, coords_pred)),
-                             ppt_annual_sd_diff = unlist(terra::extract(ppt_annual_sd_difference, coords_pred)),
-                             ppt_spring_sd_diff = unlist(terra::extract(ppt_spring_sd_difference, coords_pred)),
-                             ppt_summer_sd_diff = unlist(terra::extract(ppt_summer_sd_difference, coords_pred)),
-                             ppt_autumn_sd_diff = unlist(terra::extract(ppt_autumn_sd_difference, coords_pred)),
+                             tmean_annual_sd_diff = unlist(terra::extract(tmean_annual_sd_difference, vrt_list[[1]]@coords)),
+                             tmean_spring_sd_diff = unlist(terra::extract(tmean_spring_sd_difference, vrt_list[[1]]@coords)),
+                             tmean_summer_sd_diff = unlist(terra::extract(tmean_summer_sd_difference, vrt_list[[1]]@coords)),
+                             tmean_autumn_sd_diff = unlist(terra::extract(tmean_autumn_sd_difference, vrt_list[[1]]@coords)),
+                             ppt_annual_sd_diff = unlist(terra::extract(ppt_annual_sd_difference, vrt_list[[1]]@coords)),
+                             ppt_spring_sd_diff = unlist(terra::extract(ppt_spring_sd_difference, vrt_list[[1]]@coords)),
+                             ppt_summer_sd_diff = unlist(terra::extract(ppt_summer_sd_difference, vrt_list[[1]]@coords)),
+                             ppt_autumn_sd_diff = unlist(terra::extract(ppt_autumn_sd_difference, vrt_list[[1]]@coords)),
                              
-                             tmean_annual_cv_diff = unlist(terra::extract(tmean_annual_cv_difference, coords_pred)),
-                             tmean_spring_cv_diff = unlist(terra::extract(tmean_spring_cv_difference, coords_pred)),
-                             tmean_summer_cv_diff = unlist(terra::extract(tmean_summer_cv_difference, coords_pred)),
-                             tmean_autumn_cv_diff = unlist(terra::extract(tmean_autumn_cv_difference, coords_pred)),
-                             ppt_annual_cv_diff = unlist(terra::extract(ppt_annual_cv_difference, coords_pred)),
-                             ppt_spring_cv_diff = unlist(terra::extract(ppt_spring_cv_difference, coords_pred)),
-                             ppt_summer_cv_diff = unlist(terra::extract(ppt_summer_cv_difference, coords_pred)),
-                             ppt_autumn_cv_diff = unlist(terra::extract(ppt_autumn_cv_difference, coords_pred))) %>% 
+                             tmean_annual_cv_diff = unlist(terra::extract(tmean_annual_cv_difference, vrt_list[[1]]@coords)),
+                             tmean_spring_cv_diff = unlist(terra::extract(tmean_spring_cv_difference, vrt_list[[1]]@coords)),
+                             tmean_summer_cv_diff = unlist(terra::extract(tmean_summer_cv_difference, vrt_list[[1]]@coords)),
+                             tmean_autumn_cv_diff = unlist(terra::extract(tmean_autumn_cv_difference, vrt_list[[1]]@coords)),
+                             ppt_annual_cv_diff = unlist(terra::extract(ppt_annual_cv_difference, vrt_list[[1]]@coords)),
+                             ppt_spring_cv_diff = unlist(terra::extract(ppt_spring_cv_difference, vrt_list[[1]]@coords)),
+                             ppt_summer_cv_diff = unlist(terra::extract(ppt_summer_cv_difference, vrt_list[[1]]@coords)),
+                             ppt_autumn_cv_diff = unlist(terra::extract(ppt_autumn_cv_difference, vrt_list[[1]]@coords))) %>% 
   na.omit()
 write_csv(prism_diff_pred_df, file = "prism_diff_pred_df.csv")
 
