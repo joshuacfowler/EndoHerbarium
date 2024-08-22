@@ -18,6 +18,7 @@ library(tidyterra)
 library(patchwork)
 library(ggmap)
 library(pROC)
+library(tidybayes)
 
 invlogit<-function(x){exp(x)/(1+exp(x))}
 species_colors <- c("#1b9e77","#d95f02","#7570b3")
@@ -630,7 +631,7 @@ ggsave(posterior_plot, filename = "Plots/posterior_plot.png", width = 6, height 
 ################################################################################################################################
 ##########  Plotting the posteriors of scorer and collector effects ###############
 ################################################################################################################################
-random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
+# random_collectors <- sample((1:NROW(fit$summary.random$collector)), 12)
 
 slist <- vector("list", NROW(fit$summary.random$scorer))
 for (i in seq_along(slist)) slist[[i]] <- plot(fit, "scorer", index = i) + lims(x = c(-2.5,2.5))
@@ -660,20 +661,62 @@ plot(fit, "time.species1")
 ################################################################################################################################
 ##########  Generating posterior samples for some summary statistics ###############
 ################################################################################################################################
+n_draws <- 500
+
+posteriors.aghy <- generate(
+  fit,
+  formula = ~ year.species1_latent,
+  n.samples = n_draws) 
+posteriors.agpe <- generate(
+  fit,
+  formula = ~ year.species2_latent,
+  n.samples = n_draws) 
+posteriors.elvi <- generate(
+  fit,
+  formula = ~ year.species3_latent,
+  n.samples = n_draws) 
+
+colnames(posteriors.aghy) <- c( paste0("iter",1:n_draws))
+colnames(posteriors.agpe) <- c( paste0("iter",1:n_draws))
+colnames(posteriors.elvi) <- c( paste0("iter",1:n_draws))
+
+rownames(posteriors.aghy) <- c("year.aghy")
+rownames(posteriors.agpe) <- c("year.agpe")
+rownames(posteriors.elvi) <- c("year.elvi")
 
 
-samps_int.1 <- tibble(value = t(generate(fit, formula = ~ int.species1, n.samples = 1000)), species = species_names[1]) %>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[1] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
-samps_int.2  <- tibble(value = t(generate(fit, formula = ~ int.species2, n.samples = 1000)), species = species_names[2]) %>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[2] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
-samps_int.3<- tibble(value = t(generate(fit, formula = ~ int.species3, n.samples = 1000)), species = species_names[3])%>% mutate(quantile = case_when(value >=fit$summary.fixed$`0.025quant`[3] | value <=fit$summary.fixed$`0.975quant`[1] ~ 1))
+posteriors <- rbind(posteriors.aghy, posteriors.agpe, posteriors.elvi)
 
-samps <- bind_rows(samps_int.1, samps_int.2, samps_int.3)
 
-ggplot(samps)+
+
+posteriors_df <- as_tibble(posteriors, rownames = "param") %>% 
+  separate_wider_delim(param, delim = ".", names = c("param_type", "spp_label"), cols_remove = FALSE) %>% 
+  pivot_longer( cols = -c(param, param_type, spp_label), names_to = "iteration")
+
+
+
+
+posteriors_summary <- posteriors_df %>% 
+  group_by(param, spp_label, param_type) %>% 
+  summarize(mean = mean(value), 
+            lwr = quantile(value, .025),
+            upr = quantile(value, .975),
+            prop_pos = sum(value>0)/500)
+
+posterior_hist <- ggplot(posteriors_df)+
+  stat_halfeye(aes(x = value, y = spp_label, fill = spp_label), breaks = 50, alpha = .6)+
+  # stat_histinterval(aes(x = value, y = spp_label, fill = spp_label), breaks = 50, alpha = .6)+
+  # geom_point(data = posteriors_summary, aes(x = mean, y = spp_label, color = spp_label))+
+  # geom_linerange(data = posteriors_summary, aes(xmin = lwr, xmax = upr, y = spp_label, color = spp_label))+
+  
   geom_vline(xintercept = 0)+
-  geom_histogram(aes(x = value, fill = species, color = quantile), bins = 60, alpha = .7) + facet_wrap(~species, scales = "free_y", ncol = 1) +
-  scale_fill_manual(values = species_colors)
+  facet_wrap(~param_type, scales = "free")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  scale_x_continuous(labels = scales::label_number(), guide = guide_axis(check.overlap = TRUE))+
+  theme_bw()
 
-
+posterior_hist
 ################################################################################################################################
 ##########  Plotting the spatially varying trends ###############
 ################################################################################################################################
