@@ -1,4 +1,4 @@
-\begin{thebibliography}{90}
+\begin{thebibliography}{100}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -134,6 +134,13 @@ Keith Clay and Christopher Schardl.
 \newblock \emph{the american naturalist}, 160\penalty0 (S4):\penalty0
   S99--S127, 2002.
 
+\bibitem[Clayton et~al.(1993)Clayton, Bernardinelli, and
+  Montomoli]{clayton1993spatial}
+David~G Clayton, Luisa Bernardinelli, and Cristina Montomoli.
+\newblock Spatial correlation in ecological analysis.
+\newblock \emph{International journal of epidemiology}, 22\penalty0
+  (6):\penalty0 1193--1202, 1993.
+
 \bibitem[Craven et~al.(2001)Craven, Hsiau, Leuchtmann, Hollin, and
   Schardl]{craven2001multigene}
 KD~Craven, PTW Hsiau, A~Leuchtmann, W~Hollin, and CL~Schardl.
@@ -146,6 +153,15 @@ Kerri~M Crawford, John~M Land, and Jennifer~A Rudgers.
 \newblock Fungal endophytes of native grasses decrease insect herbivore
   preference and performance.
 \newblock \emph{Oecologia}, 164:\penalty0 431--444, 2010.
+
+\bibitem[Crossley et~al.(2022)Crossley, Meehan, Moran, Glassberg, Snyder, and
+  Davis]{crossley2022opposing}
+Michael~S Crossley, Timothy~D Meehan, Matthew~D Moran, Jeffrey Glassberg,
+  William~E Snyder, and Andrew~K Davis.
+\newblock Opposing global change drivers counterbalance trends in breeding
+  north american monarch butterflies.
+\newblock \emph{Global change biology}, 28\penalty0 (15):\penalty0 4726--4735,
+  2022.
 
 \bibitem[Daly and Bryant(2013)]{daly2013prism}
 Christopher Daly and Kirk Bryant.
@@ -230,6 +246,11 @@ Yuan-Wen Duan, Haibao Ren, Tao Li, Lin-Lin Wang, Zhi-Qiang Zhang, Yan-Li Tu,
   seed pods.
 \newblock \emph{New Phytologist}, 224\penalty0 (4):\penalty0 1512--1517, 2019.
 
+\bibitem[Edwards et~al.()Edwards, Mishler, and Davis]{edwards2024university}
+Erika~J Edwards, Brent~D Mishler, and Charles~D Davis.
+\newblock University herbaria are uniquely important.
+\newblock \emph{Trends in Plant Science}.
+
 \bibitem[Engel et~al.(2022)Engel, Mette, and Falk]{engel2022spatial}
 Markus Engel, Tobias Mette, and Wolfgang Falk.
 \newblock Spatial species distribution models: Using bayes inference with inla
@@ -251,6 +272,14 @@ Paul~EM Fine.
 \newblock Vectors and vertical transmission: an epidemiologic perspective.
 \newblock \emph{Annals of the New York Academy of Sciences}, 266\penalty0
   (1):\penalty0 173--194, 1975.
+
+\bibitem[Fowler et~al.(2024)Fowler, Ziegler, Whitney, Rudgers, and
+  Miller]{fowler2024microbial}
+Joshua~C Fowler, Shaun Ziegler, Kenneth~D Whitney, Jennifer~A Rudgers, and
+  Tom~EX Miller.
+\newblock Microbial symbionts buffer hosts from the demographic costs of
+  environmental stochasticity.
+\newblock \emph{Ecology Letters}, 27\penalty0 (5):\penalty0 e14438, 2024.
 
 \bibitem[Frade et~al.(2008)Frade, De~Jongh, Vermeulen, Van~Bleijswijk, and
   Bak]{frade2008variation}
@@ -299,6 +328,20 @@ J~Mason Heberling and David~J Burke.
 \newblock \emph{Applications in plant sciences}, 7\penalty0 (4):\penalty0
   e01223, 2019.
 
+\bibitem[Hijmans and Graham(2006)]{hijmans2006ability}
+Robert~J Hijmans and Catherine~H Graham.
+\newblock The ability of climate envelope models to predict the effect of
+  climate change on species distributions.
+\newblock \emph{Global change biology}, 12\penalty0 (12):\penalty0 2272--2281,
+  2006.
+
+\bibitem[Hijmans et~al.(2017)Hijmans, Phillips, Leathwick, Elith, and
+  Hijmans]{hijmans2017package}
+Robert~J Hijmans, Steven Phillips, John Leathwick, Jane Elith, and Maintainer
+  Robert~J Hijmans.
+\newblock Package ‘dismo’.
+\newblock \emph{Circles}, 9\penalty0 (1):\penalty0 1--68, 2017.
+
 \bibitem[HilleRisLambers et~al.(2013)HilleRisLambers, Harsch, Ettinger, Ford,
   and Theobald]{hillerislambers2013will}
 Janneke HilleRisLambers, Melanie~A Harsch, Ailene~K Ettinger, Kevin~R Ford, and
@@ -321,6 +364,13 @@ Nick~JB Isaac, Marta~A Jarzyna, Petr Keil, Lea~I Dambly, Philipp~H
 \newblock Data integration for large-scale models of species distributions.
 \newblock \emph{Trends in ecology \& evolution}, 35\penalty0 (1):\penalty0
   56--67, 2020.
+
+\bibitem[Jim{\'e}nez-Valverde(2012)]{jimenez2012insights}
+Alberto Jim{\'e}nez-Valverde.
+\newblock Insights into the area under the receiver operating characteristic
+  curve (auc) as a discrimination measure in species distribution modelling.
+\newblock \emph{Global Ecology and Biogeography}, 21\penalty0 (4):\penalty0
+  498--507, 2012.
 
 \bibitem[Kahle et~al.(2019)Kahle, Wickham, and Kahle]{kahle2019package}
 David Kahle, Hadley Wickham, and Maintainer~David Kahle.
@@ -352,6 +402,15 @@ Mikhail~V Kozlov, Irina~V Sokolova, Vitali Zverev, Alexander~A Egorov,
 \newblock Biases in estimation of insect herbivory from herbarium specimens.
 \newblock \emph{Scientific Reports}, 10\penalty0 (1):\penalty0 12298, 2020.
 
+\bibitem[Lee et~al.(2024)Lee, Alecrim, Miller, Forrest, Heberling, Primack, and
+  Sargent]{lee2024phenological}
+Benjamin~R Lee, Evelyn~F Alecrim, Tara~K Miller, Jessica~RK Forrest, J~Mason
+  Heberling, Richard~B Primack, and Risa~D Sargent.
+\newblock Phenological mismatch between trees and wildflowers: Reconciling
+  divergent findings in two recent analyses.
+\newblock \emph{Journal of Ecology}, 112\penalty0 (6):\penalty0 1184--1199,
+  2024.
+
 \bibitem[Lendemer et~al.(2020)Lendemer, Thiers, Monfils, Zaspel, Ellwood,
   Bentley, LeVan, Bates, Jennings, Contreras, et~al.]{lendemer2020extended}
 James Lendemer, Barbara Thiers, Anna~K Monfils, Jennifer Zaspel, Elizabeth~R
@@ -381,6 +440,12 @@ Finn Lindgren, H{\aa}vard Rue, and Johan Lindstr{\"o}m.
   fields: the stochastic partial differential equation approach.
 \newblock \emph{Journal of the Royal Statistical Society: Series B (Statistical
   Methodology)}, 73\penalty0 (4):\penalty0 423--498, 2011.
+
+\bibitem[Liu et~al.(2005)Liu, Berry, Dawson, and Pearson]{liu2005selecting}
+Canran Liu, Pam~M Berry, Terence~P Dawson, and Richard~G Pearson.
+\newblock Selecting thresholds of occurrence in the prediction of species
+  distributions.
+\newblock \emph{Ecography}, 28\penalty0 (3):\penalty0 385--393, 2005.
 
 \bibitem[McFall-Ngai et~al.(2013)McFall-Ngai, Hadfield, Bosch, Carey,
   Domazet-Lo{\v{s}}o, Douglas, Dubilier, Eberl, Fukami, Gilbert,
@@ -604,6 +669,13 @@ Shripad~D. Tuljapurkar.
 \newblock \doi{10.1016/0040-5809(82)90010-7}.
 \newblock URL
   \url{http://www.sciencedirect.com/science/article/pii/0040580982900107}.
+
+\bibitem[Urdangarin et~al.(2023)Urdangarin, Goicoa, and
+  Ugarte]{urdangarin2023evaluating}
+Arantxa Urdangarin, Tom{\'a}s Goicoa, and Mar{\'\i}a~Dolores Ugarte.
+\newblock Evaluating recent methods to overcome spatial confounding.
+\newblock \emph{Revista Matem{\'a}tica Complutense}, 36\penalty0 (2):\penalty0
+  333--360, 2023.
 
 \bibitem[Vikuk et~al.(2019)Vikuk, Young, Lee, Nagabhyru, Krischke, Mueller, and
   Krauss]{vikuk2019infection}

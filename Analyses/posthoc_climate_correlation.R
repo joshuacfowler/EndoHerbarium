@@ -1,0 +1,909 @@
+# Purpose: Perform post-hoc correlations between modelled spatially varying trends in endophyte prevalence and observed change in climate
+# Authors: Joshua Fowler
+# Updated: June 25, 2024
+
+library(tidyverse) # for data manipulation and ggplot
+library(INLA) # for fitting integrated nested Laplace approximation models
+library(inlabru)
+library(fmesher)
+
+library(prism) # to import prism raster files
+
+library(sf)
+# library(rmapshaper)
+library(terra)
+library(tidyterra)
+
+
+library(patchwork)
+library(ggmap)
+
+species_colors <- c("#1b9e77","#d95f02","#7570b3")
+species_names <- c("A. hyemalis", "A. perennans", "E. virginicus")
+
+
+################################################################################
+############ Download and read in prism data rasters ###########################
+################################################################################
+
+# making a folder to store prism data
+prism_set_dl_dir(paste0(getwd(),"/prism_download"))
+
+# getting monthly data for mean temp and precipitation
+# takes a long time the first time, but can skip when you have raster files saved on your computer.
+get_prism_monthlys(type = "tmean", years = 1895:2020, mon = 1:12, keepZip = FALSE)
+get_prism_monthlys(type = "ppt", years = 1895:2020, mon = 1:12, keepZip = FALSE)
+
+
+# pulling out values to get normals for old and new time periods
+tmean_annual_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020))))
+tmean_spring_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:4))))
+tmean_summer_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 5:8))))
+tmean_autumn_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
+
+
+tmean_annual_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925))))
+tmean_spring_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:4))))
+tmean_summer_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 5:8))))
+tmean_autumn_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 9:12))))
+
+# calculating standard deviation in temp
+
+tmean_annual_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020))))
+tmean_spring_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:4))))
+tmean_summer_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 5:8))))
+tmean_autumn_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
+
+tmean_annual_old_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925))))
+tmean_spring_old_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:4))))
+tmean_summer_old_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 5:8))))
+tmean_autumn_old_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 9:12))))
+
+# calculating coefficient of variation in temp
+tmean_annual_recent_cv <- tmean_annual_recent_sd/(tmean_annual_recent_norm+abs(terra::minmax(tmean_annual_recent_norm)[1,]))
+tmean_spring_recent_cv <- tmean_spring_recent_sd/(tmean_spring_recent_norm+abs(terra::minmax(tmean_spring_recent_norm)[1,]))
+tmean_summer_recent_cv <- tmean_summer_recent_sd/(tmean_summer_recent_norm+abs(terra::minmax(tmean_summer_recent_norm)[1,]))
+tmean_autumn_recent_cv <- tmean_autumn_recent_sd/(tmean_autumn_recent_norm+abs(terra::minmax(tmean_autumn_recent_norm)[1,]))
+
+tmean_annual_old_cv <- tmean_annual_old_sd/(tmean_annual_old_norm+abs(terra::minmax(tmean_annual_old_norm)[1,]))
+tmean_spring_old_cv <- tmean_spring_old_sd/(tmean_spring_old_norm+abs(terra::minmax(tmean_spring_old_norm)[1,]))
+tmean_summer_old_cv <- tmean_summer_old_sd/(tmean_summer_old_norm+abs(terra::minmax(tmean_summer_old_norm)[1,]))
+tmean_autumn_old_cv <- tmean_autumn_old_sd/(tmean_autumn_old_norm+abs(terra::minmax(tmean_autumn_old_norm)[1,]))
+
+
+
+# calculating the cumulative precipitation for each year and for each season within the year
+ppt_annual_recent <- ppt_spring_recent <- ppt_summer_recent <- ppt_autumn_recent <- ppt_winter_recent<- list()
+for(y in 1990:2020){
+  ppt_annual_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
+  ppt_spring_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:4))))
+  ppt_summer_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 5:8))))
+  ppt_autumn_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) 
+}
+
+ppt_annual_old <- ppt_spring_old <- ppt_summer_old <- ppt_autumn_old <- ppt_winter_old<- list()
+for(y in 1895:1925){
+  ppt_annual_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
+  ppt_spring_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:4))))
+  ppt_summer_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 5:8))))
+  ppt_autumn_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
+}
+
+
+# Taking the mean of the cumulative precipation values
+ppt_annual_recent_norm <- terra::mean(terra::rast(unlist(ppt_annual_recent)))
+ppt_spring_recent_norm <- terra::mean(terra::rast(unlist(ppt_spring_recent)))
+ppt_summer_recent_norm <- terra::mean(terra::rast(unlist(ppt_summer_recent)))
+ppt_autumn_recent_norm <- terra::mean(terra::rast(unlist(ppt_autumn_recent)))
+
+ppt_annual_old_norm <- terra::mean(terra::rast(unlist(ppt_annual_old)))
+ppt_spring_old_norm <- terra::mean(terra::rast(unlist(ppt_spring_old)))
+ppt_summer_old_norm <- terra::mean(terra::rast(unlist(ppt_summer_old)))
+ppt_autumn_old_norm <- terra::mean(terra::rast(unlist(ppt_autumn_old)))
+
+#calculating the standard devation in precip
+ppt_annual_recent_sd <- terra::stdev(terra::rast(unlist(ppt_annual_recent)))
+ppt_spring_recent_sd <- terra::stdev(terra::rast(unlist(ppt_spring_recent)))
+ppt_summer_recent_sd <- terra::stdev(terra::rast(unlist(ppt_summer_recent)))
+ppt_autumn_recent_sd <- terra::stdev(terra::rast(unlist(ppt_autumn_recent)))
+
+ppt_annual_old_sd <- terra::stdev(terra::rast(unlist(ppt_annual_old)))
+ppt_spring_old_sd <- terra::stdev(terra::rast(unlist(ppt_spring_old)))
+ppt_summer_old_sd <- terra::stdev(terra::rast(unlist(ppt_summer_old)))
+ppt_autumn_old_sd <- terra::stdev(terra::rast(unlist(ppt_autumn_old)))
+
+# calculating the coefficient of variation in precip
+ppt_annual_recent_cv <- ppt_annual_recent_sd/ppt_annual_recent_norm
+ppt_spring_recent_cv <- ppt_spring_recent_sd/ppt_spring_recent_norm
+ppt_summer_recent_cv <- ppt_summer_recent_sd/ppt_summer_recent_norm
+ppt_autumn_recent_cv <- ppt_autumn_recent_sd/ppt_autumn_recent_norm
+
+ppt_annual_old_cv <- ppt_annual_old_sd/ppt_annual_old_norm
+ppt_spring_old_cv <- ppt_spring_old_sd/ppt_spring_old_norm
+ppt_summer_old_cv <- ppt_summer_old_sd/ppt_summer_old_norm
+ppt_autumn_old_cv <- ppt_autumn_old_sd/ppt_autumn_old_norm
+
+
+
+
+
+# calculating the difference over time
+tmean_annual_difference <- terra::diff(terra::rast(list(tmean_annual_old_norm, tmean_annual_recent_norm)))
+tmean_spring_difference <- terra::diff(terra::rast(list(tmean_spring_old_norm, tmean_spring_recent_norm)))
+tmean_summer_difference <- terra::diff(terra::rast(list(tmean_summer_old_norm, tmean_summer_recent_norm)))
+tmean_autumn_difference <- terra::diff(terra::rast(list(tmean_autumn_old_norm, tmean_autumn_recent_norm)))
+
+tmean_annual_sd_difference <- terra::diff(terra::rast(list(tmean_annual_old_sd, tmean_annual_recent_sd)))
+tmean_spring_sd_difference <- terra::diff(terra::rast(list(tmean_spring_old_sd, tmean_spring_recent_sd)))
+tmean_summer_sd_difference <- terra::diff(terra::rast(list(tmean_summer_old_sd, tmean_summer_recent_sd)))
+tmean_autumn_sd_difference <- terra::diff(terra::rast(list(tmean_autumn_old_sd, tmean_autumn_recent_sd)))
+
+tmean_annual_cv_difference <- terra::diff(terra::rast(list(tmean_annual_old_cv, tmean_annual_recent_cv)))
+tmean_spring_cv_difference <- terra::diff(terra::rast(list(tmean_spring_old_cv, tmean_spring_recent_cv)))
+tmean_summer_cv_difference <- terra::diff(terra::rast(list(tmean_summer_old_cv, tmean_summer_recent_cv)))
+tmean_autumn_cv_difference <- terra::diff(terra::rast(list(tmean_autumn_old_cv, tmean_autumn_recent_cv)))
+
+
+ppt_annual_difference <- terra::diff(terra::rast(list(ppt_annual_old_norm, ppt_annual_recent_norm)))
+ppt_spring_difference <- terra::diff(terra::rast(list(ppt_spring_old_norm, ppt_spring_recent_norm)))
+ppt_summer_difference <- terra::diff(terra::rast(list(ppt_summer_old_norm, ppt_summer_recent_norm)))
+ppt_autumn_difference <- terra::diff(terra::rast(list(ppt_autumn_old_norm, ppt_autumn_recent_norm)))
+
+ppt_annual_sd_difference <- terra::diff(terra::rast(list(ppt_annual_old_sd, ppt_annual_recent_sd)))
+ppt_spring_sd_difference <- terra::diff(terra::rast(list(ppt_spring_old_sd, ppt_spring_recent_sd)))
+ppt_summer_sd_difference <- terra::diff(terra::rast(list(ppt_summer_old_sd, ppt_summer_recent_sd)))
+ppt_autumn_sd_difference <- terra::diff(terra::rast(list(ppt_autumn_old_sd, ppt_autumn_recent_sd)))
+
+ppt_annual_cv_difference <- terra::diff(terra::rast(list(ppt_annual_old_cv, ppt_annual_recent_cv)))
+ppt_spring_cv_difference <- terra::diff(terra::rast(list(ppt_spring_old_cv, ppt_spring_recent_cv)))
+ppt_summer_cv_difference <- terra::diff(terra::rast(list(ppt_summer_old_cv, ppt_summer_recent_cv)))
+ppt_autumn_cv_difference <- terra::diff(terra::rast(list(ppt_autumn_old_cv, ppt_autumn_recent_cv)))
+
+
+# changing the crs of these rasters to match the pixels of our mesh
+
+epsg6703km <- paste(
+  "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5",
+  "+lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83",
+  "+units=km +no_defs"
+)
+dd_crs <- "GEOGCRS[\"NAD83\",\n    DATUM[\"North American Datum 1983\",\n        ELLIPSOID[\"GRS 1980\",6378137,298.257222101004,\n            LENGTHUNIT[\"metre\",1]]],\n    PRIMEM[\"Greenwich\",0,\n        ANGLEUNIT[\"degree\",0.0174532925199433]],\n    CS[ellipsoidal,2],\n        AXIS[\"geodetic latitude (Lat)\",north,\n            ORDER[1],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        AXIS[\"geodetic longitude (Lon)\",east,\n            ORDER[2],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n    ID[\"EPSG\",4269]]"
+
+raster::crs(tmean_annual_difference) <- dd_crs
+raster::crs(tmean_spring_difference) <- dd_crs
+raster::crs(tmean_summer_difference) <- dd_crs
+raster::crs(tmean_autumn_difference) <- dd_crs
+
+raster::crs(tmean_annual_sd_difference) <- dd_crs
+raster::crs(tmean_spring_sd_difference) <- dd_crs
+raster::crs(tmean_summer_sd_difference) <- dd_crs
+raster::crs(tmean_autumn_sd_difference) <- dd_crs
+
+raster::crs(tmean_annual_cv_difference) <- dd_crs 
+raster::crs(tmean_spring_cv_difference) <- dd_crs 
+raster::crs(tmean_summer_cv_difference) <- dd_crs 
+raster::crs(tmean_autumn_cv_difference) <- dd_crs 
+
+
+
+raster::crs(ppt_annual_difference) <- dd_crs
+raster::crs(ppt_spring_difference) <- dd_crs
+raster::crs(ppt_summer_difference) <- dd_crs
+raster::crs(ppt_autumn_difference) <- dd_crs
+
+raster::crs(ppt_annual_sd_difference) <- dd_crs
+raster::crs(ppt_spring_sd_difference) <- dd_crs
+raster::crs(ppt_summer_sd_difference) <- dd_crs
+raster::crs(ppt_autumn_sd_difference) <- dd_crs
+
+raster::crs(ppt_annual_cv_difference) <- dd_crs 
+raster::crs(ppt_spring_cv_difference) <- dd_crs 
+raster::crs(ppt_summer_cv_difference) <- dd_crs 
+raster::crs(ppt_autumn_cv_difference) <- dd_crs 
+
+
+
+
+
+######### Next extracting these climate values at our pixels where we predict change in endophyte prevalence ####
+# These are the objects we saved from the model output that include out spatially varying slopes
+
+# getting the pixel values of slopes as a dataframe
+svc.pred_aghy <- readRDS( file = "svc.pred_aghy.Rds")
+svc.pred_agpe <- readRDS( file = "svc.pred_agpe.Rds")
+svc.pred_elvi <- readRDS( file = "svc.pred_elvi.Rds")
+
+
+vrt_aghy_dd <- svc.pred_aghy  %>% 
+  spTransform(dd_crs)
+
+vrt_agpe_dd <- svc.pred_agpe  %>% 
+  spTransform(dd_crs)
+
+vrt_elvi_dd <- svc.pred_elvi  %>% 
+  spTransform(dd_crs)
+
+
+aghy_prism_diff_pred_df <- tibble(lon = vrt_aghy_dd@coords[,1], lat = vrt_aghy_dd@coords[,2],
+                                  coords.x1 = svc.pred_aghy@coords[,1], coords.x2 = svc.pred_aghy@coords[,2],
+                                  tmean_annual_diff = as.numeric(unlist(terra::extract(tmean_annual_difference, vrt_aghy_dd@coords))),
+                                  tmean_spring_diff = as.numeric(unlist(terra::extract(tmean_spring_difference, vrt_aghy_dd@coords))),
+                                  tmean_summer_diff = as.numeric(unlist(terra::extract(tmean_summer_difference, vrt_aghy_dd@coords))),
+                                  tmean_autumn_diff = as.numeric(unlist(terra::extract(tmean_autumn_difference, vrt_aghy_dd@coords))),
+                                  ppt_annual_diff = as.numeric(unlist(terra::extract(ppt_annual_difference, vrt_aghy_dd@coords))),
+                                  ppt_spring_diff = as.numeric(unlist(terra::extract(ppt_spring_difference, vrt_aghy_dd@coords))),
+                                  ppt_summer_diff = as.numeric(unlist(terra::extract(ppt_summer_difference, vrt_aghy_dd@coords))),
+                                  ppt_autumn_diff = as.numeric(unlist(terra::extract(ppt_autumn_difference, vrt_aghy_dd@coords))),
+                                  
+                                  tmean_annual_sd_diff = as.numeric(unlist(terra::extract(tmean_annual_sd_difference, vrt_aghy_dd@coords))),
+                                  tmean_spring_sd_diff = as.numeric(unlist(terra::extract(tmean_spring_sd_difference, vrt_aghy_dd@coords))),
+                                  tmean_summer_sd_diff = as.numeric(unlist(terra::extract(tmean_summer_sd_difference, vrt_aghy_dd@coords))),
+                                  tmean_autumn_sd_diff = as.numeric(unlist(terra::extract(tmean_autumn_sd_difference, vrt_aghy_dd@coords))),
+                                  ppt_annual_sd_diff = as.numeric(unlist(terra::extract(ppt_annual_sd_difference, vrt_aghy_dd@coords))),
+                                  ppt_spring_sd_diff = as.numeric(unlist(terra::extract(ppt_spring_sd_difference, vrt_aghy_dd@coords))),
+                                  ppt_summer_sd_diff = as.numeric(unlist(terra::extract(ppt_summer_sd_difference, vrt_aghy_dd@coords))),
+                                  ppt_autumn_sd_diff = as.numeric(unlist(terra::extract(ppt_autumn_sd_difference, vrt_aghy_dd@coords))),
+                                  
+                                  tmean_annual_cv_diff = as.numeric(unlist(terra::extract(tmean_annual_cv_difference, vrt_aghy_dd@coords))),
+                                  tmean_spring_cv_diff = as.numeric(unlist(terra::extract(tmean_spring_cv_difference, vrt_aghy_dd@coords))),
+                                  tmean_summer_cv_diff = as.numeric(unlist(terra::extract(tmean_summer_cv_difference, vrt_aghy_dd@coords))),
+                                  tmean_autumn_cv_diff = as.numeric(unlist(terra::extract(tmean_autumn_cv_difference, vrt_aghy_dd@coords))),
+                                  ppt_annual_cv_diff = as.numeric(unlist(terra::extract(ppt_annual_cv_difference, vrt_aghy_dd@coords))),
+                                  ppt_spring_cv_diff = as.numeric(unlist(terra::extract(ppt_spring_cv_difference, vrt_aghy_dd@coords))),
+                                  ppt_summer_cv_diff = as.numeric(unlist(terra::extract(ppt_summer_cv_difference, vrt_aghy_dd@coords))),
+                                  ppt_autumn_cv_diff = as.numeric(unlist(terra::extract(ppt_autumn_cv_difference, vrt_aghy_dd@coords))),
+                                  svc.pred_aghy@data) 
+
+
+write_csv(aghy_prism_diff_pred_df, file = "aghy_prism_diff_pred_df.csv")
+
+
+
+agpe_prism_diff_pred_df <- tibble(lon = vrt_agpe_dd@coords[,1], lat = vrt_agpe_dd@coords[,2],
+                                  coords.x1 = svc.pred_agpe@coords[,1], coords.x2 = svc.pred_agpe@coords[,2],
+                                  tmean_annual_diff = as.numeric(unlist(terra::extract(tmean_annual_difference, vrt_agpe_dd@coords))),
+                                  tmean_spring_diff = as.numeric(unlist(terra::extract(tmean_spring_difference, vrt_agpe_dd@coords))),
+                                  tmean_summer_diff = as.numeric(unlist(terra::extract(tmean_summer_difference, vrt_agpe_dd@coords))),
+                                  tmean_autumn_diff = as.numeric(unlist(terra::extract(tmean_autumn_difference, vrt_agpe_dd@coords))),
+                                  ppt_annual_diff = as.numeric(unlist(terra::extract(ppt_annual_difference, vrt_agpe_dd@coords))),
+                                  ppt_spring_diff = as.numeric(unlist(terra::extract(ppt_spring_difference, vrt_agpe_dd@coords))),
+                                  ppt_summer_diff = as.numeric(unlist(terra::extract(ppt_summer_difference, vrt_agpe_dd@coords))),
+                                  ppt_autumn_diff = as.numeric(unlist(terra::extract(ppt_autumn_difference, vrt_agpe_dd@coords))),
+                                  
+                                  tmean_annual_sd_diff = as.numeric(unlist(terra::extract(tmean_annual_sd_difference, vrt_agpe_dd@coords))),
+                                  tmean_spring_sd_diff = as.numeric(unlist(terra::extract(tmean_spring_sd_difference, vrt_agpe_dd@coords))),
+                                  tmean_summer_sd_diff = as.numeric(unlist(terra::extract(tmean_summer_sd_difference, vrt_agpe_dd@coords))),
+                                  tmean_autumn_sd_diff = as.numeric(unlist(terra::extract(tmean_autumn_sd_difference, vrt_agpe_dd@coords))),
+                                  ppt_annual_sd_diff = as.numeric(unlist(terra::extract(ppt_annual_sd_difference, vrt_agpe_dd@coords))),
+                                  ppt_spring_sd_diff = as.numeric(unlist(terra::extract(ppt_spring_sd_difference, vrt_agpe_dd@coords))),
+                                  ppt_summer_sd_diff = as.numeric(unlist(terra::extract(ppt_summer_sd_difference, vrt_agpe_dd@coords))),
+                                  ppt_autumn_sd_diff = as.numeric(unlist(terra::extract(ppt_autumn_sd_difference, vrt_agpe_dd@coords))),
+                                  
+                                  tmean_annual_cv_diff = as.numeric(unlist(terra::extract(tmean_annual_cv_difference, vrt_agpe_dd@coords))),
+                                  tmean_spring_cv_diff = as.numeric(unlist(terra::extract(tmean_spring_cv_difference, vrt_agpe_dd@coords))),
+                                  tmean_summer_cv_diff = as.numeric(unlist(terra::extract(tmean_summer_cv_difference, vrt_agpe_dd@coords))),
+                                  tmean_autumn_cv_diff = as.numeric(unlist(terra::extract(tmean_autumn_cv_difference, vrt_agpe_dd@coords))),
+                                  ppt_annual_cv_diff = as.numeric(unlist(terra::extract(ppt_annual_cv_difference, vrt_agpe_dd@coords))),
+                                  ppt_spring_cv_diff = as.numeric(unlist(terra::extract(ppt_spring_cv_difference, vrt_agpe_dd@coords))),
+                                  ppt_summer_cv_diff = as.numeric(unlist(terra::extract(ppt_summer_cv_difference, vrt_agpe_dd@coords))),
+                                  ppt_autumn_cv_diff = as.numeric(unlist(terra::extract(ppt_autumn_cv_difference, vrt_agpe_dd@coords))),
+                                  svc.pred_agpe@data) 
+
+write_csv(agpe_prism_diff_pred_df, file = "agpe_prism_diff_pred_df.csv")
+
+elvi_prism_diff_pred_df <- tibble(lon = vrt_elvi_dd@coords[,1], lat = vrt_elvi_dd@coords[,2],
+                                  coords.x1 = svc.pred_elvi@coords[,1], coords.x2 = svc.pred_elvi@coords[,2],
+                                  tmean_annual_diff = as.numeric(unlist(terra::extract(tmean_annual_difference, vrt_elvi_dd@coords))),
+                                  tmean_spring_diff = as.numeric(unlist(terra::extract(tmean_spring_difference, vrt_elvi_dd@coords))),
+                                  tmean_summer_diff = as.numeric(unlist(terra::extract(tmean_summer_difference, vrt_elvi_dd@coords))),
+                                  tmean_autumn_diff = as.numeric(unlist(terra::extract(tmean_autumn_difference, vrt_elvi_dd@coords))),
+                                  ppt_annual_diff = as.numeric(unlist(terra::extract(ppt_annual_difference, vrt_elvi_dd@coords))),
+                                  ppt_spring_diff = as.numeric(unlist(terra::extract(ppt_spring_difference, vrt_elvi_dd@coords))),
+                                  ppt_summer_diff = as.numeric(unlist(terra::extract(ppt_summer_difference, vrt_elvi_dd@coords))),
+                                  ppt_autumn_diff = as.numeric(unlist(terra::extract(ppt_autumn_difference, vrt_elvi_dd@coords))),
+                                  
+                                  tmean_annual_sd_diff = as.numeric(unlist(terra::extract(tmean_annual_sd_difference, vrt_elvi_dd@coords))),
+                                  tmean_spring_sd_diff = as.numeric(unlist(terra::extract(tmean_spring_sd_difference, vrt_elvi_dd@coords))),
+                                  tmean_summer_sd_diff = as.numeric(unlist(terra::extract(tmean_summer_sd_difference, vrt_elvi_dd@coords))),
+                                  tmean_autumn_sd_diff = as.numeric(unlist(terra::extract(tmean_autumn_sd_difference, vrt_elvi_dd@coords))),
+                                  ppt_annual_sd_diff = as.numeric(unlist(terra::extract(ppt_annual_sd_difference, vrt_elvi_dd@coords))),
+                                  ppt_spring_sd_diff = as.numeric(unlist(terra::extract(ppt_spring_sd_difference, vrt_elvi_dd@coords))),
+                                  ppt_summer_sd_diff = as.numeric(unlist(terra::extract(ppt_summer_sd_difference, vrt_elvi_dd@coords))),
+                                  ppt_autumn_sd_diff = as.numeric(unlist(terra::extract(ppt_autumn_sd_difference, vrt_elvi_dd@coords))),
+                                  
+                                  tmean_annual_cv_diff = as.numeric(unlist(terra::extract(tmean_annual_cv_difference, vrt_elvi_dd@coords))),
+                                  tmean_spring_cv_diff = as.numeric(unlist(terra::extract(tmean_spring_cv_difference, vrt_elvi_dd@coords))),
+                                  tmean_summer_cv_diff = as.numeric(unlist(terra::extract(tmean_summer_cv_difference, vrt_elvi_dd@coords))),
+                                  tmean_autumn_cv_diff = as.numeric(unlist(terra::extract(tmean_autumn_cv_difference, vrt_elvi_dd@coords))),
+                                  ppt_annual_cv_diff = as.numeric(unlist(terra::extract(ppt_annual_cv_difference, vrt_elvi_dd@coords))),
+                                  ppt_spring_cv_diff = as.numeric(unlist(terra::extract(ppt_spring_cv_difference, vrt_elvi_dd@coords))),
+                                  ppt_summer_cv_diff = as.numeric(unlist(terra::extract(ppt_summer_cv_difference, vrt_elvi_dd@coords))),
+                                  ppt_autumn_cv_diff = as.numeric(unlist(terra::extract(ppt_autumn_cv_difference, vrt_elvi_dd@coords))),
+                                  svc.pred_elvi@data) 
+
+
+write_csv(elvi_prism_diff_pred_df, file = "elvi_prism_diff_pred_df.csv")
+
+
+######### reading in and looking at the prism data from above ####
+
+aghy_prism_diff_pred_df <- read_csv("aghy_prism_diff_pred_df.csv")
+agpe_prism_diff_pred_df <- read_csv("agpe_prism_diff_pred_df.csv")
+elvi_prism_diff_pred_df <- read_csv("elvi_prism_diff_pred_df.csv")
+
+# Plotting the change in climate at our pixel values
+
+prism_diff_pred_df <- aghy_prism_diff_pred_df %>% 
+  full_join(agpe_prism_diff_pred_df) %>% 
+  full_join(elvi_prism_diff_pred_df) %>% 
+  pivot_longer(contains("_diff")) %>% 
+  separate(name, into = c("climate", "season"), sep = "_", extra = "drop", remove = FALSE) %>% 
+  filter(!grepl("_cv_", name) & ! grepl("annual", name)) %>% 
+  mutate(season_f = factor(season, level = c("spring", "summer", "autumn")),
+         moment = case_when(grepl("_sd_", name) ~ "sd",
+                            TRUE ~ "mean"))
+  
+
+
+AGHY_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "A. hyemalis"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+AGHY_tmean_change_plot
+
+AGHY_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "A. hyemalis"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGHY_ppt_change_plot
+
+
+AGHY_climate_change_plot <- AGHY_tmean_change_plot/AGHY_ppt_change_plot + plot_annotation(tag_levels = "A")
+
+ggsave(AGHY_climate_change_plot, filename = "Plots/AGHY_climate_change_plot.png", width = 8, height = 10)
+
+
+
+AGPE_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "A. perennans"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGPE_tmean_change_plot
+
+AGPE_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "A. perennans"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# AGPE_ppt_change_plot
+
+
+AGPE_climate_change_plot <- AGPE_tmean_change_plot/AGPE_ppt_change_plot + plot_annotation( tag_levels = "A")
+
+ggsave(AGPE_climate_change_plot, filename = "Plots/AGPE_climate_change_plot.png", width = 8, height = 10)
+
+
+
+ELVI_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "E. virginicus"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~moment + season_f)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in ºC")+
+  theme(strip.text = element_text(size = rel(1)))
+# ELVI_tmean_change_plot
+
+ELVI_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & species == "E. virginicus"))+
+  geom_tile(aes(x = coords.x1, y = coords.x2, fill = value)) +
+  coord_sf()+
+  facet_wrap(~ moment+season)+
+  scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
+  theme(strip.text = element_text(size = rel(1)))
+# ELVI_ppt_change_plot
+
+
+ELVI_climate_change_plot <- ELVI_tmean_change_plot/ELVI_ppt_change_plot + plot_annotation( tag_levels = "A")
+
+ggsave(ELVI_climate_change_plot, filename = "Plots/ELVI_climate_change_plot.png", width = 8, height = 10)
+
+
+
+
+
+
+ggplot()+
+  geom_tile(data = elvi_prism_diff_pred_df, aes(x = coords.x1, y = coords.x2, fill = tmean_autumn_diff))+
+  lims(x = c(-1000,2200), y = c(500,3000))
+
+ggplot()+
+  geom_point(data = elvi_prism_diff_pred_df, aes(x = tmean_annual_sd_diff, y = tmean_summer_sd_diff))
+
+svc.pred_climate <- aghy_prism_diff_pred_df %>% 
+  full_join(agpe_prism_diff_pred_df) %>% 
+  full_join(elvi_prism_diff_pred_df)
+
+# Making a version of the dataset that subsamples locations
+svc.pred_climate_subsample <- svc.pred_climate %>% 
+group_by(species) %>%
+sample_n(size =250) %>% 
+  ungroup() %>% 
+  mutate(Intercept = 1)
+
+# ggplot(svc.pred_climate_subsample)+
+#   geom_point(aes(x = coords.x1, y = coords.x2, color = ppt_spring_sd_diff))+
+#   facet_wrap(~species)
+
+
+svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>% 
+  pivot_longer(cols = contains("_diff")) %>% 
+  filter(!grepl("cv", name)) 
+  # filter(!grepl("tmean_spring", name)) %>% 
+  # filter(!grepl("tmean_summer", name)) %>% 
+  # filter(!grepl("tmean_autumn", name)) 
+
+
+
+
+
+# Making a version of the dataset that takes pixels only at locations with specimens
+# list of unique locations
+# endo_herb_AGHY$lat
+# 
+# svc.pred_climate_specimens <- svc.pred_climate %>% 
+#   group_by(species) %>% 
+#   
+#   sample_n(size =200) %>% 
+#   ungroup() %>% 
+#   mutate(Intercept = 1)
+
+
+
+
+
+# Looking at the data
+ppt_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("ppt", name)&!grepl("sd", name)))+
+  geom_point(aes(x = value, y = q0.5, color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = q0.5, group = species, fill = species), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
+  theme(text = element_text(size = 8))+
+  theme_light()+
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
+ppt_regression_plot
+
+
+ppt_sd_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("ppt", name)&grepl("sd", name) & !grepl("annual", name)))+
+  geom_point(aes(x = value, y = mean,color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = mean, group = species, fill = species), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
+  theme(strip.text = element_text(size = rel(400)))+
+  theme_light()+
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Precip. (mm"^-1*")"))
+ppt_sd_regression_plot
+
+
+tmean_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("tmean", name)&!grepl("sd", name)))+
+  geom_point(aes(x = value, y = q0.5, color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = q0.5, group = species, fill = species), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~species+ factor(name), scales = "free", nrow = 3) +
+  theme(text = element_text(size = 8))+
+  theme_light()+
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Temp. (C)"))
+tmean_regression_plot
+
+
+tmean_sd_regression_plot <- ggplot(filter(svc.pred_climate_subsample_long, grepl("tmean", name)&grepl("sd", name) & !grepl("annual", name)))+
+  geom_point(aes(x = value, y = mean,color = species), alpha = .2)+
+  geom_smooth(aes(x = value, y = mean, group = species, fill = species), color = "black", method = "lm")+
+  scale_color_manual(values = species_colors) +
+  facet_wrap(~species+ factor(name), nrow = 3) +
+  theme(strip.text = element_text(size = rel(400)))+
+  theme_light()+
+  labs(y = "Trend in endophyte prevalence", x = expression("Change in Temp. (C)"))
+tmean_sd_regression_plot
+
+
+######### perform a regression with INLA to test the relationship between change in prevalence and change in seasonal climate ####
+cmp <- ~ Intercept(main = Intercept, model = "linear", mean.linear=0, prec.linear=0.001) + spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+         spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
+  
+fml.climate <- mean ~ Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
+  spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
+fit_list <- list()
+for(s in 1:3){
+
+lik_climate <- like(formula = fml.climate,
+                 family = "gaussian",
+                 data = svc.pred_climate_subsample[svc.pred_climate_subsample$species == species_names[s],])
+
+fit <- bru(cmp,
+           lik_climate,
+           options = list(
+             control.compute = list(dic = TRUE, waic = TRUE, cpo = TRUE),
+             control.inla = list(int.strategy = "eb"),
+             verbose = TRUE,
+             bru_max_iter = 10))
+
+fit_list[[species_names[s]]] <- fit 
+
+
+}
+
+fit_list[[1]]$mode$mode.status
+fit_list[[1]]$dic$dic
+fit_list[[1]]$summary.fixed
+fit_list[[1]]$summary.random
+
+
+
+######### generate predictions for plotting ####
+prediction_list <- list()
+for(s in 1:3){
+data <- svc.pred_climate_subsample[svc.pred_climate_subsample$species == species_names[s],]
+
+min_spring_ppt <- min(data$ppt_spring_diff)
+max_spring_ppt <- max(data$ppt_spring_diff)
+min_summer_ppt <- min(data$ppt_summer_diff)
+max_summer_ppt <- max(data$ppt_summer_diff)
+min_autumn_ppt <- min(data$ppt_autumn_diff)
+max_autumn_ppt <- max(data$ppt_autumn_diff)
+
+
+min_spring_ppt_sd <- min(data$ppt_spring_sd_diff)
+max_spring_ppt_sd <- max(data$ppt_spring_sd_diff)
+min_summer_ppt_sd <- min(data$ppt_summer_sd_diff)
+max_summer_ppt_sd <- max(data$ppt_summer_sd_diff)
+min_autumn_ppt_sd <- min(data$ppt_autumn_sd_diff)
+max_autumn_ppt_sd <- max(data$ppt_autumn_sd_diff)
+
+
+min_spring_tmean <- min(data$tmean_spring_diff)
+max_spring_tmean <- max(data$tmean_spring_diff)
+min_summer_tmean <- min(data$tmean_summer_diff)
+max_summer_tmean <- max(data$tmean_summer_diff)
+min_autumn_tmean <- min(data$tmean_autumn_diff)
+max_autumn_tmean <- max(data$tmean_autumn_diff)
+
+
+min_spring_tmean_sd <- min(data$tmean_spring_sd_diff)
+max_spring_tmean_sd <- max(data$tmean_spring_sd_diff)
+min_summer_tmean_sd <- min(data$tmean_summer_sd_diff)
+max_summer_tmean_sd <- max(data$tmean_summer_sd_diff)
+min_autumn_tmean_sd <- min(data$tmean_autumn_sd_diff)
+max_autumn_tmean_sd <- max(data$tmean_autumn_sd_diff)
+
+
+
+preddata <- tibble(species = species_names[s],
+                   ppt_spring_diff = seq(min_spring_ppt, max_spring_ppt, length.out = 50),
+                   ppt_summer_diff = seq(min_summer_ppt, max_summer_ppt, length.out = 50),
+                   ppt_autumn_diff = seq(min_autumn_ppt, max_autumn_ppt, length.out = 50),
+                   ppt_spring_sd_diff = seq(min_spring_ppt_sd, max_spring_ppt_sd, length.out = 50),
+                   ppt_summer_sd_diff = seq(min_summer_ppt_sd, max_summer_ppt_sd, length.out = 50),
+                   ppt_autumn_sd_diff = seq(min_autumn_ppt_sd, max_autumn_ppt_sd, length.out = 50),
+                   tmean_spring_diff = seq(min_spring_tmean, max_spring_tmean, length.out = 50),
+                   tmean_summer_diff = seq(min_summer_tmean, max_summer_tmean, length.out = 50),
+                   tmean_autumn_diff = seq(min_autumn_tmean, max_autumn_tmean, length.out = 50),
+                   tmean_spring_sd_diff = seq(min_spring_tmean_sd, max_spring_tmean_sd, length.out = 50),
+                   tmean_summer_sd_diff = seq(min_summer_tmean_sd, max_summer_tmean_sd, length.out = 50),
+                   tmean_autumn_sd_diff = seq(min_autumn_tmean_sd, max_autumn_tmean_sd, length.out = 50)
+                   )
+
+# gennerating predictions 
+
+
+
+prediction <- predict(
+  fit_list[[s]],
+  newdata = preddata,
+  formula =  ~ tibble("spring_ppt" = spring_ppt,
+                      "summer_ppt" = summer_ppt,
+                      "autumn_ppt" = autumn_ppt,
+                      
+                      "spring_ppt_sd" = spring_ppt_sd,
+                      "summer_ppt_sd" = summer_ppt_sd,
+                      "autumn_ppt_sd" = autumn_ppt_sd,
+                      
+                      "spring_tmean" = spring_tmean,
+                      "summer_tmean" = summer_tmean,
+                      "autumn_tmean" = autumn_tmean,
+                      
+                      "spring_tmean_sd" = spring_tmean_sd,
+                      "summer_tmean_sd" = summer_tmean_sd,
+                      "autumn_tmean_sd" = autumn_tmean_sd),
+  probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
+  n.samples = 100)
+prediction_list[[species_names[s]]] <- prediction
+
+}
+
+prediction_df_aghy <-  prediction_list[[1]] %>% map_dfr(~ .x %>% as_tibble(), .id = "variable")
+prediction_df_agpe <-  prediction_list[[2]] %>% map_dfr(~ .x %>% as_tibble(), .id = "variable")
+prediction_df_elvi <-  prediction_list[[3]] %>% map_dfr(~ .x %>% as_tibble(), .id = "variable")
+
+prediction_df <- bind_rows(prediction_df_aghy, prediction_df_agpe, prediction_df_elvi) %>% 
+  pivot_longer(cols =  c(ppt_spring_diff, ppt_summer_diff, ppt_autumn_diff, ppt_spring_sd_diff, ppt_summer_sd_diff, ppt_autumn_sd_diff, tmean_spring_diff, tmean_summer_diff, tmean_autumn_diff ,tmean_spring_sd_diff, tmean_summer_sd_diff ,tmean_autumn_sd_diff)) %>% 
+  filter(variable == "spring_ppt" & name == "ppt_spring_diff"|
+         variable == "summer_ppt" & name == "ppt_summer_diff"|
+         variable == "autumn_ppt" & name == "ppt_autumn_diff"|
+         variable == "spring_ppt_sd" & name == "ppt_spring_sd_diff"|
+         variable == "summer_ppt_sd" & name == "ppt_summer_sd_diff"|
+         variable == "autumn_ppt_sd" & name == "ppt_autumn_sd_diff"|
+           
+         variable == "spring_tmean" & name == "tmean_spring_diff"|
+         variable == "summer_tmean" & name == "tmean_summer_diff"|
+         variable == "autumn_tmean" & name == "tmean_autumn_diff"|
+         variable == "spring_tmean_sd" & name == "tmean_spring_sd_diff"|
+         variable == "summer_tmean_sd" & name == "tmean_summer_sd_diff"|
+         variable == "autumn_tmean_sd" & name == "tmean_autumn_sd_diff") %>% 
+  mutate(name = fct_relevel(name, c('tmean_spring_diff', 'tmean_summer_diff', "tmean_autumn_diff",
+                                    'tmean_spring_sd_diff', 'tmean_summer_sd_diff', "tmean_autumn_sd_diff",
+                                    'ppt_spring_diff', 'ppt_summer_diff', "ppt_autumn_diff",
+                                    'ppt_spring_sd_diff', 'ppt_summer_sd_diff', "ppt_autumn_sd_diff"))) %>% 
+  mutate(moment = case_when(grepl("sd", name) ~ "sd",
+                            !grepl("sd", name) ~ "mean"),
+         variable_group = case_when(grepl("tmean", variable) ~ "Temperature",
+                                    grepl("ppt", variable) ~ "Precipitation"))
+
+
+climate_labels <- c(
+  ppt_spring_diff = "Spring", 
+  ppt_summer_diff = "Summer", 
+  ppt_autumn_diff = "Autumn",
+  ppt_spring_sd_diff = "Spring", 
+  ppt_summer_sd_diff = "Summer", 
+  ppt_autumn_sd_diff = "Autumn",
+  tmean_spring_diff = "Spring", 
+  tmean_summer_diff = "Summer", 
+  tmean_autumn_diff = "Autumn",
+  tmean_spring_sd_diff = "Spring", 
+  tmean_summer_sd_diff = "Summer", 
+  tmean_autumn_sd_diff = "Autumn",
+  mean = "Mean",
+  sd = "Standard Deviation"
+)
+
+
+
+tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+        )
+  # lims(y = c(0,1))
+
+tmean_trend
+
+
+tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+tmean_sd_trend
+
+
+
+ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(1)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+ppt_trend
+
+
+ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", name))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(species ~ name,
+             labeller = labeller(name =climate_labels),
+             scales = "free")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(face = "italic", angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+ppt_sd_trend
+
+
+
+
+
+
+
+  
+climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "A")
+
+ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot.png", width = 16, height = 12)
+
+######### version of plot separating by species ####
+
+
+
+
+
+
+
+aghy_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_trend
+
+aghy_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("tmean", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_tmean_sd_trend
+
+
+aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_trend
+
+aghy_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & grepl("sd", moment))) +
+  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_line(aes(value, mean)) +
+  geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
+  geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
+  facet_grid(  moment~ name,
+               labeller = labeller(name =climate_labels,
+                                   moment = climate_labels),
+               scales = "free_x")+
+  scale_color_manual(values = species_colors)+
+  scale_fill_manual(values = species_colors)+
+  guides(fill = "none")+
+  labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
+  theme_light()+
+  theme(strip.background = element_blank(),
+        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text.y = element_text(angle = 0),
+        legend.text = element_text(face = "italic"),
+  )
+# lims(y = c(0,1))
+
+aghy_ppt_sd_trend 
+
+
+
+AGHY_climate_trends_plot <- (aghy_tmean_trend / aghy_ppt_trend / aghy_tmean_sd_trend/aghy_ppt_sd_trend)
+
+ggsave(AGHY_climate_trends_plot, filename = "AGHY_climate_trends_plot.png", width = 6, height = 8)
+
+
+
+
+###### Plotting the posterior distributions ###################################################
+
+plot(fit, varname = "spring_ppt")
+
+flist <- vector("list", NROW(fit$summary.fixed$ppt_spring))
+for (i in seq_along(flist)) flist[[i]] <- plot(fit, "spring_ppt", index = i) +geom_vline(aes(xintercept = 0))
+multiplot(plotlist = flist, cols = 3)
+
+
+
+
+
+
+
+
