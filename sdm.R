@@ -56,10 +56,12 @@ tmean_spring_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subse
 tmean_summer_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 5:8))))
 tmean_autumn_recent_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
 
-tmean_annual_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925))))
-tmean_spring_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 1:4))))
-tmean_summer_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 5:8))))
-tmean_autumn_old_norm <- terra::mean(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1895:1925, mon = 9:12))))
+# calculating standard deviation in temp
+
+tmean_annual_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020))))
+tmean_spring_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 1:4))))
+tmean_summer_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 5:8))))
+tmean_autumn_recent_sd <- terra::stdev(terra::rast(pd_stack(prism_archive_subset(type = "tmean", temp_period = "monthly", year = 1990:2020, mon = 9:12))))
 
 # calculating the cumulative precipitation for each year and for each season within the year
 ppt_annual_recent <- ppt_spring_recent <- ppt_summer_recent <- ppt_autumn_recent <- ppt_winter_recent<- list()
@@ -70,13 +72,6 @@ for(y in 1990:2020){
   ppt_autumn_recent[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) 
 }
 
-ppt_annual_old <- ppt_spring_old <- ppt_summer_old <- ppt_autumn_old <- ppt_winter_old<- list()
-for(y in 1895:1925){
-  ppt_annual_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y))))
-  ppt_spring_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 1:4))))
-  ppt_summer_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 5:8))))
-  ppt_autumn_old[[y]] <- sum(terra::rast(pd_stack(prism_archive_subset(type = "ppt", temp_period = "monthly", year = y, mon = 9:12)))) # including December here because the year needs to wrap around...
-}
 
 # Taking the mean of the cumulative precipation values
 ppt_annual_recent_norm <- terra::mean(terra::rast(unlist(ppt_annual_recent)))
@@ -84,43 +79,37 @@ ppt_spring_recent_norm <- terra::mean(terra::rast(unlist(ppt_spring_recent)))
 ppt_summer_recent_norm <- terra::mean(terra::rast(unlist(ppt_summer_recent)))
 ppt_autumn_recent_norm <- terra::mean(terra::rast(unlist(ppt_autumn_recent)))
 
-ppt_annual_old_norm <- terra::mean(terra::rast(unlist(ppt_annual_old)))
-ppt_spring_old_norm <- terra::mean(terra::rast(unlist(ppt_spring_old)))
-ppt_summer_old_norm <- terra::mean(terra::rast(unlist(ppt_summer_old)))
-ppt_autumn_old_norm <- terra::mean(terra::rast(unlist(ppt_autumn_old)))
+#calculating the standard devation in precip
+ppt_annual_recent_sd <- terra::stdev(terra::rast(unlist(ppt_annual_recent)))
+ppt_spring_recent_sd <- terra::stdev(terra::rast(unlist(ppt_spring_recent)))
+ppt_summer_recent_sd <- terra::stdev(terra::rast(unlist(ppt_summer_recent)))
+ppt_autumn_recent_sd <- terra::stdev(terra::rast(unlist(ppt_autumn_recent)))
+
 
 ## Variance inflation factor (VIF)  to have  a measure of multicollinearity among the  variables----  
-US_worldclim_recent_norm<-terra::rast(list(tmean_spring_recent_norm,tmean_summer_recent_norm,tmean_autumn_recent_norm,ppt_spring_recent_norm,ppt_summer_recent_norm,ppt_autumn_recent_norm))
-US_worldclim_recent_norm_stack<-stack(US_worldclim_recent_norm)
+US_worldclim_recent_norm<-terra::rast(list(tmean_spring_recent_norm,tmean_summer_recent_norm,tmean_autumn_recent_norm,
+                                           tmean_spring_recent_sd,tmean_summer_recent_sd,tmean_autumn_recent_sd,
+                                           ppt_spring_recent_norm,ppt_summer_recent_norm,ppt_autumn_recent_norm,
+                                           ppt_spring_recent_sd,ppt_summer_recent_sd,ppt_autumn_recent_sd))
 
-US_worldclim_old_norm<-terra::rast(list(tmean_spring_old_norm,tmean_summer_old_norm,tmean_autumn_old_norm,ppt_spring_old_norm,ppt_summer_old_norm,ppt_autumn_old_norm))
-US_worldclim_old_norm_stack<-stack(US_worldclim_old_norm)
+US_worldclim_recent_norm_stack<-stack(US_worldclim_recent_norm)
 
 plot(US_worldclim_recent_norm_stack)
 (vif <- vifcor(US_worldclim_recent_norm_stack, th=0.7))
-(vifold <- vifcor(US_worldclim_old_norm_stack, th=0.7))
+
 
 ## Saved the rasters 
 # writeRaster(tmean_spring_recent_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/recent/tmean_spring_recent_norm.tif')
 # writeRaster(ppt_spring_recent_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/recent/ppt_spring_recent_norm.tif')
 # writeRaster(ppt_summer_recent_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/recent/ppt_summer_recent_norm.tif')
 
-# writeRaster(tmean_spring_old_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/old/tmean_spring_old_norm.tif')
-# writeRaster(ppt_spring_old_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/old/ppt_spring_old_norm.tif')
-# writeRaster(ppt_summer_old_norm, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Final variable/old/ppt_summer_old_norm.tif')
-
 # Final climatic variables to use for the SDM
-US_worldclim_recent_norm_stack_vif<-terra::rast(list(tmean_spring_recent_norm,ppt_spring_recent_norm,ppt_summer_recent_norm))
-names(US_worldclim_recent_norm_stack_vif) <- c("tmean_spring", "ppt_spring","ppt_summer")
+US_worldclim_recent_norm_stack_vif<-terra::rast(list(tmean_summer_recent_norm,tmean_spring_recent_sd,tmean_summer_recent_sd,ppt_spring_recent_sd,ppt_summer_recent_sd))
+names(US_worldclim_recent_norm_stack_vif) <- c("tmean_summer","tmean_spring_sd", "tmean_summer_sd","ppt_spring_sd","ppt_summer_sd")
 US_worldclim_recent_norm_stack_final<-stack(US_worldclim_recent_norm_stack_vif)
 plot(US_worldclim_recent_norm_stack_final)
 
-US_worldclim_old_norm_stack_vif<-terra::rast(list(tmean_spring_old_norm,ppt_spring_old_norm,ppt_summer_old_norm))
-names(US_worldclim_old_norm_stack_vif) <- c("tmean_spring", "ppt_spring","ppt_summer")
-US_worldclim_old_norm_stack_final<-stack(US_worldclim_old_norm_stack_vif)
-plot(US_worldclim_old_norm_stack_final)
-
-#res(US_worldclim_old_norm_stack_final[[1]])
+#res(US_worldclim_recent_norm_stack_final[[1]])
 
 # Agrostis hyemalis-----
 ## Import occurrence data from database and merge them later to existing online data
@@ -228,38 +217,29 @@ e_aghy <- evaluate(p=test_aghy_p, a=test_aghy_a)
 threshold(e_aghy)
 
 par(mfrow=c(1, 3))
-density(e_aghy)
+# density(e_aghy)
 boxplot(e_aghy, col=c('blue', 'red'))
 plot(e_aghy, 'ROC')
-plot(e_aghy, 'TPR')
+# plot(e_aghy, 'TPR')
 plot(e_aghy, 'kappa')
 map_recent_aghy <- predict(US_worldclim_recent_norm_stack_final, mod_aghy,  progress='')
-map_old_aghy <- predict(US_worldclim_old_norm_stack_final, mod_aghy,  progress='')
 
 # writeRaster(map_recent_aghy, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_recent_aghy.tif')
-# writeRaster(map_old_aghy, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_old_aghy.tif')
 
-par(mfrow=c(2,2))
-plot(map_old_aghy, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
+par(mfrow=c(1,2))
 plot(map_recent_aghy, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
 
 tr_aghy <- threshold(e_aghy, 'spec_sens')
 plot(map_recent_aghy > tr_aghy, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
-# points(pres_train_aghy, pch='+')
 
-plot(map_old_aghy > tr_aghy, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
-# points(pres_train_aghy, pch='+')
 dev.off()
-
 # Agrostis perennans-----
 
 ## Download occurrence data from gbif for *Agrostis perennans*
-agpe_occ_raw <- gbif(genus="Agrostis",species="perennans",download=TRUE)
-# load("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/agpe_occ_raw.rdata")
+# agpe_occ_raw <- gbif(genus="Agrostis",species="perennans",download=TRUE)
+load("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/agpe_occ_raw.rdata")
 head(agpe_occ_raw ) # to view the first few records the occurrence dataset use:
 
 ## Clean occurrence data from gbif
@@ -315,7 +295,6 @@ p_agpe_1990_2020 <- rasterToPolygons(r_agpe_1990_2020)
 # points(agpe_occ_sampled_final_1990_2020, cex=1, col='red', pch='x')
 agpe_occ_sampled_final_1990_2020<-as.data.frame(agpe_occ_sampled_final_1990_2020)
 # write_csv(agpe_occ_sampled_final_1990_2020,"/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/agpe_thinned.csv")
-
 # agpe_thinned_recent<-read.csv("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/agpe_thinned_recent.csv", header=T)
 # agpe_thinned<-agpe_thinned_recent[,-1]
 
@@ -357,28 +336,21 @@ e_agpe <- evaluate(p=test_agpe_p, a=test_agpe_a)
 threshold(e_agpe)
 
 par(mfrow=c(1, 3))
-density(e_agpe)
+# density(e_agpe)
 boxplot(e_agpe, col=c('blue', 'red'))
 plot(e_agpe, 'ROC')
-dev.off()
-plot(e_agpe, 'TPR')
+# plot(e_agpe, 'TPR')
 plot(e_agpe, 'kappa')
+dev.off()
 map_recent_agpe <- predict(US_worldclim_recent_norm_stack_final, mod_agpe,  progress='')
-map_old_agpe <- predict(US_worldclim_old_norm_stack_final, mod_agpe,  progress='')
 
 # writeRaster(map_recent_agpe, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_recent_agpe.tif')
-# writeRaster(map_old_agpe, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_old_agpe.tif')
 
-par(mfrow=c(2,2))
-plot(map_old_agpe, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
+par(mfrow=c(1,2))
 plot(map_recent_agpe, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
 
 tr_agpe <- threshold(e_agpe, 'spec_sens')
-plot(map_old_agpe > tr_agpe, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
-# points(pres_train_agpe, pch='+')
 plot(map_recent_agpe > tr_agpe, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
 # points(pres_train_aghy, pch='+')
@@ -387,8 +359,8 @@ dev.off()
 # Elymus virginicus-----
 
 ## Download occurrence data from gbif for *Elymus virginicus*
-elvi_occ_raw <- gbif(genus="Elymus",species="virginicus",download=TRUE) 
-# load("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/elvi_occ_raw.rdata")
+# elvi_occ_raw <- gbif(genus="Elymus",species="virginicus",download=TRUE) 
+load("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Occurence/elvi_occ_raw.rdata")
 head(elvi_occ_raw)
 
 ## Clean occurrence data from gbif
@@ -489,27 +461,23 @@ threshold(e_elvi)
 
 
 par(mfrow=c(1, 3))
-density(e_elvi)
+# density(e_elvi)
 boxplot(e_elvi, col=c('blue', 'red'))
 plot(e_elvi, 'ROC')
-dev.off()
-plot(e_elvi, 'TPR')
+# plot(e_elvi, 'TPR')
 plot(e_elvi, 'kappa')
+dev.off()
 map_recent_elvi <- predict(US_worldclim_recent_norm_stack_final, mod_elvi,  progress='')
-map_old_elvi <- predict(US_worldclim_old_norm_stack_final, mod_elvi,  progress='')
 
 # writeRaster(map_recent_elvi, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_recent_elvi.tif')
-# writeRaster(map_old_elvi, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Data/Model/raster_old_elvi.tif')
 
-par(mfrow=c(2,2))
-plot(map_old_elvi, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
+par(mfrow=c(1,2))
+
 plot(map_recent_elvi, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
 
 tr_elvi <- threshold(e_elvi, 'spec_sens')
-plot(map_old_elvi > tr_elvi, main='1925')
-plot(wrld_simpl, add=TRUE, border='dark grey')
+
 # points(pres_train_agpe, pch='+')
 plot(map_recent_elvi > tr_elvi, main='2020')
 plot(wrld_simpl, add=TRUE, border='dark grey')
@@ -575,7 +543,7 @@ par(op)
 dev.off()
 
 
-plot(aghy)
+# plot(aghy)
 # layout.matrix <- matrix(c(1, 2, 3, 4,5,6), nrow = 2, ncol = 3)
 pdf("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Figures/FigSDM.pdf",height = 8,width = 5)
 # layout(mat = layout.matrix)
