@@ -117,7 +117,7 @@ Our analysis performed favorably in an out-of-sample predictive test, however we
 	
 Understanding how biotic interactions are altered by global change is a major goal of basic and applied ecological research \cite{gilman2010framework,blois2013climate}.
 Documented responses to environmental change, such as shifts in species' distributions \cite{aitken2008adaptation} and phenology \cite{piao2019plant}, are typically blind to concurrent changes in associated biotic interactions.
-Empirically evaluating these biotic changes -- whether interacting species shift in tandem with their partners or not \cite{hillerislambers2013will} -- is crucial to predicting the reogranization of Earth's biodiversity under global change. 
+Empirically evaluating these biotic changes -- whether interacting species shift in tandem with their partners or not \cite{hillerislambers2013will} -- is crucial to predicting the reorganization of Earth's biodiversity under global change. 
 Such evaluations have been limited because few datasets on species interactions extend over sufficiently long time scales of contemporary climate change \cite{poisot2021global}.
 
 Natural history specimens, which were originally collected to study and preserve taxonomic diversity, present a unique opportunity to explore long-term changes in ecological interactions across broad spatial and temporal scales \citep{meineke2018unrealized}. 
@@ -135,7 +135,7 @@ Lichens exposed to elevated temperatures experienced loss of photosynthetic func
 How commonly and under what conditions microbial mutualisms deteriorate or strengthen under climate change remain unanswered questions.
 Previous work suggests that these alternative responses may depend on the intimacy and specialization of the interaction as well as the physiological tolerances of the mutualist partners \citep{toby2010mutualisms, warren2014mutualism, rafferty2015phenological}. 
 
-Understanding of how microbial symbioses are affected by climate change is additionally complicated by spatial hetereogeneity in the direction and magnitude of environmental change \cite{ipcc_2021}. 
+Understanding of how microbial symbioses are affected by climate change is additionally complicated by spatial heterogeneity in the direction and magnitude of environmental change \cite{ipcc_2021}. 
 Beneficial symbionts are likely able to shield their hosts from environmental stress in locations that experience a small degree of change, but symbionts in locations that experience changes of large magnitude may be pushed beyond their physiological limits \cite{webster2008temperature}.
 Additionally, symbionts are often unevenly distributed across their hosts' distribution.
 Facultative symbionts may be absent from portions of the host range \cite{afkhami2014mutualist}, and hosts may engage with a diversity of partners (different symbiont species or locally-adapted strains) across their environments \cite{frade2008variation, rolshausen2018quantifying}.
@@ -175,7 +175,7 @@ These $C_3$ grass species are commonly represented in natural history collection
 \emph{A. hyemalis} is a small short-lived perennial species that germinates in the spring and typically flowers between March and July (most common collection month: May).
 \emph{A. perennans} is of similar stature but is longer lived than \emph{Agrostis hyemalis} and flowers in late summer and early autumn (most common collection month: September). 
 \emph{A. perennans} is more sparsely distributed, tending to be found in shadier and more moist habitats, while \emph{A. hyemalis} is commonly found in open and recently disturbed ground. 
-Both \emph{Agrostis} species are recorded from throughout the Eastern US, but \emph{A. perennans} has a slighty more northern distribution, whereas \emph{A. hyemalis} is found rarely as far north as Canada and is listed as a rare plant in Minnesota.
+Both \emph{Agrostis} species are recorded from throughout the Eastern US, but \emph{A. perennans} has a slightly more northern distribution, whereas \emph{A. hyemalis} is found rarely as far north as Canada and is listed as a rare plant in Minnesota.
 \emph{E. virginicus} is a larger and relatively longer-lived  species that is more broadly distributed than the \emph{Agrostis} species. 
 It begins flowering as early as March or April but continues throughout the summer (most common collection month: July).
 
@@ -189,7 +189,7 @@ We excluded specimens for which information about the collection location and da
 Each specimen was assigned geographic coordinates based on collection information recorded on the herbarium sheet using the geocoding functionality of the ggmap R package \citep{kahle2019package}.
 Many specimens had digitized collection information readily available, but for those that did not, we transcribed information printed on the herbarium sheet. 
 Collections were geo-referenced to the nearest county centroid, or nearest municipality when that information was available. 
-For a few of the oldest specimens, only information at the state level was available, and so we used the state centoid.
+For a few of the oldest specimens, only information at the state level was available, and so we used the state centroid.
 
 
 After collecting seed samples, we quantified the presence or absence of \emph{Epichloë} fungal hyphae, which grow intercellularly, in each specimen using microscopy. 
@@ -215,9 +215,9 @@ The following analyses in the main text used the liberal status, but we repeated
 \subsection*{Modeling spatial and temporal changes in endophyte prevalence}
 We assessed spatial and temporal changes in endophyte prevalence across each host distribution, quantifying the ``global'' temporal trends, aggregating across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
 To appropriately account for the spatial non-independence of geo-referenced \josh{occurrences}{spelling?}, we used an approximate Bayesian method, Integrated Nested Laplace Approximation (INLA), to construct spatio-temporal models of endophyte prevalence.
-INLA provides a computationally efficient method of ascertaining parameter posterior distributions for certain models that can be formulated as latent Gausssian Models \cite{rue2009approximate}.
+INLA provides a computationally efficient method of ascertaining parameter posterior distributions for certain models that can be formulated as latent Gaussian Models \cite{rue2009approximate}.
 Many common statistical models, including structured and unstructured mixed-effects models, can be represented as latent Gaussian Models.
-We incorporated spatial heterogeneity into this analysis using spatially-structured intercept and slope parameters implemented as stochastic partial differential equation (SPDE) approximations of a continuous spatial Guassian process. 
+We incorporated spatial heterogeneity into this analysis using spatially-structured intercept and slope parameters implemented as stochastic partial differential equation (SPDE) approximations of a continuous spatial Gaussian process. 
 This SPDE approach is a flexible method of smoothing across space while explicitly accounting for spatial dependence between data-points \citep{lindgren2011explicit,bakka2018spatial}.
 Fitting models with structured spatial effects is possible with MCMC sampling but can require long computation times, making INLA an effective alternative, which has been used to model spatial patterns in flowering phenology \cite{willems2022forest}, the abundance of bird species \cite{meehan2019spatial} and butterflies \cite{crossley2022opposing}, the distribution of temperate trees \cite{engel2022spatial} as well as the population dynamics of endangered amphibians \cite{knapp2016large} and other ecological processes \cite{beguin2012hierarchical}.
 
@@ -226,14 +226,12 @@ For each host species $h$, endophyte presence/absence of the $i^{th}$ specimen (
 We modeled $\hat{P}_{[h]i}$ as a linear function of intercept $ \mathrm{A}_{[h]i}$ and slope $\mathrm{T}_{[h]}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{[h_{1}]l[i]}$ and slopes $\tau_{[h_{1}]l[i]}$ associated with location ($l[i]$, a unique latitude-longitude combination).
 The joint-model structure allowed us to share variance terms across focal species to account for dependence associated with the collection of specimens and identification of endophytes. 
 Shared variance terms included the spatially-dependent random effect $\delta_{l[i]}$, intended to account for residual spatial variation, and $\chi_{c[i]}$ and $\omega_{s[i]}$ i.i.d.-random effects indexed for each collector identity ($c[i]$), and scorer identity ($s[i]$) of the $i^{th}$ specimen.
-
-
 \begin{subequations}
 	\label{eq:trends}
 	\begin{align}
 		logit(\hat{P}_{[h_{1}]i}) =  \mathrm{A}_{[h_{1}]i} + \mathrm{T}_{[h_{1}]}*year_i  + \alpha_{[h_{1}]l[i]} + \tau_{[h_{1}]l[i]}*year_i  + \delta_{l[i]}+ \chi_{c[i]} + \omega_{s[i]} \\
 		logit(\hat{P}_{[h_{2}]i}) = \mathrm{A}_{[h_{2}]i} + \mathrm{T}_{[h_{2}]}*year_i  + \alpha_{[h_{2}]l[i]} + \tau_{[h_{2}]l[i]}*year_i  + \delta_{l[i]}+ \chi_{c[i]} + \omega_{s[i]} \\
-		logit(\hat{P}_{[h_{3}]i}) = \mathrm{A}_{[h_{2}]i} + \mathrm{T}_{[h_{2}]}*year_i  + \alpha_{[h_{2}]l[i]} + \tau_{[h_{3}]l[i]}*year_i  + \delta_{l[i]}+ \chi_{c[i]} + \omega_{s[i]}\\
+		logit(\hat{P}_{[h_{3}]i}) = \mathrm{A}_{[h_{2}]i} + \mathrm{T}_{[h_{2}]}*year_i  + \alpha_{[h_{2}]l[i]} + \tau_{[h_{3}]l[i]}*year_i  + \delta_{l[i]}+ \chi_{c[i]} + \omega_{s[i]}
 	\end{align}
 \end{subequations}
 
@@ -244,7 +242,7 @@ Similarly, the process of scoring seeds for hyphae involved several student rese
 By including a random effect for collectors and for scorers, we attempted to account for variance across individual researchers that may bias our predictions of changes in endophyte prevalence.
 
 
-We performed model fitting using the inlabru R package \citep{}.
+We performed model fitting using the inlabru R package \citep{}\jacob{} {add citation}.
 Global intercept and slope parameters $\mathrm{A}$, and $\mathrm{T}$, were given vague priors.
 Scorer and collector random effects, $\chi$ and $\omega$, were given penalized complexity priors, with distributions approximating a Normal distribution with standard deviation of 5. 
 Each spatially-structured parameter depended on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
@@ -278,11 +276,11 @@ In addition to mean climate conditions, environmental variability itself can inf
 Therefore, we calculated the standard deviation for each annual and seasonal climate driver across each 30-year period.
 We then took the difference between recent and historic periods for the mean and standard deviation for each climate driver (Figs. \ref{fig:AGHY_climate_covariates}-\ref{fig:ELVI_climate_covariates}).
 %Because initial analyses indicated a high degree of collinearity between seasonal and annual changes in temperature, we used annual temperature only, along with annual and seasonal precipitation, in the subsequent analysis.
-All together, we assessed twelve potential climate drivers: the mean and standardiation of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation, cumulative precipitation, and cumulative precipitation.
+All together, we assessed twelve potential climate drivers: the mean and standardization of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation, cumulative precipitation, and cumulative precipitation.
 
-To evaluate whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change), \tom{we modeled spatially varying slopes of endophyte change through time ($\tau_{[h]l}$ as a linear function of environmental covariates, with a Gaussian error distribution. }{I think we need to account for uncertainty in the slopes. They are outputs of a (quasi) Bayesian model so we should be able to propagate all the uncertainty in the posterior disgtribution.}
-Data from each host species was analysed separately. 
-Fitting regressions to many pixels across the study region risks articially inflating confidence in our results due to large sample sizes, and \tom{so we performed this analysis using only a random subsample of 250 pixels across the study region, which provided results qualitatively similar to analysis of the full set of pixels}{100 seems like a low number to me. What if we did this for all of the herbarium collection locations?}\josh{.}{I upped the number of points. I don't think conceptually we need to only do collection locations, but I can work on that as an alternative.}
+To evaluate whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change), \tom{we modeled spatially varying slopes of endophyte change through time ($\tau_{[h]l}$ as a linear function of environmental covariates, with a Gaussian error distribution. }{I think we need to account for uncertainty in the slopes. They are outputs of a (quasi) Bayesian model so we should be able to propagate all the uncertainty in the posterior distribution.}
+Data from each host species was analyzed separately. 
+Fitting regressions to many pixels across the study region risks artificially inflating confidence in our results due to large sample sizes, and \tom{so we performed this analysis using only a random subsample of 250 pixels across the study region, which provided results qualitatively similar to analysis of the full set of pixels}{100 seems like a low number to me. What if we did this for all of the herbarium collection locations?}\josh{.}{I upped the number of points. I don't think conceptually we need to only do collection locations, but I can work on that as an alternative.}
 
 
 \tom{}{I cut the notation for the Gaussian model for now because it is a pretty simple model and the notation may be overkill, plus because I changed your tau's to beta's there were betas on both sides of the tilde, which was confusing/annoying. Happy have the notation back if you prefer it. I am also a little confused because the appendix has spearman correlations but there are no methods here for where those come from.}
@@ -292,12 +290,13 @@ Fitting regressions to many pixels across the study region risks articially infl
 We modeled the distribution of each host species to generate maps on which we predicted the dynamics of \emph{Epichloë} symbionts.
 We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}. 
  A full description of the ODMAP can be found in the  (Supplementary Method \ref{sec:sdm }). 
- In short, we used presence-only observations of the host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020 .
+ Here we presented the workflow of the species distribution model. 
+ We used presence-only observations of the host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020.
 To reduce the potential influence of sampling bias and spatial autocorrelation, we thinned the occurrences to the spatial scale of our selected climatic predictors. 
 We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
 These climatic variables are: the mean and standard deviation of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation, cumulative precipitation, and cumulative precipitation.
-%We calculated the mean and standard devation of seasonal temperature and precipitation across 1990 to 2020. 
-Among this suite of variables, we chose to include mean summer temperature, standard deviation of spring precipitation, standard deviation of summer precipitation,  standard deviation of spring  precipitation, standard deviation of summer  precipitation, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probability of each host species in space and time.
+%We calculated the mean and standard deviation of seasonal temperature and precipitation across 1990 to 2020. 
+Among this suite of variables, we chose to include mean summer temperature, standard deviation of spring temperature, standard deviation of summer temperature,  standard deviation of spring  precipitation, standard deviation of summer  precipitation, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probability of each host species in space and time.
 We fit maximum entropy (MaxEnt) models using the maxent function in the package dismo \citep{hijmans2017package}. 
 %\josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
 We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
@@ -654,18 +653,18 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 	\end{table}
 	
 	\section*{Supporting Methods}
-	\subsection*{ODMAP Protocol}\label{sec:sdm}
+	\subsection*{ODMAP Protocol} \label{sec:sdm}
 {\color{NavyBlue}{Overview}}\\
 \textbf {Model  purpose}: Mapping current distribution of epichloë host species. \\
 \textbf {Target species}: \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus}. \\
-\textbf {Study area}: Eastern North America \\
+\textbf {Study area}: United States \\
 %Scale of analysis
 \textbf {Spatial extent}: -125.0208, -66.47917, 24.0625, 49.9375 (xmin, xmax, ymin, ymax).\\
 \textbf {Spatial resolution}: 0.04166667, 0.04166667 (x, y).\\
 \textbf {Temporal extent}: 1990 to 2020.\\
 \textbf {Boundary}: Natural.\\
 {\color{NavyBlue}{Data}}\\
-\textbf {Observation type}: Occurrence records from  Global Biodiversity Information Facility and herbarium collection across eastern North America. We used 713 occurrences records for \emph{Agrostis hyemalis}, 656 occurrence records for \emph{Agrostis perennans} and 2338 for \emph{Elymus virginicus}.\\
+\textbf {Observation type}: Occurrence records from  Global Biodiversity Information Facility and herbarium collection across the United States. We used 713 occurrences records for \emph{Agrostis hyemalis}, 656 occurrence records for \emph{Agrostis perennans} and 2338 for \emph{Elymus virginicus}.\\
 \textbf{Response data type}: occurrence record, presence-only.\\
 \textbf{Coordinate reference system}: WGS84 coordinate reference system (EPSG:4326 code)\\
 \textbf{Climatic data}:  raster data extracted from PRISM  \\
@@ -674,8 +673,8 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \textbf{Algorithms}: Maximum entropy (maxent)\\
 \textbf{Workflow}: We  described the workflow in the method section of the manuscript. \\
 \textbf{Software}:  All statistics were performed using Maxent 3.3.4 and R4.3.1 with packages terra, usdm, spThin and dismo.\\
-\textbf{Code availability}: https://github.com/joshuacfowler/EndoHerbarium\\
-\textbf{Data availability}: https://github.com/joshuacfowler/EndoHerbarium\\
+\textbf{Code availability}: Will  available upon  acceptance\\
+\textbf{Data availability}: Will  available upon  acceptance\\
 {\color{NavyBlue}{Assessment}}\\
 We used AUC to test model performance.\\
 {\color{NavyBlue}{Prediction }}\\
