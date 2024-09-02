@@ -16,6 +16,8 @@
 
 \usepackage[T1]{fontenc}
 
+\usepackage[dvipsnames]{xcolor}
+
 \titleformat{\section}[block]{\Large\bfseries\filcenter}{\thesection}{1em}{}
 \titleformat{\subsection}[block]{\Large\itshape\filcenter}{\thesubsection}{1em}{}
 \titleformat{\subsubsection}[block]{\large\itshape}{\thesubsubsection}{1em}{}
@@ -65,7 +67,7 @@
 	\maketitle
 	
 	\noindent{} 1. Rice University, Department of BioSciences, Houston, Texas 77006;
-	\noindent{} \jacob{1}{I think this is should be 2}. University of Miami, Department of Biology, Miami, Florida;
+	\noindent{} 2. University of Miami, Department of Biology, Miami, Florida;
 
 
 	\noindent{} $\ast$ Corresponding author; e-mail: jcf221@miami.edu.
@@ -288,17 +290,23 @@ Fitting regressions to many pixels across the study region risks articially infl
 
 \subsection*{Modeling distributions of host species}
 We modeled the distribution of each host species to generate maps on which we predicted the dynamics of \emph{Epichloë} symbionts.
-We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}, using \josh{presence-only observations of the host species from GBIF between 1990 to 2020 }{How many data points does this end up being?}.
-To reduce the potential influence of sampling bias and spatial autocorrelation, we thinned the occurrences to the spatial scale \josh{()}{I think this is 4km, but need to check} of our selected climatic predictors. 
+We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}. 
+ A full description of the ODMAP can be found in the  (Supplementary Method \ref{sec:sdm }). 
+ In short, we used presence-only observations of the host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020 .
+To reduce the potential influence of sampling bias and spatial autocorrelation, we thinned the occurrences to the spatial scale of our selected climatic predictors. 
 We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
-We calculated the mean and standard devation of seasonal temperature and precipitation across 1990 to 2020. 
-Among this suite of variables, we chose to include \josh{mean spring temperature, mean spring precipitation, and mean summer temperature}{is this list accurate? my re-running my climate analysis means we ought to re-run the sdm's, and use SD instead of CV, so we can update this list based on whatever is appropriate}, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probabilty of each host species in space and time.
+These climatic variables are: the mean and standard deviation of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation, cumulative precipitation, and cumulative precipitation.
+%We calculated the mean and standard devation of seasonal temperature and precipitation across 1990 to 2020. 
+Among this suite of variables, we chose to include mean summer temperature, standard deviation of spring precipitation, standard deviation of summer precipitation,  standard deviation of spring  precipitation, standard deviation of summer  precipitation, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probability of each host species in space and time.
 We fit maximum entropy (MaxEnt) models using the maxent function in the package dismo \citep{hijmans2017package}. 
-\josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
+%\josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
 We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
-The performance of models was evaluated with AUC \josh{AUC}{can we add these values?} \citep{jimenez2012insights}. 
+The performance of models was evaluated with AUC  \citep{jimenez2012insights}. 
+We found AUC = 0.862, AUC = 0.838, AUC = 0.821 respectively  for \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus}. 
+
 To convert the continuous predicted probabilities into binary presence - absence maps, we used the  training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}. 
-These binary maps serve as boundaries in presented maps of change in endophyte prevalence, and outline the set of pixels used in our analysis of climate correlates with trends in endophyte prevalence
+These binary maps serve as boundaries in presented maps of change in endophyte prevalence, and outline the set of pixels used in our analysis of climate correlates with trends in endophyte prevalence.
+
 		
 \section*{Results}
 \subsection*{How has endophyte prevalence changed over time?}
@@ -645,9 +653,34 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 
 	\end{table}
 	
-	
-	
-	
+	\section*{Supporting Methods}
+	\subsection*{ODMAP Protocol}\label{sec:sdm}
+{\color{NavyBlue}{Overview}}\\
+\textbf {Model  purpose}: Mapping current distribution of epichloë host species. \\
+\textbf {Target species}: \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus}. \\
+\textbf {Study area}: Eastern North America \\
+%Scale of analysis
+\textbf {Spatial extent}: -125.0208, -66.47917, 24.0625, 49.9375 (xmin, xmax, ymin, ymax).\\
+\textbf {Spatial resolution}: 0.04166667, 0.04166667 (x, y).\\
+\textbf {Temporal extent}: 1990 to 2020.\\
+\textbf {Boundary}: Natural.\\
+{\color{NavyBlue}{Data}}\\
+\textbf {Observation type}: Occurrence records from  Global Biodiversity Information Facility and herbarium collection across eastern North America. We used 713 occurrences records for \emph{Agrostis hyemalis}, 656 occurrence records for \emph{Agrostis perennans} and 2338 for \emph{Elymus virginicus}.\\
+\textbf{Response data type}: occurrence record, presence-only.\\
+\textbf{Coordinate reference system}: WGS84 coordinate reference system (EPSG:4326 code)\\
+\textbf{Climatic data}:  raster data extracted from PRISM  \\
+{\color{NavyBlue}{Model }}\\
+\textbf{Model assumption}: We assumed that the target species are at equilibrium with their environment. \\
+\textbf{Algorithms}: Maximum entropy (maxent)\\
+\textbf{Workflow}: We  described the workflow in the method section of the manuscript. \\
+\textbf{Software}:  All statistics were performed using Maxent 3.3.4 and R4.3.1 with packages terra, usdm, spThin and dismo.\\
+\textbf{Code availability}: https://github.com/joshuacfowler/EndoHerbarium\\
+\textbf{Data availability}: https://github.com/joshuacfowler/EndoHerbarium\\
+{\color{NavyBlue}{Assessment}}\\
+We used AUC to test model performance.\\
+{\color{NavyBlue}{Prediction }}\\
+We predicted the probability of presence of the host species as a binary maps (presence or absence)
+
 	% In most cases, authors should typeset supplementary material in a separate,
 	% author-supplied PDF. For author-supplied PDFs, please consult the
 	% AmNat_supp_template.tex document, available from
