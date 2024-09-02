@@ -572,13 +572,15 @@ mtext("C",side = 3, adj = 0,cex=1.25)
 par(op)
 dev.off()
 
-aghy_binary <- aghy >  0.5102097
-agpe_binary <-agpe > 0.52849
-elvi_binary <-elvi > 0.5422173
+aghy_binary <- aghy >  0.5410866
+agpe_binary <-agpe > 0.452535
+elvi_binary <-elvi > 0.5163273
 
-# writeRaster(aghy_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/aghy_binary.tif')
-# writeRaster(agpe_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/agpe_binary.tif')
-# writeRaster(elvi_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/elvi_binary.tif')
+
+ 
+writeRaster(aghy_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/aghy_binary.tif')
+writeRaster(agpe_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/agpe_binary.tif')
+writeRaster(elvi_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/elvi_binary.tif')
 
 
 graph<-list("A","B","C")
