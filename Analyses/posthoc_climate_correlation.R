@@ -440,13 +440,13 @@ sample_n(size =250) %>%
 #   facet_wrap(~species)
 
 
-svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>% 
-  pivot_longer(cols = contains("_diff")) %>% 
-  filter(!grepl("cv", name)) 
-  # filter(!grepl("tmean_spring", name)) %>% 
-  # filter(!grepl("tmean_summer", name)) %>% 
-  # filter(!grepl("tmean_autumn", name)) 
-
+# svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>% 
+#   pivot_longer(cols = contains("_diff")) %>% 
+#   filter(!grepl("cv", name)) 
+#   # filter(!grepl("tmean_spring", name)) %>% 
+#   # filter(!grepl("tmean_summer", name)) %>% 
+#   # filter(!grepl("tmean_autumn", name)) 
+# 
 
 
 
@@ -512,19 +512,34 @@ tmean_sd_regression_plot
 
 
 ######### perform a regression with INLA to test the relationship between change in prevalence and change in seasonal climate ####
-cmp <- ~ Intercept(main = Intercept, model = "linear", mean.linear=0, prec.linear=0.001) + spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-         spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-         spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-         spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
-  
-fml.climate <- mean ~ Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
-  spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
+
+data<- svc.pred_climate_subsample %>% 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) %>% 
+  st_transform(epsg6703km) %>% 
+  mutate(
+    easting = st_coordinates(.)[, 1],
+    northing = st_coordinates(.)[, 2]
+  ) 
+# setting up a spatial intercept
 fit_list <- list()
+
 for(s in 1:3){
+  data_temp <- data[data$species == species_names[s],]
+
+  cmp <- ~ Intercept(main = Intercept, model = "linear", mean.linear=0, prec.linear=0.001) + 
+  spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+  spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+  spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+  spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
+
+
+# setting up the model formula
+fml.climate <- mean ~ -1 + Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
+  spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
 
 lik_climate <- like(formula = fml.climate,
-                 family = "gaussian",
-                 data = svc.pred_climate_subsample[svc.pred_climate_subsample$species == species_names[s],])
+                    family = "gaussian",
+                    data = data_temp)
 
 fit <- bru(cmp,
            lik_climate,
@@ -536,9 +551,12 @@ fit <- bru(cmp,
 
 fit_list[[species_names[s]]] <- fit 
 
-
 }
 
+
+
+
+# saveRDS(fit_list, file = "climate_fits.rds")
 fit_list[[1]]$mode$mode.status
 fit_list[[1]]$dic$dic
 fit_list[[1]]$summary.fixed
@@ -547,40 +565,42 @@ fit_list[[1]]$summary.random
 
 
 ######### generate predictions for plotting ####
+
+
 prediction_list <- list()
 for(s in 1:3){
-data <- svc.pred_climate_subsample[svc.pred_climate_subsample$species == species_names[s],]
+data_temp <- data[data$species == species_names[s],]
 
-min_spring_ppt <- min(data$ppt_spring_diff)
-max_spring_ppt <- max(data$ppt_spring_diff)
-min_summer_ppt <- min(data$ppt_summer_diff)
-max_summer_ppt <- max(data$ppt_summer_diff)
-min_autumn_ppt <- min(data$ppt_autumn_diff)
-max_autumn_ppt <- max(data$ppt_autumn_diff)
-
-
-min_spring_ppt_sd <- min(data$ppt_spring_sd_diff)
-max_spring_ppt_sd <- max(data$ppt_spring_sd_diff)
-min_summer_ppt_sd <- min(data$ppt_summer_sd_diff)
-max_summer_ppt_sd <- max(data$ppt_summer_sd_diff)
-min_autumn_ppt_sd <- min(data$ppt_autumn_sd_diff)
-max_autumn_ppt_sd <- max(data$ppt_autumn_sd_diff)
+min_spring_ppt <- min(data_temp$ppt_spring_diff)
+max_spring_ppt <- max(data_temp$ppt_spring_diff)
+min_summer_ppt <- min(data_temp$ppt_summer_diff)
+max_summer_ppt <- max(data_temp$ppt_summer_diff)
+min_autumn_ppt <- min(data_temp$ppt_autumn_diff)
+max_autumn_ppt <- max(data_temp$ppt_autumn_diff)
 
 
-min_spring_tmean <- min(data$tmean_spring_diff)
-max_spring_tmean <- max(data$tmean_spring_diff)
-min_summer_tmean <- min(data$tmean_summer_diff)
-max_summer_tmean <- max(data$tmean_summer_diff)
-min_autumn_tmean <- min(data$tmean_autumn_diff)
-max_autumn_tmean <- max(data$tmean_autumn_diff)
+min_spring_ppt_sd <- min(data_temp$ppt_spring_sd_diff)
+max_spring_ppt_sd <- max(data_temp$ppt_spring_sd_diff)
+min_summer_ppt_sd <- min(data_temp$ppt_summer_sd_diff)
+max_summer_ppt_sd <- max(data_temp$ppt_summer_sd_diff)
+min_autumn_ppt_sd <- min(data_temp$ppt_autumn_sd_diff)
+max_autumn_ppt_sd <- max(data_temp$ppt_autumn_sd_diff)
 
 
-min_spring_tmean_sd <- min(data$tmean_spring_sd_diff)
-max_spring_tmean_sd <- max(data$tmean_spring_sd_diff)
-min_summer_tmean_sd <- min(data$tmean_summer_sd_diff)
-max_summer_tmean_sd <- max(data$tmean_summer_sd_diff)
-min_autumn_tmean_sd <- min(data$tmean_autumn_sd_diff)
-max_autumn_tmean_sd <- max(data$tmean_autumn_sd_diff)
+min_spring_tmean <- min(data_temp$tmean_spring_diff)
+max_spring_tmean <- max(data_temp$tmean_spring_diff)
+min_summer_tmean <- min(data_temp$tmean_summer_diff)
+max_summer_tmean <- max(data_temp$tmean_summer_diff)
+min_autumn_tmean <- min(data_temp$tmean_autumn_diff)
+max_autumn_tmean <- max(data_temp$tmean_autumn_diff)
+
+
+min_spring_tmean_sd <- min(data_temp$tmean_spring_sd_diff)
+max_spring_tmean_sd <- max(data_temp$tmean_spring_sd_diff)
+min_summer_tmean_sd <- min(data_temp$tmean_summer_sd_diff)
+max_summer_tmean_sd <- max(data_temp$tmean_summer_sd_diff)
+min_autumn_tmean_sd <- min(data_temp$tmean_autumn_sd_diff)
+max_autumn_tmean_sd <- max(data_temp$tmean_autumn_sd_diff)
 
 
 
@@ -601,26 +621,24 @@ preddata <- tibble(species = species_names[s],
 
 # gennerating predictions 
 
-
-
 prediction <- predict(
   fit_list[[s]],
   newdata = preddata,
-  formula =  ~ tibble("spring_ppt" = spring_ppt,
-                      "summer_ppt" = summer_ppt,
-                      "autumn_ppt" = autumn_ppt,
-                      
-                      "spring_ppt_sd" = spring_ppt_sd,
-                      "summer_ppt_sd" = summer_ppt_sd,
-                      "autumn_ppt_sd" = autumn_ppt_sd,
-                      
-                      "spring_tmean" = spring_tmean,
-                      "summer_tmean" = summer_tmean,
-                      "autumn_tmean" = autumn_tmean,
-                      
-                      "spring_tmean_sd" = spring_tmean_sd,
-                      "summer_tmean_sd" = summer_tmean_sd,
-                      "autumn_tmean_sd" = autumn_tmean_sd),
+  formula =  ~ tibble("spring_ppt" = spring_ppt_eval(ppt_spring_diff),
+                      "summer_ppt" = summer_ppt_eval(ppt_summer_diff),
+                      "autumn_ppt" = autumn_ppt_eval(ppt_autumn_diff),
+
+                      "spring_ppt_sd" = spring_ppt_sd_eval(ppt_spring_sd_diff),
+                      "summer_ppt_sd" = summer_ppt_sd_eval(ppt_summer_sd_diff),
+                      "autumn_ppt_sd" = autumn_ppt_sd_eval(ppt_autumn_sd_diff),
+
+                      "spring_tmean" = spring_tmean_eval(tmean_spring_diff),
+                      "summer_tmean" = summer_tmean_eval(tmean_summer_diff),
+                      "autumn_tmean" = autumn_tmean_eval(tmean_autumn_diff),
+
+                      "spring_tmean_sd" = spring_tmean_sd_eval(tmean_spring_sd_diff),
+                      "summer_tmean_sd" = summer_tmean_sd_eval(tmean_summer_sd_diff),
+                      "autumn_tmean_sd" = autumn_tmean_sd_eval(tmean_autumn_sd_diff)),
   probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
   n.samples = 100)
 prediction_list[[species_names[s]]] <- prediction
@@ -696,7 +714,7 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
         )
   # lims(y = c(0,1))
 
-tmean_trend
+# tmean_trend
 
 
 tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd", name))) +
@@ -720,7 +738,7 @@ tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd"
   )
 # lims(y = c(0,1))
 
-tmean_sd_trend
+# tmean_sd_trend
 
 
 
@@ -745,7 +763,7 @@ ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name
   )
 # lims(y = c(0,1))
 
-ppt_trend
+# ppt_trend
 
 
 ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", name))) +
@@ -769,7 +787,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   )
 # lims(y = c(0,1))
 
-ppt_sd_trend
+# ppt_sd_trend
 
 
 
