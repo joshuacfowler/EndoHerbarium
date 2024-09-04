@@ -216,9 +216,9 @@ test_aghy_a <- predict(mod_aghy, env_aghy_bg)
 e_aghy <- evaluate(p=test_aghy_p, a=test_aghy_a)
 threshold(e_aghy)
 
-par(mfrow=c(1, 3))
+par(mfrow=c(1, 2))
 # density(e_aghy)
-boxplot(e_aghy, col=c('blue', 'red'))
+# boxplot(e_aghy, col=c('blue', 'red'))
 plot(e_aghy, 'ROC')
 # plot(e_aghy, 'TPR')
 plot(e_aghy, 'kappa')
@@ -488,7 +488,7 @@ dev.off()
 
 # pdf("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Figures/FigSDMMaxent.pdf",height = 5,width = 10)
 # # layout(mat = layout.matrix)
-# op<-par(mfrow = c(2,3), mar=c(3,3,2,1),oma = c(5, 5, 1, 3))
+# op<-par(mfrow = c(1,3), mar=c(3,3,2,1),oma = c(5, 5, 1, 3))
 # plot(map_old_aghy,xaxt='n',main=substitute(paste(italic("A. hyemalis"))))
 # text(x=-80,y=50,label="1925")
 # # par(mar=c(2.2,1,3,1))
@@ -521,7 +521,10 @@ plot(aghy)
 # layout.matrix <- matrix(c(1, 2, 3, 4,5,6), nrow = 2, ncol = 3)
 pdf("/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/Herbaruim Project/Figures/FigSDM_Presence_absence.pdf",height = 8,width = 5)
 # layout(mat = layout.matrix)
-op<-par(mfrow = c(3,1), mar=c(4,8,1.5,2))
+op<-par(mfrow = c(1,3), mar=c(4,8,1.5,2))
+plot(e_aghy, 'ROC')
+plot(e_agpe, 'ROC')
+plot(e_elvi, 'ROC')
 # plot(map_old_aghy > tr_aghy,xaxt='n',main=substitute(paste(italic("A. hyemalis"))))
 # text(x=-80,y=50,label="1925")
 # # par(mar=c(2.2,1,3,1))
@@ -559,6 +562,7 @@ op<-par(mfrow = c(3,1), mar=c(4,8,1.5,2))
 # par(mar=c(5,3,0,1))
 plot(aghy , main="",xlab="", ylab="Latitude",cex.lab=1.5)
 mtext("A",side = 3, adj = 0,cex=1.25)
+plot(e_agpe, 'ROC')
 # par(mar=c(5,1,0,1))
 plot(agpe, main="",xlab="", ylab="Latitude",cex.lab=1.5)
 mtext("B",side = 3, adj = 0,cex=1.25)
@@ -568,10 +572,12 @@ mtext("C",side = 3, adj = 0,cex=1.25)
 par(op)
 dev.off()
 
-aghy_binary <- aghy >  0.5102097
-agpe_binary <-agpe > 0.52849
-elvi_binary <-elvi > 0.5422173
+aghy_binary <- aghy >  0.5410866
+agpe_binary <-agpe > 0.452535
+elvi_binary <-elvi > 0.5163273
 
+
+ 
 writeRaster(aghy_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/aghy_binary.tif')
 writeRaster(agpe_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/agpe_binary.tif')
 writeRaster(elvi_binary, '/Users/jm200/Library/CloudStorage/Dropbox/Miller Lab/github/EndoHerbarium/elvi_binary.tif')
