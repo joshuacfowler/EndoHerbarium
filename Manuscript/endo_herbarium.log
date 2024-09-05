@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  5 SEP 2024 15:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  5 SEP 2024 15:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -528,7 +528,7 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  4303 strings out of 492649
  62528 string characters out of 6129622
- 132303 words of memory out of 5000000
+ 133303 words of memory out of 5000000
  8052 multiletter control sequences out of 15000+600000
  56002 words of font info for 103 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -545,7 +545,7 @@ xmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-dis
 t/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/font
 s/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1
 /urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (54 pages, 6884176 bytes).
+Output written on endo_herbarium.pdf (54 pages, 6884184 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  168 compressed objects within 2 object streams
