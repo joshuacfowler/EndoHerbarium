@@ -41,6 +41,14 @@ Clare~E Aslan, Erika~S Zavaleta, Bernie Tershy, and Donald Croll.
   systematic review.
 \newblock \emph{PloS one}, 8\penalty0 (6):\penalty0 e66993, 2013.
 
+\bibitem[Bachl et~al.(2019)Bachl, Lindgren, Borchers, and
+  Illian]{bachl2019inlabru}
+Fabian~E Bachl, Finn Lindgren, David~L Borchers, and Janine~B Illian.
+\newblock inlabru: an r package for bayesian spatial modelling from ecological
+  survey data.
+\newblock \emph{Methods in Ecology and Evolution}, 10\penalty0 (6):\penalty0
+  760--766, 2019.
+
 \bibitem[Bacon and White(2018)]{bacon2018stains}
 Charles~W Bacon and James~F White.
 \newblock Stains, media, and procedures for analyzing endophytes.
@@ -327,13 +335,6 @@ J~Mason Heberling and David~J Burke.
   communities.
 \newblock \emph{Applications in plant sciences}, 7\penalty0 (4):\penalty0
   e01223, 2019.
-
-\bibitem[Hijmans and Graham(2006)]{hijmans2006ability}
-Robert~J Hijmans and Catherine~H Graham.
-\newblock The ability of climate envelope models to predict the effect of
-  climate change on species distributions.
-\newblock \emph{Global change biology}, 12\penalty0 (12):\penalty0 2272--2281,
-  2006.
 
 \bibitem[Hijmans et~al.(2017)Hijmans, Phillips, Leathwick, Elith, and
   Hijmans]{hijmans2017package}

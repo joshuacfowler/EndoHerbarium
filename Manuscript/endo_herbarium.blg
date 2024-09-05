@@ -27,42 +27,41 @@ Repeated entry---line 1516 of file endo_herbarium.bib
  : @article{kazenel2015mutualistic
  :                                ,
 I'm skipping whatever remains of this entry
-Warning--I didn't find a database entry for ""
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
 Warning--empty journal in Rprism2015
 You've used 100 entries,
             2773 wiz_defined-function locations,
-            1182 strings with 27760 characters,
-and the built_in function-call counts, 57718 in all, are:
-= -- 4970
-> -- 4373
-< -- 26
-+ -- 1465
-- -- 1365
-* -- 5456
-:= -- 9055
+            1181 strings with 27765 characters,
+and the built_in function-call counts, 57800 in all, are:
+= -- 4973
+> -- 4391
+< -- 25
++ -- 1471
+- -- 1371
+* -- 5471
+:= -- 9071
 add.period$ -- 307
 call.type$ -- 100
-change.case$ -- 749
+change.case$ -- 751
 chr.to.int$ -- 100
 cite$ -- 203
-duplicate$ -- 2092
-empty$ -- 4035
-format.name$ -- 1495
-if$ -- 11710
+duplicate$ -- 2093
+empty$ -- 4034
+format.name$ -- 1499
+if$ -- 11723
 int.to.chr$ -- 1
 int.to.str$ -- 1
 missing$ -- 98
 newline$ -- 513
 num.names$ -- 400
-pop$ -- 1336
+pop$ -- 1340
 preamble$ -- 1
-purify$ -- 649
+purify$ -- 651
 quote$ -- 0
 skip$ -- 1709
 stack$ -- 0
-substring$ -- 2495
+substring$ -- 2489
 swap$ -- 121
 text.length$ -- 3
 text.prefix$ -- 0
