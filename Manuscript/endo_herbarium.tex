@@ -73,7 +73,7 @@
 	
 	\bigskip
 	
-	\textit{Manuscript elements}: Figure~1, figure~2, table~1, appendix~A (for print; including figure~A1, figure~A2, and table~A1), supplemental PDF. Figure~2 is to print in color.
+	\textit{Manuscript elements}: Figure \ref{fig:map} - Figure \ref{fig:contemptestplot}, appendix~A (including Figure~\ref{fig:endo_status_map} - Figure \ref{fig:ELVI_climate_covariates},  Table \ref{table:herbaria}, and Supplemental Methods).
 	
 	\bigskip
 	
@@ -180,7 +180,7 @@ Both \emph{Agrostis} species are recorded from throughout the Eastern US, but \e
 It begins flowering as early as March or April but continues throughout the summer (most common collection month: July).
 
 		\subsection*{Herbarium surveys}
-We visited nine herbaria between 2019 and 2022 (see Table A1 for a summary of specimens included from each collection). 
+We visited nine herbaria between 2019 and 2022 (see Table \ref{table:herbaria} for a summary of specimens included from each collection). 
 With permission from herbarium staff, we acquired seed samples from $1135$ \emph{A. hyemalis} specimens collected between 1824 and 2019, $357$ \emph{A. perennans} specimens collected between 1863 and 2017, and $854$ \emph{E. virginicus} specimens collected between 1839 and 2019 (Fig. \ref{fig:map}, Fig. \ref{fig:temporal}A, Fig. \ref{fig:endo_status_map}).
 %Our sampling plan was designed to minimize damage to these specimens.
 We chose our focal species in part because they are commonly represented in herbarium collections, and produce high numbers of seeds, meaning that small samples would not diminish the value of the specimens for future studies. 
@@ -202,7 +202,7 @@ We therefore designated a specimen as endophyte-symbiotic if \emph{Epichloë} hy
 To capture uncertainty in the endophyte scoring process, we recorded both a "liberal" and a "conservative" endophyte status for each plant specimen.  
 When we identified potential endophytes with unusual morphology, low uptake of stain, or a small amount of fungal hyphae across the scored seeds, we recorded a positive liberal status (more likely to be endophyte-positive) and a negative conservative status (less likely to be endophyte-positive). 
 $89$\% of scored plants had matching liberal and conservative scores, reflecting high confidence in endophyte status.
-The following analyses in the main text used the liberal status, but we repeated all analyses with the conservative status which yielded qualitatively similar results (Fig. \ref{fig:FigA5})
+The following analyses used the liberal status, but we repeated all analyses with the conservative status which yielded qualitatively similar results (Fig. \ref{fig:FigA5})
 
 \begin{figure}[h]
 	\centering
@@ -213,7 +213,7 @@ The following analyses in the main text used the liberal status, but we repeated
 
 
 \subsection*{Modeling spatial and temporal changes in endophyte prevalence}
-We assessed spatial and temporal changes in endophyte prevalence across each host distribution, quantifying the ``global'' temporal trends, aggregating across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
+We assessed spatial and temporal changes in endophyte prevalence across each host distribution, quantifying the ``global'' temporal trends aggregated across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
 To account for the spatial non-independence of geo-referenced occurrences, we used an approximate Bayesian method, Integrated Nested Laplace Approximation (INLA), to construct spatio-temporal models of endophyte prevalence.
 INLA provides a computationally efficient method of ascertaining parameter posterior distributions for certain models that can be formulated as latent Gaussian Models \cite{rue2009approximate}.
 Many common statistical models, including structured and unstructured mixed-effects models, can be represented as latent Gaussian Models.
@@ -249,6 +249,7 @@ Global intercept and slope parameters $\mathrm{A}$, and $\mathrm{T}$, were given
 Scorer and collector random effects, $\chi$ and $\omega$, were given penalized complexity priors, with distributions approximating a Normal distribution with standard deviation of 5. 
 Each spatially-structured parameter depended on a covariance matrix according to the proximity of each collection location \citep{lindgren2011explicit,bakka2018spatial}. 
 The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles encompassing the study area (Fig. \ref{fig:meshplot}).
+We assessed model fit with visual posterior predictive checks (\ref{fig:overlayplot}) and measurements of AUC (Figs. \ref{fig:ROCtraining}-\ref{fig:ROCtest}).
 Priors, termed ''range" and "variance", define the distance of spatial decay described by the Mat\'{e}rn covariance function.
 Priors for results presented in the main text reflect a range of $342$ kilometers. 
 We found that model results were sensitive to this choice, and so tested a range of priors (from 68 kilometers to 2160 kilometers) and meshes (Supplemental Material), finding that model results were qualitatively similar, i.e. the same direction of effects across space, but that the magnitude and uncertainty varied. 
@@ -258,7 +259,8 @@ We found that model results were sensitive to this choice, and so tested a range
 \subsection*{Validating model performance with in-sample and out-of-sample tests}
 We evaluated the predictive ability of the model using both in-sample training data from the herbarium surveys, and with out-of-sample test data from contemporary endophyte surveys, an important but rarely used strategy in ecological studies \cite{tredennick2021practical, lee2024phenological}.
 We used data from contemporary surveys of endophyte prevalence  in \emph{A. hyemalis} and \emph{E. virginicus} in Texas and the southern US. 
-Surveys of \emph{E. virginicus} were conducted in 2013 as described in \citet{sneck2017variation}, and \tom{surveys of \emph{A. hyemalis} took place between 2015 and 2020}{We have added more recent AGHY survey data. I am not sure if you have access to this but you should definitely use it. Karl or I can point you to the right file.}.
+Surveys of \emph{E. virginicus} were conducted in 2013 as described in \citet{sneck2017variation}, and surveys of \emph{A. hyemalis} took place between 2015 and 2020.
+%\tom{surveys of \emph{A. hyemalis} took place between 2015 and 2020}{We have added more recent AGHY survey data. I am not sure if you have access to this but you should definitely use it. Karl or I can point you to the right file.}.
 Population surveys of \emph{A. hyemalis} were initially designed to cover longitudinal variation in endophyte prevalence towards its range edge, while surveys of \emph{E. virginicus} were designed to cover latitudinal variation along its range edge. 
 In total, we visited 43 populations of \emph{A. hyemalis} and 20 populations of \emph{E. virginicus} across the south-central US, with emphasis on Texas and neighboring states (Fig \ref{fig:contempsurveysmap}).
 During surveys, we collected seeds from up to 30 individuals per location  (average number of plants sampled: $22.9$).
@@ -287,7 +289,7 @@ Fitting regressions to many pixels across the study region risks articially infl
 \subsection*{Modeling distributions of host species}
 We modeled the distribution of each host species to generate maps on which we predicted the dynamics of \emph{Epichloë} symbionts.
 We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing}.
-A full description of the ODMAP can be found in the  (Supplementary Method \ref{sec:sdm }). 
+A full description of the ODMAP can be found in the  (Supporting Methods). 
  In short, we used presence-only observations of the host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020.
 To reduce the potential influence of sampling bias and spatial autocorrelation, we thinned the occurrences to the spatial scale  of our selected climatic predictors. 
 We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
@@ -489,7 +491,7 @@ Beyond host-microbe symbioses, building these types of models would work towards
 	% final files after acceptance.
 	
 	\section*{Acknowledgments}
-	We thank Jessica Budke for help in drafting our initial destructive sampling plan, and to the many members of herbarium staff who facilitated our research visits, as well as to the hundreds of collectors who contributed to the natural history collections. 
+	We thank Dr. Jessica Budke for help in drafting our initial destructive sampling plan, and to the many staff members of herbaria who facilitated our research visits, as well as to the hundreds of collectors who contributed to the natural history collections. 
 	Several high schooler and undergraduate researchers contributed to data collection, including A. Appio-Riley, P. Bilderback, E. Chong, K. Dickens, L. Dufresne, B. Gutierrez, A. Johnson, S. Linder, E. Scales, B. Scherick, K. Schrader, E. Segal , G. Singla, and M. Tucker.
 	This research was supported by funding from National Science Foundation (grants 1754468 and 2208857) and by funding from the Texas Ecolab Program.
 
@@ -504,12 +506,12 @@ Beyond host-microbe symbioses, building these types of models would work towards
 	
 	\section*{Statement of Authorship}
 J.C.F. contributed to research conception, data collection, data analysis, and led manuscript drafting.
-J.M. contributed to data analysis and manuscript manuscript revisions.
+J.M. contributed to data analysis and manuscript revisions.
 T.E.X.M. contributed to research conception, data collection, data analysis, and manuscript revisions.
 
 	
 	\section*{Data and Code Availability}
-	Data from this publication will be made publically available at the time of publication and upon request.
+	Data from this publication will be made publically available upon acceptance and before that upon request.
 	Code for analyses can be found through: https://github.com/joshuacfowler/EndoHerbarium
 	
 	\section*{Appendix A}
@@ -537,8 +539,9 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = .8\linewidth]{density_plot.png}
-	\caption{\textbf{Consistency between real data and simulated values indicate that the fitted model accurately describes the data}. Graph shows density curves for the observed data (red) along with the mean(solid) and 95\% CI (dashed) of simulated values (black).}
+	\includegraphics[width = .5\linewidth]{../Plots/overlay_plot.png}
+	\caption{\textbf{Consistency between real data and simulated values indicate that the fitted model accurately describes the data}. Graph shows density curves for the observed data (black) along with with 100 simulated datasets (red).}
+			\label{fig:overlayplot}
 \end{figure}
 
 	
@@ -629,19 +632,19 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 	
 	\begin{table}[h]
 		\caption{Summary of herbarium samples across collections}
-		\label{Table:herbaria}
+		\label{table:herbaria}
 		\centering
 		\begin{tabular}{llll}\hline
 			Herbarium Collection        & AGHY        & AGPE      &      ELVI\\ \hline
-			Botanical Research Institute of Texas &   341   &    189&    176    \\
-			Louisiana State University &     71  & --  &   61       \\
+			Botanical Research Institute of Texas &   350   &    190&    198    \\
+			Louisiana State University &     72  & 38  &   62       \\
 			Mercer Botanic Garden &   3    & --     &     6\\
-			Missouri Botanic Garden& 78 & 39& 31\\
-		    Texas A\&M &  73&-- & 49 \\
-		    University of Kansas & 134 & -- &  20\\
-		    University of Oklahoma & 65 &30&  91\\
-		    University of Texas  \& Lundell   &  169& 41& 99\\		    				 			     			     
-			Oklahoma State University&     30  &   --    &  69 \\ \hline
+			Missouri Botanic Garden& 210 & 205 & 122\\
+		    Texas A\&M &  100 &-- & 72 \\
+		    University of Kansas & 134 & 34 &  197\\
+		    University of Oklahoma & 85 &34&  95\\
+		    University of Texas  \& Lundell   &  183& 91& 102\\		    				 			     			     
+			Oklahoma State University&     51  &   10    &  74 \\ \hline
 		\end{tabular}
 		\bigskip{}
 
@@ -649,7 +652,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 	\section*{Supporting Methods}
 	\subsection*{ODMAP Protocol}\label{sec:sdm}
 {\color{blue}{Overview}}\\
-\textbf {Model  purpose}: Mapping current distribution of epichloë host species. \\
+\textbf {Model  purpose}: Mapping current distribution of \emph{Epichloë} host species. \\
 \textbf {Target species}: \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus}. \\
 \textbf {Study area}: Eastern North America \\
 %Scale of analysis
@@ -667,7 +670,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \textbf{Algorithms}: Maximum entropy (maxent)\\
 \textbf{Workflow}: We  described the workflow in the method section of the manuscript. \\
 \textbf{Software}:  All statistics were performed using Maxent 3.3.4 and R4.3.1 with packages terra, usdm, spThin and dismo.\\
-\textbf{Code availability}: Will be available upon acceptance \\
+\textbf{Code availability}: Available through this link: https://github.com/joshuacfowler/EndoHerbarium \\
 \textbf{Data availability}: Will be available upon acceptance \\
 {\color{blue}{Assessment}}\\
 We used AUC to test model performance.\\
