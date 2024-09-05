@@ -452,6 +452,63 @@ rocobj$auc
 
 
 # Taking alot of material from this blog post: https://inlabru-org.github.io/inlabru/articles/2d_lgcp_covars.html
+post.pred1 <- generate(
+  fit,
+  newdata = data1,
+  formula = ~ invlogit(int.species1 + year.species1 + 
+                         space +  space.species1 + 
+                         time.species1 + 
+                         scorer+ collector),
+  n.samples = 100) 
+posterior_samples1 <- bind_cols(data1, post.pred1)
+
+
+post.pred2 <- generate(
+  fit,
+  newdata = data2,
+  formula = ~ invlogit(int.species2 + year.species2 + 
+                         space + space.species3 + 
+                         time.species2 + 
+                         scorer+ collector),
+  n.samples = 100) 
+posterior_samples2 <- bind_cols(data2, post.pred2)
+
+post.pred3 <- generate(
+  fit,
+  newdata = data3,
+  formula = ~ invlogit(int.species3 + year.species3 +
+                         space + space.species3 + 
+                         time.species3 +
+                         scorer+ collector),
+  n.samples = 100) 
+
+posterior_samples3 <- bind_cols(data3, post.pred3)
+
+posterior_samples <- bind_rows(posterior_samples1, posterior_samples2, posterior_samples3) %>% 
+  arrange(row_number) %>% 
+  select(...55:...154) %>% st_drop_geometry %>% as.matrix()
+
+# simulating datasets from the posterior samples
+n_post_draws <- 100
+y_sim <- matrix(NA,n_post_draws,length(data$Endo_status_liberal))
+
+for(i in 1:n_post_draws){
+y_sim[i,] <- rbinom(n = length(endo_herb$Endo_status_liberal), size = 1, prob = posterior_samples[,i])
+}
+
+saveRDS(y_sim, file = "y_sim.rds")
+y_sim_df <- t(y_sim)
+colnames(y_sim_df) <- paste("iter", 1:n_post_draws)
+y_sim_df <- as_tibble(y_sim_df, .name_repair = "minimal") %>% 
+  pivot_longer(cols = everything())
+
+overlay_plot <- ggplot(data)+
+  geom_line(data = y_sim_df, aes(x = value, group = name), stat="density", color = "red", alpha = .3) +
+  geom_line(aes(x = Endo_status_liberal), stat="density") + 
+  labs(x = "Endophyte Status", y = "Density")+
+  theme_minimal()
+overlay_plot
+ggsave(overlay_plot, filename = "Plots/overlay_plot.png", width = 4, height = 4)
 
 ########## plotting the spde range and sd posteriors ################
 spde.range <- spde.posterior(fit, "space", what = "range")
@@ -481,6 +538,12 @@ cov.plot
 cov.plot <- plot(spde.posterior(fit, "time.slope", what = "matern.covariance"))
 
 cov.plot
+
+
+
+
+
+##### Now I want to compare simulated data with observed data 
 
 
 ################################################################################################################################
