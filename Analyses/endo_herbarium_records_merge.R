@@ -1526,6 +1526,12 @@ need_latlon_summary <- need_latlon %>%
   group_by(collection) %>% 
   summarize(count = n())
 
+# summary of how many scored specimens from each collection
+collections_summary <- endo_herb_georef %>% 
+  mutate(collection = word(Sample_id, 1, sep = "_")) %>% 
+  group_by(collection, Spp_code) %>% 
+  summarize(count = n())
+
 
 
 endo_herb_georef %>% filter(!is.na(Endo_status_liberal) & is.na(year)) %>% view()
