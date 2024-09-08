@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  5 SEP 2024 15:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  8 SEP 2024 16:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -320,13 +320,6 @@ LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <14.4> not available
 (Font)              Font shape `T1/pplx/b/n' tried instead on input line 95.
  [2] [3] [4]
 [5] [6]
-LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/pplx/b/n' tried instead on input line 205.
-
-
-LaTeX Warning: Reference `fig:FigA5' on page 7 undefined on input line 205.
-
-
 Overfull \hbox (0.49138pt too wide) in paragraph at lines 195--206
 \T1/pplx/m/n/10.95 with a 10% NaOH so-lu-tion, then stained the seeds with ani-
 line blue-lactic acid stain and squashed
@@ -338,6 +331,8 @@ File: ../Plots/collections_map.png Graphic file (type png)
 <use ../Plots/collections_map.png>
 Package pdftex.def Info: ../Plots/collections_map.png  used on input line 209.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 210.
 LaTeX Font Info:    Font shape `T1/pplx/bx/it' in size <10.95> not available
 (Font)              Font shape `T1/pplx/b/it' tried instead on input line 210.
 
@@ -426,19 +421,20 @@ File: ../Plots/svc_time_map_CI.png Graphic file (type png)
 Package pdftex.def Info: ../Plots/svc_time_map_CI.png  used on input line 574.
 (pdftex.def)             Requested size: 469.75502pt x 156.58498pt.
  [32 <../Plots/posterior_plot.png>]
-<fixed_plot.png, id=127, 361.35pt x 361.35pt>
-File: fixed_plot.png Graphic file (type png)
-<use fixed_plot.png>
-Package pdftex.def Info: fixed_plot.png  used on input line 582.
-(pdftex.def)             Requested size: 469.75502pt x 469.76047pt.
+<../Plots/conservative_comparison_plot.png, id=127, 722.7pt x 505.89pt>
+File: ../Plots/conservative_comparison_plot.png Graphic file (type png)
+<use ../Plots/conservative_comparison_plot.png>
+Package pdftex.def Info: ../Plots/conservative_comparison_plot.png  used on inp
+ut line 582.
+(pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
  [33 <../Plots/svc_time_map_CI.png>]
 <../Plots/collector_posterior_plot.pdf, id=131, 578.16pt x 867.24pt>
 File: ../Plots/collector_posterior_plot.pdf Graphic file (type pdf)
 <use ../Plots/collector_posterior_plot.pdf>
 Package pdftex.def Info: ../Plots/collector_posterior_plot.pdf  used on input l
-ine 589.
+ine 590.
 (pdftex.def)             Requested size: 375.80544pt x 563.69934pt.
- [34 <./fixed_plot.png>]
+ [34 <../Plots/conservative_comparison_plot.png>]
 Overfull \vbox (2.60811pt too high) has occurred while \output is active []
 
 
@@ -447,7 +443,7 @@ Overfull \vbox (2.60811pt too high) has occurred while \output is active []
 File: ../Plots/scorer_posterior_plot.pdf Graphic file (type pdf)
 <use ../Plots/scorer_posterior_plot.pdf>
 Package pdftex.def Info: ../Plots/scorer_posterior_plot.pdf  used on input line
- 597.
+ 598.
 (pdftex.def)             Requested size: 375.80544pt x 563.69934pt.
 
 Overfull \vbox (2.60811pt too high) has occurred while \output is active []
@@ -458,34 +454,34 @@ Overfull \vbox (2.60811pt too high) has occurred while \output is active []
 File: ../Plots/contemp_surveys_map.png Graphic file (type png)
 <use ../Plots/contemp_surveys_map.png>
 Package pdftex.def Info: ../Plots/contemp_surveys_map.png  used on input line 6
-05.
+06.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
 <../Plots/AGHY_climate_change_plot.png, id=159, 578.16pt x 722.7pt>
 File: ../Plots/AGHY_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGHY_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGHY_climate_change_plot.png  used on input l
-ine 612.
+ine 613.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
  [37 <../Plots/contemp_surveys_map.png>]
 <../Plots/AGPE_climate_change_plot.png, id=164, 578.16pt x 722.7pt>
 File: ../Plots/AGPE_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGPE_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGPE_climate_change_plot.png  used on input l
-ine 619.
+ine 620.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
  [38 <../Plots/AGHY_climate_change_plot.png>]
 <../Plots/ELVI_climate_change_plot.png, id=168, 578.16pt x 722.7pt>
 File: ../Plots/ELVI_climate_change_plot.png Graphic file (type png)
 <use ../Plots/ELVI_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/ELVI_climate_change_plot.png  used on input l
-ine 626.
+ine 627.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
  [39 <../Plots/AGPE_climate_change_plot.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [40 <../Plots/ELVI_climate_change_plot.png>]
-Overfull \hbox (13.01875pt too wide) in paragraph at lines 654--679
+Overfull \hbox (13.01875pt too wide) in paragraph at lines 655--680
 \T1/pplx/b/n/10.95 Code avail-abil-ity\T1/pplx/m/n/10.95 : Avail-able through t
 his link: https://github.com/joshuacfowler/EndoHerbarium 
  []
@@ -520,32 +516,28 @@ Underfull \hbox (badness 7777) in paragraph at lines 664--673
 90010-7.  URL
  []
 
-[53]) [54] (./endo_herbarium.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+[53]) [54] (./endo_herbarium.aux) ) 
 Here is how much of TeX's memory you used:
  4303 strings out of 492649
- 62528 string characters out of 6129622
- 133303 words of memory out of 5000000
+ 62673 string characters out of 6129622
+ 132313 words of memory out of 5000000
  8052 multiletter control sequences out of 15000+600000
  56002 words of font info for 103 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  41i,9n,35p,713b,427s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
-live/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texl
-ive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texliv
-e/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/201
-8/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb></usr/local/texlive/2018/
-texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb></usr/local/texlive/2018/te
-xmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-dis
-t/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/font
-s/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1
-/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (54 pages, 6884184 bytes).
+{/usr/local/texlive/2018/texmf-dist/fonts/en
+c/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2018/texmf-dist/fonts/enc/
+dvips/base/8r.enc}</usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/mathpazo/f
+plmri.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/cm-super/sfss0
+600.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/cm-super/sftt109
+5.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><
+/usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/l
+ocal/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/te
+xlive/2018/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on endo_herbarium.pdf (54 pages, 7095369 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  168 compressed objects within 2 object streams
