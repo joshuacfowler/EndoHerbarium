@@ -440,12 +440,12 @@ sample_n(size =250) %>%
 #   facet_wrap(~species)
 
 
-# svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>% 
-#   pivot_longer(cols = contains("_diff")) %>% 
-#   filter(!grepl("cv", name)) 
-#   # filter(!grepl("tmean_spring", name)) %>% 
-#   # filter(!grepl("tmean_summer", name)) %>% 
-#   # filter(!grepl("tmean_autumn", name)) 
+svc.pred_climate_subsample_long <- svc.pred_climate_subsample %>%
+  pivot_longer(cols = contains("_diff")) %>%
+  filter(!grepl("cv", name))
+  # filter(!grepl("tmean_spring", name)) %>%
+  # filter(!grepl("tmean_summer", name)) %>%
+  # filter(!grepl("tmean_autumn", name))
 # 
 
 
@@ -520,22 +520,33 @@ data<- svc.pred_climate_subsample %>%
     easting = st_coordinates(.)[, 1],
     northing = st_coordinates(.)[, 2]
   ) 
-# setting up a spatial intercept
 fit_list <- list()
 
 for(s in 1:3){
   data_temp <- data[data$species == species_names[s],]
 
-  cmp <- ~ Intercept(main = Intercept, model = "linear", mean.linear=0, prec.linear=0.001) + 
-  spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-  spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-  spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
-  spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
-
+  cmp <- ~  Intercept(1) + 
+    spring_ppt(main = ppt_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt(main = ppt_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt(main = ppt_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    spring_ppt_sd(main = ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_ppt_sd(main = ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_ppt_sd(main = ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    spring_tmean(main = tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean(main = tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean(main = tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    spring_tmean_sd(main = tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + summer_tmean_sd(main = tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + autumn_tmean_sd(main = tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
+    # spring_PxT(main = ppt_spring_diff*tmean_spring_diff, model = "linear", mean.linear=0, prec.linear=0.001) + 
+    # summer_PxT(main = ppt_summer_diff*tmean_summer_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    # autumn_PxT(main = ppt_autumn_diff*tmean_autumn_diff, model = "linear", mean.linear=0, prec.linear=0.001)+
+    # spring_Pxsd(main = ppt_spring_diff*ppt_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + 
+    # summer_Pxsd(main = ppt_summer_diff*ppt_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    # autumn_Pxsd(main = ppt_autumn_diff*ppt_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)+
+    # spring_Txsd(main = tmean_spring_diff*tmean_spring_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) + 
+    # summer_Txsd(main = tmean_summer_diff*tmean_summer_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001) +
+    # autumn_Txsd(main = tmean_autumn_diff*tmean_autumn_sd_diff, model = "linear", mean.linear=0, prec.linear=0.001)
+  
+  
+  
 
 # setting up the model formula
-fml.climate <- mean ~ -1 + Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
-  spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
+fml.climate <- mean ~ 0 + Intercept + spring_ppt + summer_ppt + autumn_ppt + spring_ppt_sd + summer_ppt_sd + autumn_ppt_sd +
+   spring_tmean + summer_tmean + autumn_tmean + spring_tmean_sd + summer_tmean_sd + autumn_tmean_sd  
+
 
 lik_climate <- like(formula = fml.climate,
                     family = "gaussian",
@@ -572,37 +583,49 @@ for(s in 1:3){
 data_temp <- data[data$species == species_names[s],]
 
 min_spring_ppt <- min(data_temp$ppt_spring_diff)
+mean_spring_ppt <- mean(data_temp$ppt_spring_diff)
 max_spring_ppt <- max(data_temp$ppt_spring_diff)
 min_summer_ppt <- min(data_temp$ppt_summer_diff)
+mean_summer_ppt <- mean(data_temp$ppt_summer_diff)
 max_summer_ppt <- max(data_temp$ppt_summer_diff)
 min_autumn_ppt <- min(data_temp$ppt_autumn_diff)
+mean_autumn_ppt <- mean(data_temp$ppt_autumn_diff)
 max_autumn_ppt <- max(data_temp$ppt_autumn_diff)
 
 
 min_spring_ppt_sd <- min(data_temp$ppt_spring_sd_diff)
+mean_spring_ppt_sd <- mean(data_temp$ppt_spring_sd_diff)
 max_spring_ppt_sd <- max(data_temp$ppt_spring_sd_diff)
 min_summer_ppt_sd <- min(data_temp$ppt_summer_sd_diff)
+mean_summer_ppt_sd <- mean(data_temp$ppt_summer_sd_diff)
 max_summer_ppt_sd <- max(data_temp$ppt_summer_sd_diff)
 min_autumn_ppt_sd <- min(data_temp$ppt_autumn_sd_diff)
+mean_autumn_ppt_sd <- mean(data_temp$ppt_autumn_sd_diff)
 max_autumn_ppt_sd <- max(data_temp$ppt_autumn_sd_diff)
 
 
 min_spring_tmean <- min(data_temp$tmean_spring_diff)
+mean_spring_tmean <- mean(data_temp$tmean_spring_diff)
 max_spring_tmean <- max(data_temp$tmean_spring_diff)
 min_summer_tmean <- min(data_temp$tmean_summer_diff)
+mean_summer_tmean <- mean(data_temp$tmean_summer_diff)
 max_summer_tmean <- max(data_temp$tmean_summer_diff)
 min_autumn_tmean <- min(data_temp$tmean_autumn_diff)
+mean_autumn_tmean <- mean(data_temp$tmean_autumn_diff)
 max_autumn_tmean <- max(data_temp$tmean_autumn_diff)
 
 
 min_spring_tmean_sd <- min(data_temp$tmean_spring_sd_diff)
+mean_spring_tmean_sd <- mean(data_temp$tmean_spring_sd_diff)
 max_spring_tmean_sd <- max(data_temp$tmean_spring_sd_diff)
 min_summer_tmean_sd <- min(data_temp$tmean_summer_sd_diff)
+mean_summer_tmean_sd <- mean(data_temp$tmean_summer_sd_diff)
 max_summer_tmean_sd <- max(data_temp$tmean_summer_sd_diff)
 min_autumn_tmean_sd <- min(data_temp$tmean_autumn_sd_diff)
+mean_autumn_tmean_sd <- mean(data_temp$tmean_autumn_sd_diff)
 max_autumn_tmean_sd <- max(data_temp$tmean_autumn_sd_diff)
 
-
+predict_vector <- c()
 
 preddata <- tibble(species = species_names[s],
                    ppt_spring_diff = seq(min_spring_ppt, max_spring_ppt, length.out = 50),
@@ -624,25 +647,24 @@ preddata <- tibble(species = species_names[s],
 prediction <- predict(
   fit_list[[s]],
   newdata = preddata,
-  formula =  ~ tibble("spring_ppt" = spring_ppt_eval(ppt_spring_diff),
-                      "summer_ppt" = summer_ppt_eval(ppt_summer_diff),
-                      "autumn_ppt" = autumn_ppt_eval(ppt_autumn_diff),
-
-                      "spring_ppt_sd" = spring_ppt_sd_eval(ppt_spring_sd_diff),
-                      "summer_ppt_sd" = summer_ppt_sd_eval(ppt_summer_sd_diff),
-                      "autumn_ppt_sd" = autumn_ppt_sd_eval(ppt_autumn_sd_diff),
-
-                      "spring_tmean" = spring_tmean_eval(tmean_spring_diff),
-                      "summer_tmean" = summer_tmean_eval(tmean_summer_diff),
-                      "autumn_tmean" = autumn_tmean_eval(tmean_autumn_diff),
-
-                      "spring_tmean_sd" = spring_tmean_sd_eval(tmean_spring_sd_diff),
-                      "summer_tmean_sd" = summer_tmean_sd_eval(tmean_summer_sd_diff),
-                      "autumn_tmean_sd" = autumn_tmean_sd_eval(tmean_autumn_sd_diff)),
+  formula =  ~ tibble("spring_ppt" =  Intercept + spring_ppt,
+                      "summer_ppt" =  Intercept + summer_ppt,
+                      "autumn_ppt" =  Intercept + autumn_ppt,
+                      # 
+                      "spring_ppt_sd" =  Intercept + spring_ppt_sd,
+                      "summer_ppt_sd" =  Intercept + summer_ppt_sd,
+                      "autumn_ppt_sd" =  Intercept + autumn_ppt_sd,
+                      # 
+                      "spring_tmean" =   Intercept + spring_tmean,
+                      "summer_tmean" =   Intercept + summer_tmean,
+                      "autumn_tmean" =   Intercept + autumn_tmean,
+                      # 
+                      "spring_tmean_sd" = Intercept + spring_tmean_sd,
+                      "summer_tmean_sd" = Intercept + summer_tmean_sd,
+                      "autumn_tmean_sd" = Intercept + autumn_tmean_sd),
   probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
   n.samples = 100)
 prediction_list[[species_names[s]]] <- prediction
-
 }
 
 prediction_df_aghy <-  prediction_list[[1]] %>% map_dfr(~ .x %>% as_tibble(), .id = "variable")
@@ -694,7 +716,7 @@ climate_labels <- c(
 
 
 tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", name))) +
-  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name) & !grepl("sd", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
   geom_line(aes(value, mean)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
@@ -704,7 +726,7 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
              scales = "free_x")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
-  guides(fill = "none")+
+  guides(fill = "none", color = "none")+
   labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
@@ -714,11 +736,11 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
         )
   # lims(y = c(0,1))
 
-# tmean_trend
+tmean_trend
 
 
 tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd", name))) +
-  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name) & grepl("sd", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
   geom_line(aes(value, mean)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
@@ -728,7 +750,7 @@ tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd"
              scales = "free_x")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
-  guides(fill = "none")+
+  guides(fill = "none", color = "none")+
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
@@ -738,12 +760,12 @@ tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd"
   )
 # lims(y = c(0,1))
 
-# tmean_sd_trend
+tmean_sd_trend
 
 
 
 ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name))) +
-  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl("ppt", name) & !grepl("annual", name) & !grepl("sd", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
   geom_line(aes(value, mean)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
@@ -753,7 +775,7 @@ ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name
              scales = "free_x")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
-  guides(fill = "none")+
+  guides(fill = "none", color = "none")+
   labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
   theme_light()+
   theme(strip.background = element_blank(),
@@ -767,7 +789,7 @@ ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name
 
 
 ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", name))) +
-  # geom_point(data = filter(svc.pred_climate_subsample_long, grepl("tmean", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl("ppt", name) & !grepl("annual", name) & grepl("sd", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
   geom_line(aes(value, mean)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
@@ -777,7 +799,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
              scales = "free")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
-  guides(fill = "none")+
+  guides(fill = "none", color = "none")+
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
   theme_light()+
   theme(strip.background = element_blank(),
@@ -787,7 +809,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   )
 # lims(y = c(0,1))
 
-# ppt_sd_trend
+ppt_sd_trend
 
 
 
@@ -798,7 +820,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   
 climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "A")
 
-ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot.png", width = 16, height = 12)
+ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot_intercept.png", width = 16, height = 12)
 
 ######### version of plot separating by species ####
 
