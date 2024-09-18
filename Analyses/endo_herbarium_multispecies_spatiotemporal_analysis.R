@@ -70,8 +70,8 @@ endo_herb <- endo_herb_georef %>%
   filter(!is.na(lon) & !is.na(year)) %>% 
   filter(lon>-110 ) %>% 
   filter(Country != "Canada" ) %>% 
-  mutate(year_bin = case_when(year<1970 ~ "pre-1970",
-                              year>=1970 ~ "post-1970")) %>% 
+  mutate(year_bin = case_when(year<1969 ~ "pre-1969",
+                              year>=1969 ~ "post-1969")) %>% 
   mutate(scorer_index = parse_number(scorer_factor),
          herbarium_index = parse_number(herbarium_factor),
          collector_index = parse_number(collector_factor)) %>% 
@@ -157,7 +157,7 @@ endo_status_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat, color = endo_status_text), alpha = .7, size = .8)+
-  facet_wrap(~factor(year_bin, levels = c("pre-1970", "post-1970"))+species)+
+  facet_wrap(~factor(year_bin, levels = c("pre-1969", "post-1969"))+species)+
   coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
   scale_color_manual(values = c(endophyte_colors[2],endophyte_colors[6]))+
   theme_light()+
@@ -165,7 +165,6 @@ endo_status_map <- ggplot()+
         strip.text  = element_text(face = "italic", color = "black"))+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
 # endo_status_map
-
 # ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
 
 
