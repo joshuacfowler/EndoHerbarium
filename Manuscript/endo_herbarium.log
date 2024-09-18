@@ -1,176 +1,179 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 21.1) (preloaded format=pdflatex 2021.2.5)  14 SEP 2024 13:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  18 SEP 2024 14:14
 entering extended mode
-**./endo_herbarium.tex
-(endo_herbarium.tex
-LaTeX2e <2020-10-01> patch level 4
-L3 programming layer <2021-01-09> xparse <2020-03-03>
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
-Document Class: article 2020/04/10 v1.4m Standard LaTeX document class
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\size11.clo
-File: size11.clo 2020/04/10 v1.4m Standard LaTeX file (size option)
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**endo_herbarium.tex
+(./endo_herbarium.tex
+LaTeX2e <2018-04-01> patch level 2
+Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
-\c@part=\count177
-\c@section=\count178
-\c@subsection=\count179
-\c@subsubsection=\count180
-\c@paragraph=\count181
-\c@subparagraph=\count182
-\c@figure=\count183
-\c@table=\count184
-\abovecaptionskip=\skip47
-\belowcaptionskip=\skip48
-\bibindent=\dimen138
+\c@part=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\mathpazo.sty
-Package: mathpazo 2020/03/25 PSNFSS-v9.3 Palatino w/ Pazo Math (D.Puga, WaS) 
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/mathpazo.sty
+Package: mathpazo 2005/04/12 PSNFSS-v9.2a Palatino w/ Pazo Math (D.Puga, WaS) 
 \symupright=\mathgroup4
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/preprint\fullpage.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/preprint/fullpage.sty
 Package: fullpage 1999/02/23 1.1 (PWD)
-\FP@margin=\skip49
+\FP@margin=\skip43
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
-\bibhang=\skip50
-\bibsep=\skip51
+\bibhang=\skip44
+\bibsep=\skip45
 LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count185
+\c@NAT@ctr=\count88
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
-Package: inputenc 2020/08/01 v1.3d Input encoding file
-\inpenc@prehook=\toks15
-\inpenc@posthook=\toks16
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2018/04/06 v1.3b Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/lineno\lineno.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2005/11/02 line numbers on paragraphs v4.41
-\linenopenalty=\count186
-\output=\toks17
-\linenoprevgraf=\count187
-\linenumbersep=\dimen139
-\linenumberwidth=\dimen140
-\c@linenumber=\count188
-\c@pagewiselinenumber=\count189
-\c@LN@truepage=\count190
-\c@internallinenumber=\count191
-\c@internallinenumbers=\count192
-\quotelinenumbersep=\dimen141
-\bframerule=\dimen142
-\bframesep=\dimen143
-\bframebox=\box47
+\linenopenalty=\count89
+\output=\toks16
+\linenoprevgraf=\count90
+\linenumbersep=\dimen103
+\linenumberwidth=\dimen104
+\c@linenumber=\count91
+\c@pagewiselinenumber=\count92
+\c@LN@truepage=\count93
+\c@internallinenumber=\count94
+\c@internallinenumbers=\count95
+\quotelinenumbersep=\dimen105
+\bframerule=\dimen106
+\bframesep=\dimen107
+\bframebox=\box26
 LaTeX Info: Redefining \\ on input line 3056.
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titlesec.sty
-Package: titlesec 2019/10/16 v2.13 Sectioning titles
-\ttl@box=\box48
-\beforetitleunit=\skip52
-\aftertitleunit=\skip53
-\ttl@plus=\dimen144
-\ttl@minus=\dimen145
-\ttl@toksa=\toks18
-\titlewidth=\dimen146
-\titlewidthlast=\dimen147
-\titlewidthfirst=\dimen148
+(/usr/local/texlive/2018/texmf-dist/tex/latex/titlesec/titlesec.sty
+Package: titlesec 2016/03/21 v2.10.2 Sectioning titles
+\ttl@box=\box27
+\beforetitleunit=\skip46
+\aftertitleunit=\skip47
+\ttl@plus=\dimen108
+\ttl@minus=\dimen109
+\ttl@toksa=\toks17
+\titlewidth=\dimen110
+\titlewidthlast=\dimen111
+\titlewidthfirst=\dimen112
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2020/09/09 v1.2b Enhanced LaTeX Graphics (DPC,SPQR)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
-\KV@toks@=\toks19
+\KV@toks@=\toks18
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
-Package: graphics 2020/08/30 v1.4c Standard LaTeX Graphics (DPC,SPQR)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2017/06/25 v1.2c Standard LaTeX Graphics (DPC,SPQR)
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
-Package graphics Info: Driver file: pdftex.def on input line 105.
- (C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
-File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
+Package graphics Info: Driver file: pdftex.def on input line 99.
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen149
-\Gin@req@width=\dimen150
-) (C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count193
-\float@exts=\toks20
-\float@box=\box49
-\@float@everytoks=\toks21
-\@floatcapt=\box50
+\Gin@req@height=\dimen113
+\Gin@req@width=\dimen114
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
-Package: amsmath 2020/09/23 v2.17i AMS math features
-\@mathmargin=\skip54
+(/usr/local/texlive/2018/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count96
+\float@exts=\toks19
+\float@box=\box28
+\@float@everytoks=\toks20
+\@floatcapt=\box29
+)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2017/09/02 v2.17a AMS math features
+\@mathmargin=\skip48
 
 For additional information on amsmath, use the `?' option.
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2000/06/29 v2.01 AMS text
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks22
-\ex@=\dimen151
+\@emptytoks=\toks21
+\ex@=\dimen115
 ))
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen152
+\pmbraise@=\dimen116
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count194
-LaTeX Info: Redefining \frac on input line 234.
-\uproot@=\count195
-\leftroot@=\count196
-LaTeX Info: Redefining \overline on input line 399.
-\classnum@=\count197
-\DOTSCASE@=\count198
-LaTeX Info: Redefining \ldots on input line 496.
-LaTeX Info: Redefining \dots on input line 499.
-LaTeX Info: Redefining \cdots on input line 620.
-\Mathstrutbox@=\box51
-\strutbox@=\box52
-\big@size=\dimen153
-LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
-LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
-\macc@depth=\count199
-\c@MaxMatrixCols=\count266
-\dotsspace@=\muskip16
-\c@parentequation=\count267
-\dspbrk@lvl=\count268
-\tag@help=\toks23
-\row@=\count269
-\column@=\count270
-\maxfields@=\count271
-\andhelp@=\toks24
-\eqnshift@=\dimen154
-\alignsep@=\dimen155
-\tagshift@=\dimen156
-\tagwidth@=\dimen157
-\totwidth@=\dimen158
-\lineht@=\dimen159
-\@envbody=\toks25
-\multlinegap=\skip55
-\multlinetaggap=\skip56
-\mathdisplay@stack=\toks26
-LaTeX Info: Redefining \[ on input line 2923.
-LaTeX Info: Redefining \] on input line 2924.
+\inf@bad=\count97
+LaTeX Info: Redefining \frac on input line 213.
+\uproot@=\count98
+\leftroot@=\count99
+LaTeX Info: Redefining \overline on input line 375.
+\classnum@=\count100
+\DOTSCASE@=\count101
+LaTeX Info: Redefining \ldots on input line 472.
+LaTeX Info: Redefining \dots on input line 475.
+LaTeX Info: Redefining \cdots on input line 596.
+\Mathstrutbox@=\box30
+\strutbox@=\box31
+\big@size=\dimen117
+LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
+\macc@depth=\count102
+\c@MaxMatrixCols=\count103
+\dotsspace@=\muskip10
+\c@parentequation=\count104
+\dspbrk@lvl=\count105
+\tag@help=\toks22
+\row@=\count106
+\column@=\count107
+\maxfields@=\count108
+\andhelp@=\toks23
+\eqnshift@=\dimen118
+\alignsep@=\dimen119
+\tagshift@=\dimen120
+\tagwidth@=\dimen121
+\totwidth@=\dimen122
+\lineht@=\dimen123
+\@envbody=\toks24
+\multlinegap=\skip49
+\multlinetaggap=\skip50
+\mathdisplay@stack=\toks25
+LaTeX Info: Redefining \[ on input line 2817.
+LaTeX Info: Redefining \] on input line 2818.
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
-Package: fontenc 2020/08/10 v2.0s Standard LaTeX package
-LaTeX Font Info:    Trying to load font information for T1+pplx on input line 1
-12.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2017/04/05 v2.0i Standard LaTeX package
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pplx.fd
-File: t1pplx.fd 2004/09/06 font definitions for T1/pplx.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1enc.def
+File: t1enc.def 2017/04/05 v2.0i Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 ))
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+(/usr/local/texlive/2018/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+(/usr/local/texlive/2018/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 225.
@@ -184,122 +187,178 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
 )
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdfte
-x.def
-File: l3backend-pdftex.def 2021-01-09 L3 backend support: PDF output (pdfTeX)
-\l__kernel_color_stack_int=\count272
-\l__pdf_internal_box=\box53
-) (endo_herbarium.aux)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/titlesec/block.tss
+File: block.tss 2016/03/15
+)
+(./endo_herbarium.aux)
 \openout1 = `endo_herbarium.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 64.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
 LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 64.
-LaTeX Font Info:    ... okay on input line 64.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 64.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
 LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 64.
 LaTeX Font Info:    ... okay on input line 64.
+LaTeX Font Info:    Try loading font information for T1+pplx on input line 64.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/t1pplx.fd
+File: t1pplx.fd 2004/09/06 font definitions for T1/pplx.
+)
+(/usr/local/texlive/2018/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count273
-\scratchdimen=\dimen160
-\scratchbox=\box54
-\nofMPsegments=\count274
-\nofMParguments=\count275
-\everyMPshowfont=\toks27
-\MPscratchCnt=\count276
-\MPscratchDim=\dimen161
-\MPnumerator=\count277
-\makeMPintoPDFobject=\count278
-\everyMPtoPDFconversion=\toks28
-)
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-bas
-e.sty
-Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
-85.
-)
-LaTeX Font Info:    Trying to load font information for T1+cmss on input line 6
-6.
- (C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmss.fd
-File: t1cmss.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-)
-LaTeX Font Info:    Trying to load font information for OT1+pplx on input line 
-66.
+\scratchcounter=\count109
+\scratchdimen=\dimen124
+\scratchbox=\box32
+\nofMPsegments=\count110
+\nofMParguments=\count111
+\everyMPshowfont=\toks26
+\MPscratchCnt=\count112
+\MPscratchDim=\dimen125
+\MPnumerator=\count113
+\makeMPintoPDFobject=\count114
+\everyMPtoPDFconversion=\toks27
+) (/usr/local/texlive/2018/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pplx.fd
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2018/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)))
+(/usr/local/texlive/2018/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2018/01/30 v0.27 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2018/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2017/03/15 v3.2 Provides the ifpdf switch
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+38.
+Package grfext Info: Graphics extension search list:
+(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 456.
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+LaTeX Font Info:    Try loading font information for T1+cmss on input line 66.
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmss.fd
+File: t1cmss.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Try loading font information for OT1+pplx on input line 66.
+
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1pplx.fd
 File: ot1pplx.fd 2004/09/06 font definitions for OT1/pplx.
 )
-LaTeX Font Info:    Trying to load font information for OML+zplm on input line 
-66.
+LaTeX Font Info:    Try loading font information for OML+zplm on input line 66.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omlzplm.fd
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 
-66.
+LaTeX Font Info:    Try loading font information for OMS+zplm on input line 66.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omszplm.fd
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 
-66.
+LaTeX Font Info:    Try loading font information for OMX+zplm on input line 66.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omxzplm.fd
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 
-66.
+LaTeX Font Info:    Try loading font information for OT1+zplm on input line 66.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1zplm.fd
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
-)
-[1
+) [1
 
-{C:/Users/tm9/AppData/Local/MiKTeX/pdftex/config/pdftex.map}] [2] [3]
-[4] [5] [6]
+{/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <14.4> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 95.
+ [2] [3] [4]
+[5] [6]
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 175.
+
 
 LaTeX Warning: Reference `figmap' on page 7 undefined on input line 175.
 
 [7] [8]
-<../Plots/collections_map.png, id=32, 505.89pt x 289.08pt>
+<../Plots/collections_map.png, id=33, 505.89pt x 289.08pt>
 File: ../Plots/collections_map.png Graphic file (type png)
 <use ../Plots/collections_map.png>
 Package pdftex.def Info: ../Plots/collections_map.png  used on input line 210.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
+LaTeX Font Info:    Font shape `T1/pplx/bx/it' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/it' tried instead on input line 211.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [9] [10 <../Plots/collections_map.png>] [11] [12] [13] [14] [15]
-<../Plots/year_plot.png, id=58, 505.89pt x 361.35pt>
+<../Plots/year_plot.png, id=59, 505.89pt x 361.35pt>
 File: ../Plots/year_plot.png Graphic file (type png)
 <use ../Plots/year_plot.png>
 Package pdftex.def Info: ../Plots/year_plot.png  used on input line 314.
 (pdftex.def)             Requested size: 469.75502pt x 335.54477pt.
  [16] [17 <../Plots/year_plot.png>]
-<../Plots/svc_time_map.png, id=65, 1084.05pt x 361.35pt>
+<../Plots/svc_time_map.png, id=66, 1084.05pt x 361.35pt>
 File: ../Plots/svc_time_map.png Graphic file (type png)
 <use ../Plots/svc_time_map.png>
 Package pdftex.def Info: ../Plots/svc_time_map.png  used on input line 329.
 (pdftex.def)             Requested size: 469.75502pt x 156.58498pt.
  [18 <../Plots/svc_time_map.png>]
-<../Plots/climate_trends_plot.png, id=69, 1156.32pt x 867.24pt>
+<../Plots/climate_trends_plot.png, id=70, 1156.32pt x 867.24pt>
 File: ../Plots/climate_trends_plot.png Graphic file (type png)
 <use ../Plots/climate_trends_plot.png>
 Package pdftex.def Info: ../Plots/climate_trends_plot.png  used on input line 3
 75.
 (pdftex.def)             Requested size: 469.75502pt x 352.31538pt.
  [19] [20 <../Plots/climate_trends_plot.png>]
-<../Plots/contemp_test_plot.png, id=77, 722.7pt x 722.7pt>
+<../Plots/contemp_test_plot.png, id=78, 722.7pt x 722.7pt>
 File: ../Plots/contemp_test_plot.png Graphic file (type png)
 <use ../Plots/contemp_test_plot.png>
 Package pdftex.def Info: ../Plots/contemp_test_plot.png  used on input line 390
@@ -317,12 +376,12 @@ rium)
  []
 
 [29]
-<../Plots/endo_status_map.png, id=106, 722.7pt x 361.35pt>
+<../Plots/endo_status_map.png, id=107, 722.7pt x 361.35pt>
 File: ../Plots/endo_status_map.png Graphic file (type png)
 <use ../Plots/endo_status_map.png>
 Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 518.
 (pdftex.def)             Requested size: 469.75502pt x 234.88023pt.
-<../Plots/mesh_plot.png, id=107, 433.62pt x 433.62pt>
+<../Plots/mesh_plot.png, id=108, 433.62pt x 433.62pt>
 File: ../Plots/mesh_plot.png Graphic file (type png)
 <use ../Plots/mesh_plot.png>
 Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 525.
@@ -332,86 +391,79 @@ Overfull \vbox (1.16673pt too high) has occurred while \output is active []
 
 
 [31 <../Plots/mesh_plot.png>]
-<../Plots/overlay_plot.png, id=115, 289.08pt x 289.08pt>
+<../Plots/overlay_plot.png, id=116, 289.08pt x 289.08pt>
 File: ../Plots/overlay_plot.png Graphic file (type png)
 <use ../Plots/overlay_plot.png>
 Package pdftex.def Info: ../Plots/overlay_plot.png  used on input line 532.
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
-<../Plots/ROC_training_plot.png, id=117, 289.08pt x 289.08pt>
+<../Plots/ROC_training_plot.png, id=118, 289.08pt x 289.08pt>
 File: ../Plots/ROC_training_plot.png Graphic file (type png)
 <use ../Plots/ROC_training_plot.png>
 Package pdftex.def Info: ../Plots/ROC_training_plot.png  used on input line 540
 .
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
  [32 <../Plots/overlay_plot.png>]
-<../Plots/ROC_test_plot.png, id=122, 289.08pt x 289.08pt>
+<../Plots/ROC_test_plot.png, id=123, 289.08pt x 289.08pt>
 File: ../Plots/ROC_test_plot.png Graphic file (type png)
 <use ../Plots/ROC_test_plot.png>
 Package pdftex.def Info: ../Plots/ROC_test_plot.png  used on input line 548.
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
  [33 <../Plots/ROC_training_plot.png>]
-<../Plots/posterior_plot.png, id=126, 433.62pt x 361.35pt>
+<../Plots/posterior_plot.png, id=127, 433.62pt x 361.35pt>
 File: ../Plots/posterior_plot.png Graphic file (type png)
 <use ../Plots/posterior_plot.png>
 Package pdftex.def Info: ../Plots/posterior_plot.png  used on input line 556.
 (pdftex.def)             Requested size: 469.75502pt x 391.48175pt.
  [34 <../Plots/ROC_test_plot.png>]
-<../Plots/svc_time_map_CI.png, id=130, 1084.05pt x 361.35pt>
+<../Plots/svc_time_map_CI.png, id=131, 1084.05pt x 361.35pt>
 File: ../Plots/svc_time_map_CI.png Graphic file (type png)
 <use ../Plots/svc_time_map_CI.png>
 Package pdftex.def Info: ../Plots/svc_time_map_CI.png  used on input line 564.
 (pdftex.def)             Requested size: 469.75502pt x 156.58498pt.
  [35 <../Plots/posterior_plot.png>]
-<../Plots/conservative_comparison_plot.png, id=134, 722.7pt x 505.89pt>
+<../Plots/conservative_comparison_plot.png, id=135, 722.7pt x 505.89pt>
 File: ../Plots/conservative_comparison_plot.png Graphic file (type png)
 <use ../Plots/conservative_comparison_plot.png>
 Package pdftex.def Info: ../Plots/conservative_comparison_plot.png  used on inp
 ut line 572.
 (pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
  [36 <../Plots/svc_time_map_CI.png>]
-<../Plots/collector_posterior_plot.pdf, id=138, 578.16pt x 867.24pt>
-File: ../Plots/collector_posterior_plot.pdf Graphic file (type pdf)
-<use ../Plots/collector_posterior_plot.pdf>
-Package pdftex.def Info: ../Plots/collector_posterior_plot.pdf  used on input l
-ine 580.
-(pdftex.def)             Requested size: 375.80544pt x 563.69934pt.
+<../Plots/collector_posterior.png, id=139, 361.35pt x 722.7pt>
+File: ../Plots/collector_posterior.png Graphic file (type png)
+<use ../Plots/collector_posterior.png>
+Package pdftex.def Info: ../Plots/collector_posterior.png  used on input line 5
+80.
+(pdftex.def)             Requested size: 281.85587pt x 563.71475pt.
  [37 <../Plots/conservative_comparison_plot.png>]
-Overfull \vbox (2.60811pt too high) has occurred while \output is active []
+<../Plots/scorer_posterior.png, id=144, 361.35pt x 722.7pt>
+File: ../Plots/scorer_posterior.png Graphic file (type png)
+<use ../Plots/scorer_posterior.png>
+Package pdftex.def Info: ../Plots/scorer_posterior.png  used on input line 588.
 
-
-[38 <../Plots/collector_posterior_plot.pdf>]
-<../Plots/scorer_posterior_plot.pdf, id=154, 578.16pt x 867.24pt>
-File: ../Plots/scorer_posterior_plot.pdf Graphic file (type pdf)
-<use ../Plots/scorer_posterior_plot.pdf>
-Package pdftex.def Info: ../Plots/scorer_posterior_plot.pdf  used on input line
- 588.
-(pdftex.def)             Requested size: 375.80544pt x 563.69934pt.
-
-Overfull \vbox (2.60811pt too high) has occurred while \output is active []
-
-
-[39 <../Plots/scorer_posterior_plot.pdf>]
-<../Plots/contemp_surveys_map.png, id=166, 505.89pt x 289.08pt>
+(pdftex.def)             Requested size: 281.85587pt x 563.71475pt.
+ [38 <../Plots/collector_posterior.png>]
+<../Plots/contemp_surveys_map.png, id=149, 505.89pt x 289.08pt>
 File: ../Plots/contemp_surveys_map.png Graphic file (type png)
 <use ../Plots/contemp_surveys_map.png>
 Package pdftex.def Info: ../Plots/contemp_surveys_map.png  used on input line 5
 96.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
-<../Plots/AGHY_climate_change_plot.png, id=167, 578.16pt x 722.7pt>
+ [39 <../Plots/scorer_posterior.png>]
+<../Plots/AGHY_climate_change_plot.png, id=154, 578.16pt x 722.7pt>
 File: ../Plots/AGHY_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGHY_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGHY_climate_change_plot.png  used on input l
 ine 603.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
  [40 <../Plots/contemp_surveys_map.png>]
-<../Plots/AGPE_climate_change_plot.png, id=171, 578.16pt x 722.7pt>
+<../Plots/AGPE_climate_change_plot.png, id=158, 578.16pt x 722.7pt>
 File: ../Plots/AGPE_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGPE_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGPE_climate_change_plot.png  used on input l
 ine 610.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
  [41 <../Plots/AGHY_climate_change_plot.png>]
-<../Plots/ELVI_climate_change_plot.png, id=175, 578.16pt x 722.7pt>
+<../Plots/ELVI_climate_change_plot.png, id=162, 578.16pt x 722.7pt>
 File: ../Plots/ELVI_climate_change_plot.png Graphic file (type png)
 <use ../Plots/ELVI_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/ELVI_climate_change_plot.png  used on input l
@@ -427,12 +479,12 @@ Overfull \hbox (13.01875pt too wide) in paragraph at lines 645--670
 his link: https://github.com/joshuacfowler/EndoHerbarium 
  []
 
-[44] [45] (endo_herbarium.bbl [46] [47] [48] [49] [50]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 3
-29.
+[44] [45] (./endo_herbarium.bbl [46] [47] [48] [49] [50]
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 329.
 
-(C:\Users\tm9\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
-File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+
+(/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 Underfull \hbox (badness 10000) in paragraph at lines 356--359
 []\T1/pplx/m/n/10.95 IPCC.  Cli-mate change 2021: The phys-i-cal sci-ence ba-si
@@ -457,33 +509,34 @@ Underfull \hbox (badness 7777) in paragraph at lines 664--673
 90010-7.  URL
  []
 
-[56]) [57] (endo_herbarium.aux)
+[56]) [57] (./endo_herbarium.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 4182 strings out of 479618
- 62660 string characters out of 2865977
- 348145 words of memory out of 3000000
- 21255 multiletter control sequences out of 15000+200000
- 457096 words of font info for 117 fonts, out of 3000000 for 9000
+ 4306 strings out of 492649
+ 62602 string characters out of 6129622
+ 134314 words of memory out of 5000000
+ 8054 multiletter control sequences out of 15000+600000
+ 58075 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 68i,9n,74p,1111b,424s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\tm9\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt10
-95.pk>{C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc} 
-<C:\Users\tm9\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss0600.
-pk><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
-mr10.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
-s/cm/cmsy10.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/public/
-mathpazo/fplmri.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/urw
-/palatino/uplb8a.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/ur
-w/palatino/uplbi8a.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1/
-urw/palatino/uplr8a.pfb><C:/Users/tm9/AppData/Local/Programs/MiKTeX/fonts/type1
-/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (57 pages, 7099377 bytes).
+ 41i,9n,35p,1109b,427s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
+{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
+live/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texli
+ve/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texliv
+e/2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/20
+18/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb></usr/local/texlive/2018
+/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb></usr/local/texlive/2018/t
+exmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-di
+st/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/fon
+ts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/type
+1/urw/palatino/uplri8a.pfb>
+Output written on endo_herbarium.pdf (57 pages, 6724350 bytes).
 PDF statistics:
- 300 PDF objects out of 1000 (max. 8388607)
+ 250 PDF objects out of 1000 (max. 8388607)
+ 158 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  96 words of extra memory for PDF output out of 10000 (max. 10000000)
 

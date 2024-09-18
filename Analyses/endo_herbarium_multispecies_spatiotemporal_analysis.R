@@ -721,6 +721,59 @@ plot(fit, "time.species1")
 
 
 
+n_draws <- 500
+
+posteriors.collector <- generate(
+  fit,
+  formula = ~ collector_latent,
+  n.samples = n_draws) 
+
+posteriors.scorer <- generate(
+  fit,
+  formula = ~ scorer_latent,
+  n.samples = n_draws) 
+
+
+colnames(posteriors.collector) <- c( paste0("iter",1:n_draws))
+colnames(posteriors.scorer) <- c( paste0("iter",1:n_draws))
+
+rownames(posteriors.collector) <- c(paste0("collector",1:nrow(posteriors.collector)))
+rownames(posteriors.scorer) <- c(paste0("scorer",1:nrow(posteriors.scorer)))
+
+
+posteriors <- rbind(posteriors.collector, posteriors.scorer)
+
+
+
+posteriors_df <- as_tibble(posteriors, rownames = "param") %>% 
+  mutate(param_type = case_when(grepl("collector", param) ~ "collector",
+                                grepl("scorer", param) ~ "scorer"),
+         number = parse_number(param)) %>% 
+  pivot_longer( cols = -c(param, param_type, number), names_to = "iteration")
+
+posteriors_summary <- posteriors_df %>% 
+  group_by(param, number, param_type) %>% 
+  dplyr::summarise(median = median(value),
+                   Q97.5 = quantile(value, .975),
+                   Q2.5 = quantile(value, .025))
+
+collector_plot <- ggplot(data = filter(posteriors_summary, param_type == "collector"))+
+  geom_vline(xintercept = 0)+
+  geom_point(aes(x = median, y = number), alpha = .8)+
+  geom_linerange(aes(xmin = Q2.5, xmax = Q97.5, y = number), alpha = .3)+
+  labs(y = "Collector Number", y = "Posterior Estimate") + theme_minimal()
+collector_plot
+ggsave(collector_plot, filename = "Plots/collector_posterior.png", width = 5, height = 10)
+
+scorer_plot <- ggplot(data = filter(posteriors_summary, param_type == "scorer"))+
+  geom_vline(xintercept = 0)+
+  geom_point(aes(x = median, y = number), alpha = .8)+
+  geom_linerange(aes(xmin = Q2.5, xmax = Q97.5, y = number), alpha = .3)+
+  labs(y = "Scorer Number", x = "Posterior Estimate") + theme_minimal()
+scorer_plot
+ggsave(scorer_plot, filename = "Plots/scorer_posterior.png", width = 5, height = 10)
+
+
 ################################################################################################################################
 ##########  Generating posterior samples for some summary statistics ###############
 ################################################################################################################################
@@ -978,7 +1031,7 @@ svc_time_map_ELVI.CI <- ggplot()+
 
 
 svc_time_map.CI <- svc_time_map_AGHY.CI + svc_time_map_AGPE.CI + svc_time_map_ELVI.CI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
-ggsave(svc_time_map.CI, filename = "Plots/svc_time_map.CI.png", width = 15, height = 5)
+ggsave(svc_time_map.CI, filename = "Plots/svc_time_map_CI.png", width = 15, height = 5)
 
 
 
