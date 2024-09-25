@@ -1187,9 +1187,10 @@ contemp_lon <- ggplot(contemp.pred)+
   geom_point(aes(x = lon, y = mean), shape = 4) + 
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
   guides(color = "none")+
-  ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Longitude", color = "Species", size = "Sample Size")+
-  facet_wrap(~species) + theme_classic()+ theme(strip.background = element_blank(),
-                                                strip.text = element_text(size = rel(1.2)))
+  lims(x = c(min(contemp.aghy$lon, contemp.elvi$lon),max(contemp.aghy$lon, contemp.elvi$lon)), y = c(0,1)) +
+  labs(y = "Endophyte Prevalance", x = "Longitude", color = "Species", size = "Sample Size")+
+  facet_wrap(~species, ncol=1, scales = "free") + theme_classic()+ theme(strip.background = element_blank(),
+                                                                         strip.text = element_blank())
 # contemp_lon
 
 
@@ -1201,9 +1202,10 @@ contemp_lat <- ggplot(contemp.pred)+
   geom_point(aes(x = lat, y = mean), shape = 4) +
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
   guides(color = "none")+
-  ylim(0,1) + labs(y = "Endophyte Prevalance", x = "Latitude",  color = "Species", size = "Sample Size")+
-  facet_wrap(~species) + theme_classic() + theme(strip.background = element_blank(),
-                                                 strip.text = element_blank())
+  lims(x = c(min(contemp.aghy$lat, contemp.elvi$lat),max(contemp.aghy$lat, contemp.elvi$lat)), y = c(0,1)) +
+  labs(y = "Endophyte Prevalance", x = "Latitude",  color = "Species", size = "Sample Size")+
+  facet_wrap(~species, ncol = 1, scales = "free") + theme_classic() + theme(strip.background = element_blank(),
+                                                                            strip.text = element_blank())
 # contemp_lat
 
 contemp_obspred <- ggplot(contemp.pred)+
@@ -1211,17 +1213,19 @@ contemp_obspred <- ggplot(contemp.pred)+
   geom_linerange(aes(y = endo_prev, xmin = `q0.025`, xmax = `q0.975`, color = species))+
   geom_point(aes(x = mean, y = endo_prev), shape = 4)+
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
+  guides(color = "none")+
   lims(x = c(0,1), y = c(0,1)) + labs(y = "Observed", x = "Predicted",  color = "Species")+
-  facet_wrap(~species) + theme_classic()+ theme(strip.background = element_blank(),
-                                                strip.text = element_blank())
+  facet_wrap(~species, ncol = 1, scales = "free", strip.position = "right") + theme_classic()+ theme(strip.background = element_blank(),
+                                                                           strip.text = element_text(size = rel(1)),
+                                                                           strip.text.y = element_text(face = "italic", angle = 0))
 # contemp_obspred
 
 
 
 contemp_test_plot <- contemp_lon + contemp_lat+contemp_obspred +
-  plot_layout(ncol = 1, guides = "collect") + plot_annotation(tag_levels = "A")
-contemp_test_plot
-ggsave(contemp_test_plot, filename = "Plots/contemp_test_plot.png", width = 10, height = 10)
+  plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+# contemp_test_plot
+ggsave(contemp_test_plot, filename = "Plots/contemp_test_plot.png", width = 12, height = 5)
 ###
 
 # now looking at the ROC and AUC values for the contemporary dataset choosing only one plant from each population
