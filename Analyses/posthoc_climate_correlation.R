@@ -785,7 +785,7 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
   labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text = element_text(color = "black", size = rel(1)),
         strip.text.y = element_text(face = "italic", angle = 0),
         legend.text = element_text(face = "italic"),
         )
@@ -810,7 +810,7 @@ tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd"
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text = element_text(color = "black", size = rel(1)),
         strip.text.y = element_text(face = "italic", angle = 0),
         legend.text = element_text(face = "italic"),
   )
@@ -861,7 +861,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(.8)),
+        strip.text = element_text(color = "black", size = rel(1)),
         strip.text.y = element_text(face = "italic", angle = 0),
         legend.text = element_text(face = "italic"),
   )
