@@ -349,7 +349,8 @@ mesh_list <- list(mesh1, mesh2)
 fit_list <- list()
 time_list <- list()
 
-for(m in 1:length(mesh_list)){
+# for(m in 1:length(mesh_list)){
+  for(m in 2){
   mesh <- mesh_list[[m]]
 
 
@@ -381,7 +382,7 @@ spde3 <- inla.spde2.pcmatern(
 )
 
 spde_list <- list(spde1, spde2, spde3)
-
+}
 # inlabru makes making weights spatial effects simpler because we don't have to make projector matrices for each effect. i.e we don't have to make an A-matrix for each spatially varying effect.
 # this means we can go strat to making the components of the model
 
@@ -552,8 +553,12 @@ for(i in c(1,3,5,7,9,11)){
   sd_year <- sd(data$year)
   
 year.pred <- list()
-  
-for(i in 1:n){
+
+# Using these functions to look at just the fits from one set of iid random effects priors
+evens <- function(x) subset(x, x %% 2 = 0)
+odds <- function(x) subset(x, x %% 2 != 0)
+
+for(i in odds(1:n)){
   year.pred.aghy <- predict(
     fit_list[[i]],
     newdata = preddata[preddata$species_index == 1,],
@@ -575,7 +580,12 @@ for(i in 1:n){
   year.pred[[i]] <- bind_rows(year.pred.aghy, year.pred.agpe, year.pred.elvi) %>% mutate(model = names(fit_list)[i])
 } 
 
-year.pred.df <- list_rbind(year.pred)
+year.pred.df <- list_rbind(year.pred) %>% 
+  mutate(mesh = case_when(grepl("m1", model) ~ "standard mesh",
+                          grepl("m2", model) ~ "finer mesh"),
+         range = case_when(grepl("s1", model) ~ "prior range = 342 km",
+                           grepl("s2", model) ~ "prior range = 68 km",
+                           grepl("s3", model) ~ "prior range = 1714 km"))
   # binning the data for plotting
   endo_herb_binned <- endo_herb %>% 
     mutate(binned_year = cut(year, breaks = 10)) %>%
@@ -599,17 +609,18 @@ year_trend <- ggplot(year.pred.df) +
     geom_line(aes(year, mean)) +
     geom_ribbon(aes(year, ymin = q0.025, ymax = q0.975), alpha = 0.2) +
     geom_ribbon(aes(year, ymin = mean - 1 * sd, ymax = mean + 1 * sd), alpha = 0.2) +
-    facet_wrap(~model+species)+
+    facet_grid(range~mesh+species)+
     scale_color_manual(values = species_colors)+
     labs(y = "Endophyte Prevalence", x = "Year", color = "Species", size = "Sample Size")+
     theme_light()+
-    theme(legend.text = element_text(face = "italic"))+
+    theme(strip.text = element_text(size = rel(1.2)),
+          legend.text = element_text(face = "italic"))+
     lims(y = c(0,1))
 
   # year_trend
   
 
-  ggsave(year_trend, file = "comparison_year_plot.png", width = 20, height = 20)
+  ggsave(year_trend, file = "Plots/prior_comparison_year_plot.png", width = 20, height = 20)
 
   # This looks very similar across models
   
@@ -680,7 +691,12 @@ max_trend <- max(svc.pred1$mean, svc.pred2$mean, svc.pred3$mean)
 
 trendrange <- range(svc.pred1$mean, svc.pred2$mean, svc.pred3$mean)
 
-
+model_names <- data.frame(names(fit_list)) %>% 
+  mutate(mesh = case_when(grepl("m1", names.fit_list.) ~ "standard mesh",
+                          grepl("m2", names.fit_list.) ~ "finer mesh"),
+         range = case_when(grepl("s1", names.fit_list.) ~ "prior range = 342 km",
+                           grepl("s2", names.fit_list.) ~ "prior range = 68 km",
+                           grepl("s3", names.fit_list.) ~ "prior range = 1714 km"))
 
 space_x <- range(svc.pred1@coords[,1], svc.pred2@coords[,1], svc.pred3@coords[,1])
 space_y <- range(svc.pred1@coords[,2], svc.pred2@coords[,2], svc.pred3@coords[,2])
@@ -693,9 +709,11 @@ svc_time_map_AGHY <- ggplot()+
   coord_sf(xlim = space_x, ylim = space_y)+
   gg(svc.pred1, aes(fill = mean))+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs( title = names(fit_list)[i], subtitle = species_names[3],fill = "% change/year", y = "Latitude", x = "Longitude")+
+  labs( title = paste0(model_names$mesh[i], " - ", model_names$range[i]), subtitle = species_names[1],fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
+  theme(text = element_text(size = rel(4)),
+        plot.title = element_text(size = rel(4)),
+        plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
 svc_time_map_AGHY
 
 svc_time_map_AGPE <- ggplot()+
@@ -704,9 +722,11 @@ svc_time_map_AGPE <- ggplot()+
   coord_sf(xlim = space_x, ylim = space_y)+
   gg(svc.pred2, aes(fill = mean))+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs( title = names(fit_list)[i], subtitle = species_names[3],fill = "% change/year", y = "Latitude", x = "Longitude")+
+  labs( title = paste0(model_names$mesh[i], " - ", model_names$range[i]), subtitle = species_names[2],fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
+  theme(text = element_text(size = rel(4)),
+        plot.title = element_text(size = rel(4)),
+        plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
 svc_time_map_AGPE
 
 
@@ -716,9 +736,11 @@ svc_time_map_ELVI <- ggplot()+
   coord_sf(xlim = space_x, ylim = space_y)+
   gg(svc.pred3, aes(fill = mean))+
   scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs( title = names(fit_list)[i], subtitle = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  labs( title = paste0(model_names$mesh[i], " - ", model_names$range[i]), subtitle = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
-  theme(plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
+  theme(text = element_text(size = rel(4)),
+        plot.title = element_text(size = rel(4)),
+        plot.subtitle = element_text(face = "italic"), aspect.ratio = 1)
 svc_time_map_ELVI
 
 
@@ -726,9 +748,12 @@ svc_combo[[i]] <- svc_time_map_AGHY|svc_time_map_AGPE|svc_time_map_ELVI + plot_l
 }
 
 # svc_plot <- wrap_elements(svc_combo[[1]])/wrap_elements(svc_combo[[2]])/wrap_elements(svc_combo[[3]])/wrap_elements(svc_combo[[4]])/wrap_elements(svc_combo[[5]])/wrap_elements(svc_combo[[6]])/wrap_elements(svc_combo[[7]])/wrap_elements(svc_combo[[8]])/wrap_elements(svc_combo[[9]])/wrap_elements(svc_combo[[10]])/wrap_elements(svc_combo[[11]])/wrap_elements(svc_combo[[12]]) + plot_annotation(title = "SVC - year")
-svc_plot <- wrap_elements(svc_combo[[1]])/wrap_elements(svc_combo[[3]])/wrap_elements(svc_combo[[5]])/wrap_elements(svc_combo[[7]])/wrap_elements(svc_combo[[9]])/wrap_elements(svc_combo[[11]]) + plot_annotation(title = "SVC - year")
+svc_plot_standard <- wrap_elements(svc_combo[[1]])/wrap_elements(svc_combo[[3]])/wrap_elements(svc_combo[[5]]) + plot_annotation(tag_levels = "A")
 
-ggsave(svc_plot, file = "comparison_svc_plot.png", height = 60, width = 30, limitsize = FALSE)
+svc_plot_finer<- wrap_elements(svc_combo[[7]])/wrap_elements(svc_combo[[9]])/wrap_elements(svc_combo[[11]]) + plot_annotation(tag_levels = "A")
+
+ggsave(svc_plot_standard, file = "Plots/standard_mesh_comparison_svc_plot.png", height = 15, width = 15, limitsize = FALSE)
+ggsave(svc_plot_finer, file = "Plots/finer_mesh_comparison_svc_plot.png", height = 15, width = 15, limitsize = FALSE)
 
 
 # Changing the mesh doesn't make a difference, changing the priors on scorer doesn't make a difference. Changing the spde prior does matter.
