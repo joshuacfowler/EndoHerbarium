@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  18 SEP 2024 14:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  3 OCT 2024 16:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -319,224 +319,234 @@ File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <14.4> not available
 (Font)              Font shape `T1/pplx/b/n' tried instead on input line 95.
  [2] [3] [4]
-[5] [6]
-LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/pplx/b/n' tried instead on input line 175.
-
-
-LaTeX Warning: Reference `figmap' on page 7 undefined on input line 175.
-
-[7] [8]
+[5] [6] [7] [8]
 <../Plots/collections_map.png, id=33, 505.89pt x 289.08pt>
 File: ../Plots/collections_map.png Graphic file (type png)
 <use ../Plots/collections_map.png>
-Package pdftex.def Info: ../Plots/collections_map.png  used on input line 210.
+Package pdftex.def Info: ../Plots/collections_map.png  used on input line 211.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
+LaTeX Font Info:    Font shape `T1/pplx/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/pplx/b/n' tried instead on input line 212.
 LaTeX Font Info:    Font shape `T1/pplx/bx/it' in size <10.95> not available
-(Font)              Font shape `T1/pplx/b/it' tried instead on input line 211.
+(Font)              Font shape `T1/pplx/b/it' tried instead on input line 212.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[9] [10 <../Plots/collections_map.png>] [11] [12] [13] [14] [15]
-<../Plots/year_plot.png, id=59, 505.89pt x 361.35pt>
+[9] [10 <../Plots/collections_map.png>] [11] [12] [13] [14]
+<../Plots/year_plot.png, id=56, 505.89pt x 361.35pt>
 File: ../Plots/year_plot.png Graphic file (type png)
 <use ../Plots/year_plot.png>
-Package pdftex.def Info: ../Plots/year_plot.png  used on input line 314.
+Package pdftex.def Info: ../Plots/year_plot.png  used on input line 311.
 (pdftex.def)             Requested size: 469.75502pt x 335.54477pt.
- [16] [17 <../Plots/year_plot.png>]
-<../Plots/svc_time_map.png, id=66, 1084.05pt x 361.35pt>
+ [15] [16 <../Plots/year_plot.png>]
+<../Plots/svc_time_map.png, id=63, 1084.05pt x 361.35pt>
 File: ../Plots/svc_time_map.png Graphic file (type png)
 <use ../Plots/svc_time_map.png>
-Package pdftex.def Info: ../Plots/svc_time_map.png  used on input line 329.
+Package pdftex.def Info: ../Plots/svc_time_map.png  used on input line 336.
 (pdftex.def)             Requested size: 469.75502pt x 156.58498pt.
- [18 <../Plots/svc_time_map.png>]
-<../Plots/climate_trends_plot.png, id=70, 1156.32pt x 867.24pt>
-File: ../Plots/climate_trends_plot.png Graphic file (type png)
-<use ../Plots/climate_trends_plot.png>
-Package pdftex.def Info: ../Plots/climate_trends_plot.png  used on input line 3
-75.
+ [17] [18 <../Plots/svc_time_map.png>]
+<../Plots/climate_trends_plot_intercept.png, id=70, 1156.32pt x 867.24pt>
+File: ../Plots/climate_trends_plot_intercept.png Graphic file (type png)
+<use ../Plots/climate_trends_plot_intercept.png>
+Package pdftex.def Info: ../Plots/climate_trends_plot_intercept.png  used on in
+put line 384.
 (pdftex.def)             Requested size: 469.75502pt x 352.31538pt.
- [19] [20 <../Plots/climate_trends_plot.png>]
-<../Plots/contemp_test_plot.png, id=78, 722.7pt x 722.7pt>
+ [19] [20 <../Plots/climate_trends_plot_intercept.png>]
+<../Plots/contemp_test_plot.png, id=78, 867.24pt x 361.35pt>
 File: ../Plots/contemp_test_plot.png Graphic file (type png)
 <use ../Plots/contemp_test_plot.png>
-Package pdftex.def Info: ../Plots/contemp_test_plot.png  used on input line 390
+Package pdftex.def Info: ../Plots/contemp_test_plot.png  used on input line 399
 .
-(pdftex.def)             Requested size: 469.75502pt x 469.76045pt.
- [21]
-Overfull \vbox (24.26904pt too high) has occurred while \output is active []
-
-
-[22 <../Plots/contemp_test_plot.png>] [23] [24] [25] [26] [27] [28]
-Overfull \hbox (214.58516pt too wide) in paragraph at lines 504--506
-\T1/pplx/m/n/10.95 upon re-quest.[][] Code for anal-y-ses can be found through 
-a pub-licly avail-able repos-i-tory (https://github.com/joshuacfowler/EndoHerba
-rium)
+(pdftex.def)             Requested size: 469.75502pt x 195.7326pt.
+ [21] [22 <../Plots/contemp_test_plot.png>]
+[23] [24] [25] [26] [27]
+Overfull \hbox (71.00984pt too wide) in paragraph at lines 505--507
+\T1/pplx/m/n/10.95 y-ses can be found through a pub-licly avail-able repos-i-to
+ry (https://github.com/joshuacfowler/EndoHerbarium)
  []
 
-[29]
-<../Plots/endo_status_map.png, id=107, 722.7pt x 361.35pt>
+<../Plots/endo_status_map.png, id=101, 722.7pt x 361.35pt>
 File: ../Plots/endo_status_map.png Graphic file (type png)
 <use ../Plots/endo_status_map.png>
-Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 518.
+Package pdftex.def Info: ../Plots/endo_status_map.png  used on input line 519.
 (pdftex.def)             Requested size: 469.75502pt x 234.88023pt.
-<../Plots/mesh_plot.png, id=108, 433.62pt x 433.62pt>
+[28]
+<../Plots/mesh_plot.png, id=105, 433.62pt x 433.62pt>
 File: ../Plots/mesh_plot.png Graphic file (type png)
 <use ../Plots/mesh_plot.png>
-Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 525.
+Package pdftex.def Info: ../Plots/mesh_plot.png  used on input line 526.
 (pdftex.def)             Requested size: 469.75502pt x 469.7781pt.
- [30 <../Plots/endo_status_map.png>]
+ [29 <../Plots/endo_status_map.png>]
 Overfull \vbox (1.16673pt too high) has occurred while \output is active []
 
 
-[31 <../Plots/mesh_plot.png>]
-<../Plots/overlay_plot.png, id=116, 289.08pt x 289.08pt>
+[30 <../Plots/mesh_plot.png>]
+<../Plots/overlay_plot.png, id=112, 289.08pt x 289.08pt>
 File: ../Plots/overlay_plot.png Graphic file (type png)
 <use ../Plots/overlay_plot.png>
-Package pdftex.def Info: ../Plots/overlay_plot.png  used on input line 532.
+Package pdftex.def Info: ../Plots/overlay_plot.png  used on input line 533.
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
-<../Plots/ROC_training_plot.png, id=118, 289.08pt x 289.08pt>
+<../Plots/ROC_training_plot.png, id=114, 289.08pt x 289.08pt>
 File: ../Plots/ROC_training_plot.png Graphic file (type png)
 <use ../Plots/ROC_training_plot.png>
-Package pdftex.def Info: ../Plots/ROC_training_plot.png  used on input line 540
+Package pdftex.def Info: ../Plots/ROC_training_plot.png  used on input line 541
 .
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
- [32 <../Plots/overlay_plot.png>]
-<../Plots/ROC_test_plot.png, id=123, 289.08pt x 289.08pt>
+ [31 <../Plots/overlay_plot.png>]
+<../Plots/ROC_test_plot.png, id=120, 289.08pt x 289.08pt>
 File: ../Plots/ROC_test_plot.png Graphic file (type png)
 <use ../Plots/ROC_test_plot.png>
-Package pdftex.def Info: ../Plots/ROC_test_plot.png  used on input line 548.
+Package pdftex.def Info: ../Plots/ROC_test_plot.png  used on input line 549.
 (pdftex.def)             Requested size: 234.8775pt x 234.8769pt.
- [33 <../Plots/ROC_training_plot.png>]
-<../Plots/posterior_plot.png, id=127, 433.62pt x 361.35pt>
+ [32 <../Plots/ROC_training_plot.png>]
+<../Plots/posterior_plot.png, id=124, 433.62pt x 361.35pt>
 File: ../Plots/posterior_plot.png Graphic file (type png)
 <use ../Plots/posterior_plot.png>
-Package pdftex.def Info: ../Plots/posterior_plot.png  used on input line 556.
+Package pdftex.def Info: ../Plots/posterior_plot.png  used on input line 557.
 (pdftex.def)             Requested size: 469.75502pt x 391.48175pt.
- [34 <../Plots/ROC_test_plot.png>]
-<../Plots/svc_time_map_CI.png, id=131, 1084.05pt x 361.35pt>
+ [33 <../Plots/ROC_test_plot.png>]
+<../Plots/svc_time_map_CI.png, id=128, 1084.05pt x 361.35pt>
 File: ../Plots/svc_time_map_CI.png Graphic file (type png)
 <use ../Plots/svc_time_map_CI.png>
-Package pdftex.def Info: ../Plots/svc_time_map_CI.png  used on input line 564.
+Package pdftex.def Info: ../Plots/svc_time_map_CI.png  used on input line 565.
 (pdftex.def)             Requested size: 469.75502pt x 156.58498pt.
- [35 <../Plots/posterior_plot.png>]
-<../Plots/conservative_comparison_plot.png, id=135, 722.7pt x 505.89pt>
+ [34 <../Plots/posterior_plot.png>]
+<../Plots/conservative_comparison_plot.png, id=132, 722.7pt x 505.89pt>
 File: ../Plots/conservative_comparison_plot.png Graphic file (type png)
 <use ../Plots/conservative_comparison_plot.png>
 Package pdftex.def Info: ../Plots/conservative_comparison_plot.png  used on inp
-ut line 572.
+ut line 573.
 (pdftex.def)             Requested size: 469.75502pt x 328.8323pt.
- [36 <../Plots/svc_time_map_CI.png>]
-<../Plots/collector_posterior.png, id=139, 361.35pt x 722.7pt>
+ [35 <../Plots/svc_time_map_CI.png>]
+<../Plots/collector_posterior.png, id=136, 361.35pt x 722.7pt>
 File: ../Plots/collector_posterior.png Graphic file (type png)
 <use ../Plots/collector_posterior.png>
 Package pdftex.def Info: ../Plots/collector_posterior.png  used on input line 5
-80.
+81.
 (pdftex.def)             Requested size: 281.85587pt x 563.71475pt.
- [37 <../Plots/conservative_comparison_plot.png>]
-<../Plots/scorer_posterior.png, id=144, 361.35pt x 722.7pt>
+ [36 <../Plots/conservative_comparison_plot.png>]
+<../Plots/scorer_posterior.png, id=140, 361.35pt x 722.7pt>
 File: ../Plots/scorer_posterior.png Graphic file (type png)
 <use ../Plots/scorer_posterior.png>
-Package pdftex.def Info: ../Plots/scorer_posterior.png  used on input line 588.
+Package pdftex.def Info: ../Plots/scorer_posterior.png  used on input line 589.
 
 (pdftex.def)             Requested size: 281.85587pt x 563.71475pt.
- [38 <../Plots/collector_posterior.png>]
-<../Plots/contemp_surveys_map.png, id=149, 505.89pt x 289.08pt>
+ [37 <../Plots/collector_posterior.png>]
+<../Plots/contemp_surveys_map.png, id=146, 505.89pt x 289.08pt>
 File: ../Plots/contemp_surveys_map.png Graphic file (type png)
 <use ../Plots/contemp_surveys_map.png>
 Package pdftex.def Info: ../Plots/contemp_surveys_map.png  used on input line 5
-96.
+97.
 (pdftex.def)             Requested size: 469.75502pt x 268.43579pt.
- [39 <../Plots/scorer_posterior.png>]
-<../Plots/AGHY_climate_change_plot.png, id=154, 578.16pt x 722.7pt>
+ [38 <../Plots/scorer_posterior.png>]
+<../Plots/AGHY_climate_change_plot.png, id=151, 578.16pt x 722.7pt>
 File: ../Plots/AGHY_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGHY_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGHY_climate_change_plot.png  used on input l
-ine 603.
+ine 604.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
- [40 <../Plots/contemp_surveys_map.png>]
-<../Plots/AGPE_climate_change_plot.png, id=158, 578.16pt x 722.7pt>
+ [39 <../Plots/contemp_surveys_map.png>]
+<../Plots/AGPE_climate_change_plot.png, id=155, 578.16pt x 722.7pt>
 File: ../Plots/AGPE_climate_change_plot.png Graphic file (type png)
 <use ../Plots/AGPE_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/AGPE_climate_change_plot.png  used on input l
-ine 610.
+ine 611.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
- [41 <../Plots/AGHY_climate_change_plot.png>]
-<../Plots/ELVI_climate_change_plot.png, id=162, 578.16pt x 722.7pt>
+ [40 <../Plots/AGHY_climate_change_plot.png>]
+<../Plots/ELVI_climate_change_plot.png, id=159, 578.16pt x 722.7pt>
 File: ../Plots/ELVI_climate_change_plot.png Graphic file (type png)
 <use ../Plots/ELVI_climate_change_plot.png>
 Package pdftex.def Info: ../Plots/ELVI_climate_change_plot.png  used on input l
-ine 617.
+ine 618.
 (pdftex.def)             Requested size: 375.80544pt x 469.74944pt.
- [42 <../Plots/AGPE_climate_change_plot.png>]
+ [41 <../Plots/AGPE_climate_change_plot.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[43 <../Plots/ELVI_climate_change_plot.png>]
-Overfull \hbox (13.01875pt too wide) in paragraph at lines 645--670
+[42 <../Plots/ELVI_climate_change_plot.png>]
+Overfull \hbox (13.01875pt too wide) in paragraph at lines 646--671
 \T1/pplx/b/n/10.95 Code avail-abil-ity\T1/pplx/m/n/10.95 : Avail-able through t
 his link: https://github.com/joshuacfowler/EndoHerbarium 
  []
 
-[44] [45] (./endo_herbarium.bbl [46] [47] [48] [49] [50]
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 329.
+[43] [44]
+<../Plots/prior_comparison_year_plot.png, id=173, 1445.4pt x 1445.4pt>
+File: ../Plots/prior_comparison_year_plot.png Graphic file (type png)
+<use ../Plots/prior_comparison_year_plot.png>
+Package pdftex.def Info: ../Plots/prior_comparison_year_plot.png  used on input
+ line 684.
+(pdftex.def)             Requested size: 469.75502pt x 469.74944pt.
+ [45] [46 <../Plots/prior_comparison_year_plot.png>]
+<../Plots/standard_mesh_comparison_svc_plot.png, id=180, 1084.05pt x 1084.05pt>
+
+File: ../Plots/standard_mesh_comparison_svc_plot.png Graphic file (type png)
+<use ../Plots/standard_mesh_comparison_svc_plot.png>
+Package pdftex.def Info: ../Plots/standard_mesh_comparison_svc_plot.png  used o
+n input line 694.
+(pdftex.def)             Requested size: 375.80544pt x 375.80066pt.
+ [47]
+<../Plots/finer_mesh_comparison_svc_plot.png, id=184, 1084.05pt x 1084.05pt>
+File: ../Plots/finer_mesh_comparison_svc_plot.png Graphic file (type png)
+<use ../Plots/finer_mesh_comparison_svc_plot.png>
+Package pdftex.def Info: ../Plots/finer_mesh_comparison_svc_plot.png  used on i
+nput line 702.
+(pdftex.def)             Requested size: 375.80544pt x 375.80066pt.
+ [48 <../Plots/standard_mesh_comparison_svc_plot.png>] [49 <../Plots/finer_mesh
+_comparison_svc_plot.png>] (./endo_herbarium.bbl [50] [51] [52] [53] [54]
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 342.
 
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-Underfull \hbox (badness 10000) in paragraph at lines 356--359
+Underfull \hbox (badness 10000) in paragraph at lines 369--372
 []\T1/pplx/m/n/10.95 IPCC.  Cli-mate change 2021: The phys-i-cal sci-ence ba-si
 s, 2021.  URL
  []
 
-[51] [52] [53] [54] [55]
-Underfull \hbox (badness 4995) in paragraph at lines 664--673
+[55] [56] [57] [58] [59] [60]
+Underfull \hbox (badness 4995) in paragraph at lines 699--708
 []\T1/pplx/m/n/10.95 Shripad D. Tul-japurkar.  Pop-u-la-tion dy-nam-ics in vari
 -able en-vi-ron-ments. III. Evo-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 664--673
+Underfull \hbox (badness 10000) in paragraph at lines 699--708
 \T1/pplx/m/n/10.95 lu-tion-ary dy-nam-ics of r-selection.  \T1/pplx/m/it/10.95 
 The-o-ret-i-cal Pop-u-la-tion Bi-ol-ogy\T1/pplx/m/n/10.95 , 21(1):141--165,
  []
 
 
-Underfull \hbox (badness 7777) in paragraph at lines 664--673
+Underfull \hbox (badness 7777) in paragraph at lines 699--708
 \T1/pplx/m/n/10.95 Febru-ary 1982.  ISSN 0040-5809.  doi: 10.1016/0040-5809(82)
 90010-7.  URL
  []
 
-[56]) [57] (./endo_herbarium.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+[61]) [62] (./endo_herbarium.aux) ) 
 Here is how much of TeX's memory you used:
- 4306 strings out of 492649
- 62602 string characters out of 6129622
- 134314 words of memory out of 5000000
- 8054 multiletter control sequences out of 15000+600000
- 58075 words of font info for 105 fonts, out of 8000000 for 9000
+ 4358 strings out of 492649
+ 64104 string characters out of 6129622
+ 134695 words of memory out of 5000000
+ 8096 multiletter control sequences out of 15000+600000
+ 64403 words of font info for 120 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,9n,35p,1109b,427s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
-{/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
-live/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texli
-ve/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texliv
-e/2018/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/20
-18/texmf-dist/fonts/type1/public/cm-super/sfss0600.pfb></usr/local/texlive/2018
-/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb></usr/local/texlive/2018/t
-exmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2018/texmf-di
-st/fonts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2018/texmf-dist/fon
-ts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2018/texmf-dist/fonts/type
-1/urw/palatino/uplri8a.pfb>
-Output written on endo_herbarium.pdf (57 pages, 6722216 bytes).
+ 41i,8n,35p,923b,445s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2018/texmf-dist/fonts/en
+c/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2018/texmf-dist/fonts/enc/
+dvips/base/8r.enc}</usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmsy10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/mathpazo/
+fplmri.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/cm-super/sfss
+0600.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/cm-super/sftt10
+95.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb>
+</usr/local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/
+local/texlive/2018/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/t
+exlive/2018/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on endo_herbarium.pdf (62 pages, 12175268 bytes).
 PDF statistics:
- 250 PDF objects out of 1000 (max. 8388607)
- 158 compressed objects within 2 object streams
+ 269 PDF objects out of 1000 (max. 8388607)
+ 169 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 96 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 
