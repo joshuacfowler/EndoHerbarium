@@ -338,11 +338,18 @@ prism_diff_pred_df <- aghy_prism_diff_pred_df %>%
   full_join(elvi_prism_diff_pred_df) %>% 
   pivot_longer(contains("_diff")) %>% 
   separate(name, into = c("climate", "season"), sep = "_", extra = "drop", remove = FALSE) %>% 
-  filter(!grepl("_cv_", name) & ! grepl("annual", name)) %>% 
+  # filter(!grepl("_cv_", name) & ! grepl("annual", name)) %>% 
   mutate(season_f = factor(season, level = c("spring", "summer", "autumn")),
          moment = case_when(grepl("_sd_", name) ~ "sd",
                             TRUE ~ "mean"))
   
+prism_summary <- prism_diff_pred_df %>% 
+  filter(species == "A. hyemalis") %>% 
+  ungroup() %>% 
+  group_by(climate, season, moment) %>% 
+  dplyr::summarise(mean_change = mean(value),
+                   max_change = max(value),
+                   min_change = min(value))
 
 
 AGHY_tmean_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "tmean" & species == "A. hyemalis"))+
@@ -760,7 +767,8 @@ climate_post_df <- bind_rows(aghy_post_df, agpe_post_df, elvi_post_df) %>%
   pivot_longer(cols = -c(species, variable), names_to = "iteration") %>% 
   mutate(positive = value>0) %>% 
   group_by(species, variable) %>% 
-  dplyr::summarise(prob_pos = (sum(positive)/500)*100) %>% 
+  dplyr::summarise(post_median = median(value),
+                   prob_pos = (sum(positive)/500)*100) %>% 
   mutate(overlap = case_when(prob_pos >=95 ~ "significant",
                              prob_pos <95 & prob_pos >5 ~ "flat",
                              prob_pos <=5 ~ "significant"))
