@@ -114,7 +114,7 @@ ggplot(ecolab_random_sample)+
 
 # getting the county for each survey
 library(ggmap)
-register_google(key = "AIzaSyDuAdpozRqmb8Sms-XfivxLi3tzlifJdMw")
+register_google(key = "")
 contemp_surveys_county <- ecolab_prevalence %>% 
   mutate(coords = as.character(paste(lat, lon))) %>% 
   geocode(coords, output = "more")
