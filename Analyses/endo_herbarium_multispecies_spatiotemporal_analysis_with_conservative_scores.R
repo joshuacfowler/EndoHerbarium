@@ -31,8 +31,6 @@ endophyte_colors <- c("#fdedd3","#f3c8a8", "#5a727b", "#4986c7", "#181914",  "#1
 
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
   # filter(Country != "Canada") %>%
-  mutate(sample_temp = Sample_id) %>% 
-  separate(sample_temp, into = c("Herb_code", "spp_code", "specimen_code", "tissue_code")) %>% 
   mutate(species_index = as.factor(case_when(spp_code == "AGHY" ~ "1",
                                              spp_code == "AGPE" ~ "2",
                                              spp_code == "ELVI" ~ "3"))) %>% 

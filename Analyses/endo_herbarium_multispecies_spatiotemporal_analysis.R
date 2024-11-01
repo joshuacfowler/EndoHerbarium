@@ -31,26 +31,18 @@ endophyte_colors <- c("#fdedd3","#f3c8a8", "#5a727b", "#4986c7", "#181914",  "#1
 
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
   # filter(Country != "Canada") %>%
-  mutate(sample_temp = Sample_id) %>% 
-  separate(sample_temp, into = c("Herb_code", "spp_code", "specimen_code", "tissue_code")) %>% 
   mutate(species_index = as.factor(case_when(spp_code == "AGHY" ~ "1",
                                              spp_code == "AGPE" ~ "2",
                                              spp_code == "ELVI" ~ "3"))) %>% 
   mutate(species = case_when(spp_code == "AGHY" ~ "A. hyemalis",
                              spp_code == "AGPE" ~ "A. perennans",
                              spp_code == "ELVI" ~ "E. virginicus")) %>% 
-  mutate(decade_bin = floor(year/10)*10) %>% 
+  mutate(decade_bin = floor(year/10)*10) %>%
   mutate(std_year = (year-mean(year, na.rm = T))) %>%  # I am mean centering but not scaling by standard deviation to preserve units for interpretation of the parameter values
   filter(scorer_factor != "Scorer26")
 
 
 
-
-# Creating herbariumd levels
-herbarium_levels <- levels(as.factor(endo_herb_georef$Herb_code))
-herbarium_no <- paste0("Herbarium",1:nlevels(as.factor(endo_herb_georef$Herb_code)))
-
-endo_herb_georef$herbarium_factor <- herbarium_no[match(as.factor(endo_herb_georef$Herb_code), herbarium_levels)]
 
 
 # mini_dataset <- endo_herb_georef %>% 

@@ -1437,10 +1437,37 @@ location_checking <- endo_herb8 %>%
 #
 register_google()
 endo_herb_georef <-endo_herb8 %>%
-  unite("location_string" , sep = ", " , Municipality,County,State,Country, remove = FALSE, na.rm = TRUE) %>%
-  filter(Endo_status_liberal <= 1) %>%
+  mutate(county_label = case_when(State == "Louisiana" | State == "LA" ~ " Parish",
+                                  is.na(County) ~ NA,
+                                  County == "" ~ NA,
+                                  Country == "Canada" ~ NA,
+                                  Country == "Mexico" ~ NA, 
+                                  TRUE ~ " County")) %>% 
+  unite("County_fixed", sep = "", County, county_label, remove = FALSE, na.rm = TRUE) %>% 
+  unite("location_string" , sep = ", " , Municipality,County_fixed,State,Country, remove = FALSE, na.rm = TRUE) %>%
+  # mutate(location_string = case_when(location_string == "NA NA" ~ NA, TRUE ~ location_string)) %>% 
+  filter(Endo_status_liberal <= 1) %>% 
   mutate_geocode(location_string) # Uncomment this to run the geocoding.
-# write_csv(endo_herb_georef, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv")
+
+endo_herb_georef_1 <- endo_herb_georef %>% 
+  mutate(sample_temp = Sample_id) %>% 
+  separate(sample_temp, into = c("Herb_code", "spp_code", "specimen_code", "tissue_code")) %>% 
+  filter(scorer_factor != "Scorer26")
+
+write_csv(endo_herb_georef_1, file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") # saving a version of the file used in ensuing scripts
+
+endo_herb_georef_dryad <- endo_herb_georef_1 %>% 
+  mutate(Spp_code = spp_code) %>% 
+  dplyr::select(c(Sample_id, Institution_specimen_id, Spp_code, new_id, primary_collector, collector_lastname, collector_firstname, collector_full_string, collector_string, location_string, 
+                  Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, 
+                  Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, scorer_factor, collector_factor, lat, lon))
+write_csv(endo_herb_georef_dryad, file = "~/Desktop/endo_herb_georef.csv") # saving a version of the file used in ensuing scripts
+
+
+
+
+
+
 endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>%
   # filter(Country != "Canada") %>%
   mutate(Spp_code = case_when(grepl("AGHY", Sample_id) ~ "AGHY",
