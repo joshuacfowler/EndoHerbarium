@@ -43,6 +43,11 @@ endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/
 
 
 
+# Creating herbariumd levels
+herbarium_levels <- levels(as.factor(endo_herb_georef$Herb_code))
+herbarium_no <- paste0("Herbarium",1:nlevels(as.factor(endo_herb_georef$Herb_code)))
+
+endo_herb_georef$herbarium_factor <- herbarium_no[match(as.factor(endo_herb_georef$Herb_code), herbarium_levels)]
 
 
 # mini_dataset <- endo_herb_georef %>% 
