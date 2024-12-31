@@ -27,6 +27,10 @@ Repeated entry---line 1516 of file endo_herbarium.bib
  : @article{kazenel2015mutualistic
  :                                ,
 I'm skipping whatever remains of this entry
+Repeated entry---line 1781 of file endo_herbarium.bib
+ : @article{schardl2012chemotypic
+ :                               ,
+I'm skipping whatever remains of this entry
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
 Warning--empty journal in Rprism2015
@@ -71,4 +75,4 @@ warning$ -- 3
 while$ -- 499
 width$ -- 0
 write$ -- 1377
-(There were 6 error messages)
+(There were 7 error messages)

@@ -1,0 +1,78 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: endo_herbarium_R1.aux
+The style file: plainnat.bst
+Database file #1: endo_herbarium.bib
+Repeated entry---line 288 of file endo_herbarium.bib
+ : @article{fine1975vectors
+ :                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 861 of file endo_herbarium.bib
+ : @article{afkhami2012fungal
+ :                           ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1067 of file endo_herbarium.bib
+ : @article{brem2001epichloe
+ :                          ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1245 of file endo_herbarium.bib
+ : @article{aitken2008adaptation
+ :                              ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1289 of file endo_herbarium.bib
+ : @article{hillerislambers2013will
+ :                                 ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1516 of file endo_herbarium.bib
+ : @article{kazenel2015mutualistic
+ :                                ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1781 of file endo_herbarium.bib
+ : @article{schardl2012chemotypic
+ :                               ,
+I'm skipping whatever remains of this entry
+Warning--empty year in edwards2024university
+Warning--empty year in edwards2024university
+Warning--empty journal in Rprism2015
+You've used 107 entries,
+            2773 wiz_defined-function locations,
+            1213 strings with 29060 characters,
+and the built_in function-call counts, 61478 in all, are:
+= -- 5295
+> -- 4635
+< -- 26
++ -- 1553
+- -- 1446
+* -- 5817
+:= -- 9642
+add.period$ -- 328
+call.type$ -- 107
+change.case$ -- 797
+chr.to.int$ -- 107
+cite$ -- 217
+duplicate$ -- 2239
+empty$ -- 4317
+format.name$ -- 1581
+if$ -- 12474
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 105
+newline$ -- 548
+num.names$ -- 428
+pop$ -- 1419
+preamble$ -- 1
+purify$ -- 690
+quote$ -- 0
+skip$ -- 1818
+stack$ -- 0
+substring$ -- 2664
+swap$ -- 128
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 1177
+warning$ -- 3
+while$ -- 508
+width$ -- 0
+write$ -- 1403
+(There were 7 error messages)
