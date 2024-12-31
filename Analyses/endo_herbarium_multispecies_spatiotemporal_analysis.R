@@ -148,7 +148,7 @@ collections_map <- ggplot()+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
 # collections_map
-# ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
+ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
 
 endo_status_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
@@ -162,7 +162,7 @@ endo_status_map <- ggplot()+
         strip.text  = element_text(face = "italic", color = "black"))+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
 # endo_status_map
-# ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
+ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
 
 
 
@@ -1034,106 +1034,196 @@ ggsave(svc_time_map.CI, filename = "Plots/svc_time_map_CI.png", width = 15, heig
 ################################################################################################################################
 ##########  Plotting the spatial Intercepts ###############
 ################################################################################################################################
-svc.pred_space <- list()
-svc.pred_space_year <- list()
+
+
+# generating predicted prevalence in 1895
+vrt_aghy@data <- expand.grid(std_year = rep(1895-mean_year, length.out = length(vrt_aghy)),
+                             species_index = 1,
+                             species = species_names[1])
+
+vrt_agpe@data <- expand.grid(std_year = rep(1895-mean_year, length.out = length(vrt_agpe)),
+                             species_index = 2,
+                             species = species_names[2])
+
+vrt_elvi@data <- expand.grid(std_year = rep(1895-mean_year, length.out = length(vrt_elvi)),
+                             species_index = 3,
+                             species = species_names[3])
 
 
 
-for (s in 1:3){
-  vrt <- NA
-  data <- endo_herb_list[[s]]
-  mesh <- mesh_list[[s]]
-  bdry_polygon <- bdry_polygon_list[[s]]
-  
-  vrt <- inlabru::fm_pixels(mesh, mask = bdry_polygon, format = "sp", dims = c(40,40))# Note this is where we can mask the output according the whatever shape, such as the host distribution
-  
-  vrt@data <- data.frame(std_year = rep(mean(data$std_year), length.out = length(vrt)),
-                         spp_code = rep(species_codes[s], length.out = length(vrt)),
-                         species = rep(species_names[s], length.out = length(vrt)))
-  
-  # vrt@data <- data.frame(std_year = rep(NA, length.out = length(vrt)))
-  
-  
-  # ggplot()+
-  #   gg(mesh)+
-  #   gg(vrt, color = "red")
-  # 
-  
-  
-  svc.pred_space[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$svc_fit, 
-                                 vrt, 
-                                 formula = ~ invlogit(space.int))
-  
-  
-  svc.pred_space_year[[s]] <- predict(fit_lists[[species_codes[s]]][[1]]$year_fit, 
-                                      vrt, 
-                                      formula = ~ invlogit(space.int))
-  
-}
+svc.space.pred_aghy.1895 <- predict(fit, 
+                         vrt_aghy, 
+                         formula = ~ invlogit(int.species1 + space.species1 + year.species1+ time.species1))
+svc.space.pred_agpe.1895 <- predict(fit, 
+                         vrt_agpe, 
+                         formula = ~ invlogit(int.species2 + space.species2 + year.species2+ time.species2))
+svc.space.pred_elvi.1895 <- predict(fit, 
+                         vrt_elvi, 
+                         formula = ~ invlogit(int.species3 + space.species3 + year.species3+ time.species3))
+
+# generating predicted prevalence in 2020
+
+vrt_aghy@data <- expand.grid(std_year = rep(2020-mean_year, length.out = length(vrt_aghy)),
+                             species_index = 1,
+                             species = species_names[1])
+
+vrt_agpe@data <- expand.grid(std_year = rep(2020-mean_year, length.out = length(vrt_agpe)),
+                             species_index = 2,
+                             species = species_names[2])
+
+vrt_elvi@data <- expand.grid(std_year = rep(2020-mean_year, length.out = length(vrt_elvi)),
+                             species_index = 3,
+                             species = species_names[3])
 
 
-dim(vrt)
-# dim(svc.pred$prev)
-# 
-# dim(svc.pred$space_pred)
-dim(svc.pred_space[[3]])
+
+svc.space.pred_aghy.2020 <- predict(fit, 
+                                    vrt_aghy, 
+                                    formula = ~ invlogit(int.species1 + space.species1 + year.species1+ time.species1))
+svc.space.pred_agpe.2020 <- predict(fit, 
+                                    vrt_agpe, 
+                                    formula = ~ invlogit(int.species2 + space.species2 + year.species2+ time.species2))
+svc.space.pred_elvi.2020 <- predict(fit, 
+                                    vrt_elvi, 
+                                    formula = ~ invlogit(int.species3 + space.species3 + year.species3+ time.species3))
 
 
-min_trend <- max(max(svc.pred_space[[1]]$mean),max(svc.pred_space[[2]]$mean), max(svc.pred_space[[3]]$mean))
 
-max_trend <- min(min(svc.pred_space[[1]]$mean),min(svc.pred_space[[2]]$mean),min(svc.pred_space[[3]]$mean))
+# saving predictions
+saveRDS(svc.space.pred_aghy.1895, file = "svc.space.pred_aghy.1895.Rds")
+saveRDS(svc.space.pred_agpe.1895, file = "svc.space.pred_agpe.1895.Rds")
+saveRDS(svc.space.pred_elvi.1895, file = "svc.space.pred_elvi.1895.Rds")
 
-trendrange <- range(svc.pred_space[[1]]$mean, svc.pred_space[[2]]$mean, svc.pred_space[[3]]$mean)
+svc.space.pred_aghy.1895 <- readRDS(file = "svc.space.pred_aghy.1895.Rds")
+svc.space.pred_agpe.1895 <- readRDS(file = "svc.space.pred_agpe.1895.Rds")
+svc.space.pred_elvi.1895 <- readRDS(file = "svc.space.pred_elvi.1895.Rds")
+
+saveRDS(svc.space.pred_aghy.2020, file = "svc.space.pred_aghy.2020.Rds")
+saveRDS(svc.space.pred_agpe.2020, file = "svc.space.pred_agpe.2020.Rds")
+saveRDS(svc.space.pred_elvi.2020, file = "svc.space.pred_elvi.2020.Rds")
+
+svc.space.pred_aghy.2020 <- readRDS(file = "svc.space.pred_aghy.2020.Rds")
+svc.space.pred_agpe.2020 <- readRDS(file = "svc.space.pred_agpe.2020.Rds")
+svc.space.pred_elvi.2020 <- readRDS(file = "svc.space.pred_elvi.2020.Rds")
 
 
-space_x <- range(svc.pred_space[[1]]@coords[,1], svc.pred_space[[2]]@coords[,1], svc.pred_space[[3]]@coords[,1])
-space_y <- range(svc.pred_space[[1]]@coords[,2], svc.pred_space[[2]]@coords[,2], svc.pred_space[[3]]@coords[,2])
 
 
-svc_space_map_AGHY <- ggplot()+
+prevrange <- range(svc.space.pred_aghy.1895$mean, svc.space.pred_agpe.1895$mean, svc.space.pred_elvi.1895$mean,
+                   svc.space.pred_aghy.2020$mean, svc.space.pred_agpe.2020$mean, svc.space.pred_elvi.2020$mean)
+
+
+space_x <- range(svc.space.pred_aghy.1895@coords[,1],svc.space.pred_agpe.1895@coords[,1],svc.space.pred_agpe.1895@coords[,1])
+space_y <- range(svc.space.pred_aghy.1895@coords[,2],svc.space.pred_agpe.1895@coords[,2],svc.space.pred_agpe.1895@coords[,2])
+
+svc_space_map_AGHY.1895 <- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   coord_sf(xlim = space_x, ylim = space_y)+
-  gg(svc.pred_space_year[[1]], aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[1], fill = "", y = "Latitude", x = "Longitude")+
+  gg(svc.space.pred_aghy.1895, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[1], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
-# svc_space_map_AGHY
+svc_space_map_AGHY.1895
 
-svc_space_map_AGPE<- ggplot()+
+svc_space_map_AGHY.2020 <- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred_space_year[[2]], aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  gg(svc.space.pred_aghy.2020, aes(fill = mean))+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[1], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
+svc_space_map_AGHY.2020
 
-
-# svc_space_map_AGPE
-
-
-svc_space_map_ELVI<- ggplot()+
+svc_space_map_AGPE.1895<- ggplot()+
   geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
-  gg(svc.pred_space_year[[3]], aes(fill = mean))+
+  gg(svc.space.pred_agpe.1895, aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = trendrange)+
-  labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[2], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
-# svc_space_map_ELVI
+
+svc_space_map_AGPE.1895
+
+svc_space_map_AGPE.2020<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.space.pred_agpe.2020, aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[2], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+
+svc_space_map_AGPE.2020
 
 
+svc_space_map_ELVI.1895<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.space.pred_elvi.1895, aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[3], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+svc_space_map_ELVI.1895
 
-svc_space_map <- svc_space_map_AGHY + svc_space_map_AGPE + svc_space_map_ELVI +
-  plot_layout(ncol = 1, guides = 'collect') + plot_annotation(tag_levels = "A")
-ggsave(svc_space_map, filename = "svc_space_map_year.png", width = 6, height = 12)
+svc_space_map_ELVI.2020<- ggplot()+
+  geom_sf(data = world_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
+  gg(svc.space.pred_elvi.2020, aes(fill = mean))+
+  coord_sf(xlim = space_x, ylim = space_y)+
+  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  labs(title = species_names[3], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+svc_space_map_ELVI.2020
 
 
+svc_space_map <- (svc_space_map_AGHY.1895 + svc_space_map_AGPE.1895 + svc_space_map_ELVI.1895) / (svc_space_map_AGHY.2020 + svc_space_map_AGPE.2020 + svc_space_map_ELVI.2020)+
+  plot_layout(nrow = 2, guides = 'collect') + plot_annotation(tag_levels = "A")
+ggsave(svc_space_map, filename = "Plots/svc_space_map_year.png", width = 12, height = 8)
 
+
+# evaluating whether or not change in prevalence is associated with starting prevalence
+vrt_aghy@data <- data.frame("trend.mean" = svc.pred_aghy$mean, "prev.mean" = svc.space.pred_aghy$mean)
+vrt_agpe@data <- data.frame("trend.mean" = svc.pred_agpe$mean, "prev.mean" = svc.space.pred_agpe$mean)
+vrt_elvi@data <- data.frame("trend.mean" = svc.pred_elvi$mean, "prev.mean" = svc.space.pred_elvi$mean)
+
+initialprev.trend_aghy <- ggplot(data = vrt_aghy@data)+
+  geom_smooth(aes(x = prev.mean, y = trend.mean), color = "black", method = 'lm')+
+  geom_point(aes(x = prev.mean, y = trend.mean), alpha = .6)+
+  labs(title = species_names[1], x = "% prevalence in 1895", y = "% change/year")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+initialprev.trend_aghy
+
+initialprev.trend_agpe <- ggplot(data = vrt_agpe@data)+
+  geom_smooth(aes(x = prev.mean, y = trend.mean), color = "black", method = 'lm')+
+  geom_point(aes(x = prev.mean, y = trend.mean), alpha = .6)+
+  labs(title = species_names[2], x = "% prevalence in 1895", y = "% change/year")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+initialprev.trend_agpe
+
+initialprev.trend_elvi <- ggplot(data = vrt_elvi@data)+
+  geom_smooth(aes(x = prev.mean, y = trend.mean),color = "black", method = 'lm')+
+  geom_point(aes(x = prev.mean, y = trend.mean), alpha = .6)+
+  labs(title = species_names[3], x = "% prevalence in 1895", y = "% change/year")+
+  theme_light()+
+  theme(plot.title = element_text(face = "italic"))
+initialprev.trend_elvi
+
+
+initialprev.trend_plot <- initialprev.trend_aghy+initialprev.trend_agpe+initialprev.trend_elvi+
+  plot_layout(nrow = 1, axis_titles = "collect", guides = 'collect') + plot_annotation( tag_levels = "A")
+ggsave(initialprev.trend_plot, filename = "Plots/initialprev.trend_plot.png", width = 8, height = 4)
 
 ################################################################################################################################
 ##########  Making the contemp predictions ###############
