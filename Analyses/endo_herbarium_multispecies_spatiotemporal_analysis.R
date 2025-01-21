@@ -29,7 +29,7 @@ endophyte_colors <- c("#fdedd3","#f3c8a8", "#5a727b", "#4986c7", "#181914",  "#1
 ############ Read in the herbarium dataset ############################### 
 ################################################################################
 
-endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
+endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") 
   # filter(Country != "Canada") %>%
   mutate(species_index = as.factor(case_when(spp_code == "AGHY" ~ "1",
                                              spp_code == "AGPE" ~ "2",
@@ -94,6 +94,51 @@ endo_herb<- endo_herb %>%
 
 # write_csv(endo_herb, file = "filtered_endo_herb_georef.csv")
 
+# calculating the min and max distance between points
+
+
+# dist_vec <- cbind(endo_herb$easting, endo_herb$northing)
+# dist_mat <- as.matrix(dist(dist_vec, method = "euclidean", diag = TRUE, upper = TRUE))
+# min(dist_mat[dist_mat>0])
+# max(dist_mat[dist_mat>0])
+# median(dist_mat[dist_mat>0])
+# 
+# # calculating the width of georeferencing bounding boxes
+# 
+# endo_herb_boundbox_west <- endo_herb %>% 
+#   select(north, south, east, west, lon, lat, easting, northing) %>% 
+#   as_tibble() %>% 
+#   st_as_sf(coords = c("west", "lat"), crs = 4326, remove = FALSE) %>% 
+#   st_transform(epsg6703km) %>% 
+#   mutate(
+#     west_bb = st_coordinates(.)[, 1],
+#     lat_bb = st_coordinates(.)[, 2]
+#   ) %>% select(west_bb)
+# endo_herb_boundbox_east <- endo_herb %>% 
+#   select(north, south, east, west, lon, lat, easting, northing) %>% 
+#   as_tibble() %>% 
+#   st_as_sf(coords = c("east", "lat"), crs = 4326, remove = FALSE) %>% 
+#   st_transform(epsg6703km) %>% 
+#   mutate(
+#     east_bb = st_coordinates(.)[, 1],
+#     lat_bb = st_coordinates(.)[, 2]
+#   ) %>% select(east_bb)
+# 
+# endo_herb_boundbox_width <- tibble(west_bb = endo_herb_boundbox_west$west_bb, east_bb = endo_herb_boundbox_east$east_bb) %>% 
+#   mutate(bb_width = east_bb-west_bb)
+# 
+# 
+# endo_herb_withbbwidth <- endo_herb %>% 
+#   select(Sample_id,location_string, easting, northing, lat, lon) %>% 
+#   cbind(bb_width = endo_herb_boundbox_width$bb_width) # I double checked a couple of these and the width I calculated seems to line up reasonable well with online measurements of the county East to West
+# 
+# bb_summary <- endo_herb_withbbwidth %>% 
+#   summarize(mean_width = mean(bb_width),
+#             max_width = max(bb_width),
+#             min_width = min(bb_width),
+#             median_width = median(bb_width)) %>% 
+#   st_drop_geometry()
+
 # mini_dataset <- endo_herb %>%
 #   filter(year>1970 &year<1990) %>%
 #   mutate(presence = Endo_status_liberal) %>%
@@ -141,21 +186,29 @@ collections_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat, color = species), alpha = .7, size = 1.2)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49), crs = 4326)+
+  # lims(x = c(-109,-68), y = c(21,49))+
   scale_color_manual(values = species_colors)+
   theme_light()+
   theme(legend.text = element_text(face = "italic"))+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
-# collections_map
+collections_map
 ggsave(collections_map, filename = "Plots/collections_map.png", width = 7, height = 4)
+
+
+# summarizing collections across states
+# states_summary <- endo_herb %>% 
+#   filter(!is.na(Endo_status_liberal), spp_code == "AGPE") %>% 
+#   group_by(State) %>% 
+#   summarize(n = n()) %>% arrange(-n)
 
 endo_status_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes( map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat, color = endo_status_text), alpha = .7, size = .8)+
   facet_wrap(~factor(year_bin, levels = c("pre-1969", "post-1969"))+species)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  coord_sf(xlim = c(-109,-68), ylim = c(21,49), crs = 4326)+
   scale_color_manual(values = c(endophyte_colors[2],endophyte_colors[6]))+
   theme_light()+
   theme(strip.background = element_blank(),
@@ -170,12 +223,12 @@ scorer_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = filter(endo_herb, scorer_factor == "Scorer7"), aes(x = lon, y = lat, color = scorer_factor, shape = species), alpha = .7, size = 1.2)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  # coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
   theme_light()+
   theme(legend.text = element_text(face = "italic"))+
   labs(x = "Longitude", y = "Latitude", color = "Host Species")
 
-# scorer_map
+scorer_map
 # ggsave(scorer_map, filename = "scorer_map.png", width = 7, height = 4)
 
 
@@ -1223,7 +1276,7 @@ initialprev.trend_elvi
 
 initialprev.trend_plot <- initialprev.trend_aghy+initialprev.trend_agpe+initialprev.trend_elvi+
   plot_layout(nrow = 1, axis_titles = "collect", guides = 'collect') + plot_annotation( tag_levels = "A")
-ggsave(initialprev.trend_plot, filename = "Plots/initialprev.trend_plot.png", width = 8, height = 4)
+ggsave(initialprev.trend_plot, filename = "Plots/initialprev_trend_plot.png", width = 8, height = 4)
 
 ################################################################################################################################
 ##########  Making the contemp predictions ###############
