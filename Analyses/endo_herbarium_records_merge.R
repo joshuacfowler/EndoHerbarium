@@ -1447,7 +1447,7 @@ endo_herb_georef <-endo_herb8 %>%
   unite("location_string" , sep = ", " , Municipality,County_fixed,State,Country, remove = FALSE, na.rm = TRUE) %>%
   # mutate(location_string = case_when(location_string == "NA NA" ~ NA, TRUE ~ location_string)) %>% 
   filter(Endo_status_liberal <= 1) %>% 
-  mutate_geocode(location_string) # Uncomment this to run the geocoding.
+  mutate_geocode(location_string, output = "more") # Uncomment this to run the geocoding.
 
 endo_herb_georef_1 <- endo_herb_georef %>% 
   mutate(sample_temp = Sample_id) %>% 
@@ -1462,6 +1462,7 @@ endo_herb_georef_dryad <- endo_herb_georef_1 %>%
                   Country, State, County, Municipality, Locality, hand_georef_lat, hand_georef_lon, year, month, day, tissue_type, seed_scored, seed_eplus, 
                   Endo_status_liberal, Endo_status_conservative, Date_scored, scorer_id, score_number, scorer_factor, collector_factor, lat, lon))
 write_csv(endo_herb_georef_dryad, file = "~/Desktop/endo_herb_georef.csv") # saving a version of the file used in ensuing scripts
+
 
 
 
