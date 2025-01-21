@@ -366,7 +366,7 @@ AGHY_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & spe
   facet_wrap(~ moment+season)+
   scale_fill_viridis_c(option = "magma") + labs(x = "Lon.", y = "Lat.", fill = "Change in mm.")+
   theme(strip.text = element_text(size = rel(1)))
-# AGHY_ppt_change_plot
+AGHY_ppt_change_plot
 
 
 AGHY_climate_change_plot <- AGHY_tmean_change_plot/AGHY_ppt_change_plot + plot_annotation(tag_levels = "A")
@@ -804,8 +804,11 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
   labs(y = "Change in Prevalence (% per Year)", x = "Change in Temperature (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(1)),
-        strip.text.y = element_text(face = "italic", angle = 0),
+        strip.text = element_text(color = "black"),
+        strip.text.x = element_text( size = rel(2)),
+        strip.text.y = element_blank(),
+        axis.text = element_text(size = rel(1)),
+        axis.title = element_text(size = rel(1.5)),
         legend.text = element_text(face = "italic"),
         )
   # lims(y = c(0,1))
@@ -829,8 +832,11 @@ tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd"
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Temperature) (ºC)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(1)),
-        strip.text.y = element_text(face = "italic", angle = 0),
+        strip.text = element_text(color = "black"),
+        strip.text.x = element_text( size = rel(2)),
+        strip.text.y = element_blank(),
+        axis.text = element_text(size = rel(1)),
+        axis.title = element_text(size = rel(1.5)),
         legend.text = element_text(face = "italic"),
   )
 # lims(y = c(0,1))
@@ -857,8 +863,11 @@ ppt_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & !grepl("sd", name
   labs(y = "Change in Prevalence (% per Year)", x = "Change in Precipitation (mm.)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(1)),
-        strip.text.y = element_text(face = "italic", angle = 0),
+        strip.text = element_text(color = "black"),
+        strip.text.x = element_text( size = rel(2)),
+        strip.text.y = element_text(face = "italic", size = rel(2), angle = 0),
+        axis.text = element_text(size = rel(1)),
+        axis.title = element_text(size = rel(1.5)),
         legend.text = element_text(face = "italic"),
   )
 # lims(y = c(0,1))
@@ -882,8 +891,11 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   labs(y = "Change in Prevalence (% per Year)", x = "Change in SD(Precipitation) (mm.)")+
   theme_light()+
   theme(strip.background = element_blank(),
-        strip.text = element_text(color = "black", size = rel(1)),
-        strip.text.y = element_text(face = "italic", angle = 0),
+        strip.text = element_text(color = "black"),
+        strip.text.x = element_text( size = rel(2)),
+        strip.text.y = element_text(size = rel(2), face = "italic", angle = 0),
+        axis.text = element_text(size = rel(1)),
+        axis.title = element_text(size = rel(1.5)),
         legend.text = element_text(face = "italic"),
   )
 # lims(y = c(0,1))
@@ -900,9 +912,9 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
 # ppt_sd_trend$layers[4:6] <- NULL; ppt_sd_trend$layers[[3]]$aes_params$alpha  <-0
 
   
-climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) #+ plot_annotation(tag_levels = "A")
+climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "A") +  theme(plot.tag = element_text(face = 'bold'))
 
-ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot_intercept.png", width = 16, height = 12)
+ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot_intercept.png", width = 14, height = 10)
 
 ######### version of plot separating by species ####
 
