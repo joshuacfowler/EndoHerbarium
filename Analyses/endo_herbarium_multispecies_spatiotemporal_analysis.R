@@ -29,7 +29,7 @@ endophyte_colors <- c("#fdedd3","#f3c8a8", "#5a727b", "#4986c7", "#181914",  "#1
 ############ Read in the herbarium dataset ############################### 
 ################################################################################
 
-endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") 
+endo_herb_georef <- read_csv(file = "~/Dropbox/Josh&Tom - shared/Endo_Herbarium/DigitizedHerbariumRecords/endo_herb_georef.csv") %>% 
   # filter(Country != "Canada") %>%
   mutate(species_index = as.factor(case_when(spp_code == "AGHY" ~ "1",
                                              spp_code == "AGPE" ~ "2",
@@ -186,7 +186,7 @@ collections_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat, color = species), alpha = .7, size = 1.2)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49), crs = 4326)+
+  coord_sf(xlim = c(-109,-68), ylim = c(19,49), crs = 4326)+
   # lims(x = c(-109,-68), y = c(21,49))+
   scale_color_manual(values = species_colors)+
   theme_light()+
@@ -208,13 +208,13 @@ endo_status_map <- ggplot()+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat, color = endo_status_text), alpha = .7, size = .8)+
   facet_wrap(~factor(year_bin, levels = c("pre-1969", "post-1969"))+species)+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49), crs = 4326)+
+  coord_sf(xlim = c(-109,-68), ylim = c(19,49), crs = 4326)+
   scale_color_manual(values = c(endophyte_colors[2],endophyte_colors[6]))+
   theme_light()+
   theme(strip.background = element_blank(),
         strip.text  = element_text(face = "italic", color = "black"))+
   labs(x = "Longitude", y = "Latitude", color = "Endophyte Status")
-# endo_status_map
+endo_status_map
 ggsave(endo_status_map, filename = "Plots/endo_status_map.png", width = 10, height = 5)
 
 
@@ -1390,12 +1390,15 @@ rocobj$auc
 
 
 ###### Making a map to show where the contemp predictions ###########
+contemp_surveys <- contemp_surveys %>% 
+  mutate(species_name = case_when(SpeciesID == "AGHY" ~ "A. hyemalis",
+                                  SpeciesID == "ELVI" ~ "E. virginicus"))
 contemp_map <- ggplot()+
   geom_map(data = outline_map, map = outline_map, aes(map_id = region), color = "grey", linewidth = .1, fill = "#FAF9F6")+
   geom_map(data = states_shape, map = states_shape, aes(map_id = region), color = "grey", linewidth = .1, fill = NA)+
   geom_point(data = endo_herb, aes(x = lon, y = lat),shape = 4, alpha = .3, size = 1.2)+
-  geom_point(data = contemp_surveys, aes(x = lon, y = lat, color = SpeciesID))+
-  coord_sf(xlim = c(-109,-68), ylim = c(21,49))+
+  geom_point(data = contemp_surveys, aes(x = lon, y = lat, color = species_name))+
+  coord_sf(xlim = c(-109,-68), ylim = c(19,49), crs = 4326)+
   scale_color_manual(values = c(species_colors[1], species_colors[3]))+
   theme_light()+
   theme(legend.text = element_text(face = "italic"))+
