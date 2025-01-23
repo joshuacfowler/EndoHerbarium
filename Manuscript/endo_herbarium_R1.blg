@@ -31,48 +31,54 @@ Repeated entry---line 1781 of file endo_herbarium.bib
  : @article{schardl2012chemotypic
  :                               ,
 I'm skipping whatever remains of this entry
+Repeated entry---line 1833 of file endo_herbarium.bib
+ : @article{treindl2023genetic
+ :                            ,
+I'm skipping whatever remains of this entry
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
 Warning--empty journal in Rprism2015
-You've used 107 entries,
+Warning--empty journal in seneviratne2021weather
+Warning--empty journal in simpson2017penalising
+You've used 117 entries,
             2773 wiz_defined-function locations,
-            1213 strings with 29060 characters,
-and the built_in function-call counts, 61478 in all, are:
-= -- 5295
-> -- 4635
-< -- 26
-+ -- 1553
-- -- 1446
-* -- 5817
-:= -- 9642
-add.period$ -- 328
-call.type$ -- 107
-change.case$ -- 797
-chr.to.int$ -- 107
-cite$ -- 217
-duplicate$ -- 2239
-empty$ -- 4317
-format.name$ -- 1581
-if$ -- 12474
+            1264 strings with 31399 characters,
+and the built_in function-call counts, 67004 in all, are:
+= -- 5754
+> -- 5076
+< -- 30
++ -- 1701
+- -- 1584
+* -- 6323
+:= -- 10522
+add.period$ -- 358
+call.type$ -- 117
+change.case$ -- 871
+chr.to.int$ -- 117
+cite$ -- 239
+duplicate$ -- 2443
+empty$ -- 4695
+format.name$ -- 1735
+if$ -- 13589
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 105
-newline$ -- 548
-num.names$ -- 428
-pop$ -- 1419
+missing$ -- 116
+newline$ -- 598
+num.names$ -- 468
+pop$ -- 1563
 preamble$ -- 1
-purify$ -- 690
+purify$ -- 755
 quote$ -- 0
-skip$ -- 1818
+skip$ -- 1989
 stack$ -- 0
-substring$ -- 2664
-swap$ -- 128
+substring$ -- 2854
+swap$ -- 136
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1177
-warning$ -- 3
-while$ -- 508
+type$ -- 1282
+warning$ -- 5
+while$ -- 550
 width$ -- 0
-write$ -- 1403
-(There were 7 error messages)
+write$ -- 1528
+(There were 8 error messages)

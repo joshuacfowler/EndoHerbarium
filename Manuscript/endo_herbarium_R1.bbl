@@ -1,4 +1,4 @@
-\begin{thebibliography}{107}
+\begin{thebibliography}{117}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -266,6 +266,13 @@ Markus Engel, Tobias Mette, and Wolfgang Falk.
   species.
 \newblock \emph{Forest Ecology and Management}, 507:\penalty0 119983, 2022.
 
+\bibitem[Erickson and Smith(2021)]{erickson2021accounting}
+Kelley~D Erickson and Adam~B Smith.
+\newblock Accounting for imperfect detection in data from museums and herbaria
+  when modeling species distributions: combining and contrasting data-level
+  versus model-level bias correction.
+\newblock \emph{Ecography}, 44\penalty0 (9):\penalty0 1341--1352, 2021.
+
 \bibitem[Evers et~al.(2021)Evers, Knight, Inouye, Miller, Salguero-G{\'o}mez,
   Iler, and Compagnoni]{evers2021lagged}
 Sanne~M Evers, Tiffany~M Knight, David~W Inouye, Tom~EX Miller, Roberto
@@ -309,6 +316,20 @@ Megan~E Frederickson.
 \newblock \emph{Trends in ecology \& evolution}, 32\penalty0 (10):\penalty0
   727--734, 2017.
 
+\bibitem[Gaul et~al.(2020)Gaul, Sadykova, White, Leon-Sanchez, Caplat,
+  Emmerson, and Yearsley]{gaul2020data}
+Willson Gaul, Dinara Sadykova, Hannah~J White, Lupe Leon-Sanchez, Paul Caplat,
+  Mark~C Emmerson, and Jon~M Yearsley.
+\newblock Data quantity is more important than its spatial bias for predictive
+  species distribution modelling.
+\newblock \emph{PeerJ}, 8:\penalty0 e10411, 2020.
+
+\bibitem[Gelman and Hill(2006)]{gelman2006data}
+Andrew Gelman and Jennifer Hill.
+\newblock \emph{Data analysis using regression and multilevel/hierarchical
+  models}.
+\newblock Cambridge university press, 2006.
+
 \bibitem[Gilman et~al.(2010)Gilman, Urban, Tewksbury, Gilchrist, and
   Holt]{gilman2010framework}
 Sarah~E Gilman, Mark~C Urban, Joshua Tewksbury, George~W Gilchrist, and
@@ -333,6 +354,14 @@ Andrin Gross, C{\'e}lia Petitcollin, Cyril Dutech, Bayo Ly, Marie Massot, Julie
 \newblock Hidden invasion and niche contraction revealed by herbaria specimens
   in the fungal complex causing oak powdery mildew in europe.
 \newblock \emph{Biological Invasions}, 23:\penalty0 885--901, 2021.
+
+\bibitem[Gundel et~al.(2011)Gundel, Zabalgogeazcoa, and
+  De~Aldana]{gundel2011interaction}
+Pedro~Emilio Gundel, I{\~n}igo Zabalgogeazcoa, and BR~V{\'a}zquez De~Aldana.
+\newblock Interaction between plant genotype and the symbiosis with
+  epichlo{\"e} fungal endophytes in seeds of red fescue (festuca rubra).
+\newblock \emph{Crop and Pasture Science}, 62\penalty0 (11):\penalty0
+  1010--1016, 2011.
 
 \bibitem[Hart and Bell(2015)]{Rprism2015}
 Edmund~M. Hart and Kendon Bell.
@@ -485,6 +514,13 @@ Timothy~D Meehan, Nicole~L Michel, and H{\aa}vard Rue.
   patterns and drivers of relative abundance trends.
 \newblock \emph{Ecosphere}, 10\penalty0 (4):\penalty0 e02707, 2019.
 
+\bibitem[Meineke and Daru(2021)]{meineke2021bias}
+Emily~K Meineke and Barnabas~H Daru.
+\newblock Bias assessments to expand research harnessing biological
+  collections.
+\newblock \emph{Trends in Ecology \& Evolution}, 36\penalty0 (12):\penalty0
+  1071--1082, 2021.
+
 \bibitem[Meineke et~al.(2018)Meineke, Davis, and Davies]{meineke2018unrealized}
 Emily~K Meineke, Charles~C Davis, and T~Jonathan Davies.
 \newblock The unrealized potential of herbaria for global change biology.
@@ -522,6 +558,13 @@ Daniel~S Park, Ian Breckheimer, Alex~C Williams, Edith Law, Aaron~M Ellison,
   phenological sensitivity across the eastern united states.
 \newblock \emph{Philosophical Transactions of the Royal Society B},
   374\penalty0 (1763):\penalty0 20170394, 2019.
+
+\bibitem[Parker et~al.(2017)Parker, Hr{\v{c}}ek, McLean, and
+  Godfray]{parker2017genotype}
+Benjamin~J Parker, Jan Hr{\v{c}}ek, Ailsa~HC McLean, and H~Charles~J Godfray.
+\newblock Genotype specificity among hosts, pathogens, and beneficial microbes
+  influences the strength of symbiont-mediated protection.
+\newblock \emph{Evolution}, 71\penalty0 (5):\penalty0 1222--1231, 2017.
 
 \bibitem[Parniske(2008)]{parniske2008arbuscular}
 Martin Parniske.
@@ -607,13 +650,13 @@ Jennifer~A Rudgers, Michelle~E Afkhami, Megan~A R{\'u}a, Andrew~J Davitt,
   grasses.
 \newblock \emph{Ecology}, 90\penalty0 (6):\penalty0 1531--1539, 2009.
 
-\bibitem[Rudgers et~al.(2016)Rudgers, Fletcher, Olivas, Young, Charlton,
-  Pearson, and Maron]{rudgers2016long}
-Jennifer~A Rudgers, Rebecca~A Fletcher, Eric Olivas, Carolyn~A Young, Nikki~D
-  Charlton, Dean~E Pearson, and John~L Maron.
-\newblock Long-term ungulate exclusion reduces fungal symbiont prevalence in
-  native grasslands.
-\newblock \emph{Oecologia}, 181:\penalty0 1151--1161, 2016.
+\bibitem[Rudgers et~al.(2020)Rudgers, Afkhami, Bell-Dereske, Chung, Crawford,
+  Kivlin, Mann, and Nu{\~n}ez]{rudgers2020climate}
+Jennifer~A Rudgers, Michelle~E Afkhami, Lukas Bell-Dereske, Y~Anny Chung,
+  Kerri~M Crawford, Stephanie~N Kivlin, Michael~A Mann, and Martin~A Nu{\~n}ez.
+\newblock Climate disruption of plant-microbe interactions.
+\newblock \emph{Annual review of ecology, evolution, and systematics},
+  51\penalty0 (1):\penalty0 561--586, 2020.
 
 \bibitem[Rue et~al.(2009)Rue, Martino, and Chopin]{rue2009approximate}
 H{\aa}vard Rue, Sara Martino, and Nicolas Chopin.
@@ -621,6 +664,11 @@ H{\aa}vard Rue, Sara Martino, and Nicolas Chopin.
   integrated nested laplace approximations.
 \newblock \emph{Journal of the royal statistical society: Series b (statistical
   methodology)}, 71\penalty0 (2):\penalty0 319--392, 2009.
+
+\bibitem[Sage(2020)]{sage2020global}
+Rowan~F Sage.
+\newblock Global change biology: a primer.
+\newblock \emph{Global Change Biology}, 26\penalty0 (1):\penalty0 3--30, 2020.
 
 \bibitem[Saikkonen et~al.(2013)Saikkonen, Gundel, and
   Helander]{saikkonen2013chemical}
@@ -642,6 +690,22 @@ Mar{\'\i}a Semmartin, Marina Omacini, Pedro~E Gundel, and Ignacio~M
 \newblock Broad-scale variation of fungal-endophyte incidence in temperate
   grasses.
 \newblock \emph{Journal of Ecology}, 103\penalty0 (1):\penalty0 184--190, 2015.
+
+\bibitem[Seneviratne et~al.(2021)Seneviratne, Zhang, Adnan, Badi, Dereczynski,
+  Luca, Ghosh, Iskandar, Kossin, Lewis, et~al.]{seneviratne2021weather}
+Sonia~I Seneviratne, Xuebin Zhang, Muhammad Adnan, Wafae Badi, Claudine
+  Dereczynski, A~Di Luca, Subimal Ghosh, Iskhaq Iskandar, James Kossin, Sophie
+  Lewis, et~al.
+\newblock Weather and climate extreme events in a changing climate.
+\newblock 2021.
+
+\bibitem[Simpson et~al.(2017)Simpson, Rue, Riebler, Martins, and
+  S{\o}rbye]{simpson2017penalising}
+Daniel Simpson, H{\aa}vard Rue, Andrea Riebler, Thiago~G Martins, and Sigrunn~H
+  S{\o}rbye.
+\newblock Penalising model component complexity: A principled, practical
+  approach to constructing priors.
+\newblock 2017.
 
 \bibitem[Sneck et~al.(2017)Sneck, Rudgers, Young, and
   Miller]{sneck2017variation}
@@ -737,6 +801,16 @@ Veronika Vikuk, Carolyn~A Young, Stephen~T Lee, Padmaja Nagabhyru, Markus
   systemic epichlo{\"e} endophytes.
 \newblock \emph{Applied and Environmental Microbiology}, 85\penalty0
   (17):\penalty0 e00465--19, 2019.
+
+\bibitem[von Cr{\"a}utlein et~al.(2021)von Cr{\"a}utlein, Helander,
+  Korpelainen, Leinonen, V{\'a}zquez~de Aldana, Young, Zabalgogeazcoa, and
+  Saikkonen]{von2021genetic}
+Maria von Cr{\"a}utlein, Marjo Helander, Helena Korpelainen, P{\"a}ivi~Helena
+  Leinonen, Beatriz~R V{\'a}zquez~de Aldana, Carolyn~Anne Young, I{\~n}igo
+  Zabalgogeazcoa, and Kari Saikkonen.
+\newblock Genetic diversity of the symbiotic fungus epichlo{\"e} festucae in
+  naturally occurring host grass populations.
+\newblock \emph{Frontiers in microbiology}, 12:\penalty0 756991, 2021.
 
 \bibitem[Wang et~al.(2020)Wang, Li, and White]{wang2020effects}
 Zhengfeng Wang, Chunjie Li, and James White.
