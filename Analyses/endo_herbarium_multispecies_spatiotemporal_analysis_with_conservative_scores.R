@@ -763,9 +763,10 @@ vrt_elvi <- inlabru::fm_pixels(mesh, mask = elvi_distribution, format = "sp", di
 # saveRDS(vrt_agpe, file = "agpe_distribution_df.rds")
 # saveRDS(vrt_elvi, file = "elvi_distribution_df.rds")
 # 
-# vrt_aghy <- readRDS(file = "aghy_distribution_df.rds")
-# vrt_agpe <- readRDS(file = "agpe_distribution_df.rds")
-# vrt_elvi <- readRDS(file = "elvi_distribution_df.rds")
+vrt_aghy <- readRDS(file = "aghy_distribution_df.rds")
+vrt_agpe <- readRDS(file = "agpe_distribution_df.rds")
+vrt_elvi <- readRDS(file = "elvi_distribution_df.rds")
+
 
 
 # ggplot()+
@@ -819,16 +820,16 @@ states_map <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
 
 
 
-min_trend <- max(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
+# min_trend <- max(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
+# 
+# max_trend <- min(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
 
-max_trend <- min(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
-
-trendrange <- range(svc.pred_aghy$mean, svc.pred_aghy$mean, svc.pred_aghy$mean)
+trendrange <- range(svc.pred_aghy$mean, svc.pred_agpe$mean, svc.pred_elvi$mean)
 
 
 
-space_x <- range(svc.pred_aghy@coords[,1],svc.pred_agpe@coords[,1],svc.pred_agpe@coords[,1])
-space_y <- range(svc.pred_aghy@coords[,2],svc.pred_agpe@coords[,2],svc.pred_agpe@coords[,2])
+space_x <- range(svc.pred_aghy@coords[,1],svc.pred_agpe@coords[,1],svc.pred_elvi@coords[,1])
+space_y <- range(svc.pred_aghy@coords[,2],svc.pred_agpe@coords[,2],svc.pred_elvi@coords[,2])
 
 
 
@@ -841,7 +842,7 @@ svc_time_map_AGHY <- ggplot()+
   labs(title = species_names[1], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
-# svc_time_map_AGHY
+svc_time_map_AGHY
 
 
 svc_time_map_AGPE <- ggplot()+
@@ -853,7 +854,7 @@ svc_time_map_AGPE <- ggplot()+
   labs(title = species_names[2], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
-# svc_time_map_AGPE
+svc_time_map_AGPE
 
 
 svc_time_map_ELVI <- ggplot()+
@@ -865,7 +866,7 @@ svc_time_map_ELVI <- ggplot()+
   labs(title = species_names[3], fill = "% change/year", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"), aspect.ratio = 1)
-# svc_time_map_ELVI
+svc_time_map_ELVI
 
 
 
