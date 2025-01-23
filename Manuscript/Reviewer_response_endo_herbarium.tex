@@ -74,8 +74,9 @@
 
 Thank you for the opportunity to submit a revision of our manuscript to \emph{Global Change Biology}. 
 In response to both reviewers, we have added substantial discussion of the ecological implications for hosts of our finding that symbiosis with \emph{Epichloë} fungal endophytes has increased in prevalence across the last two centuries.
-We have also made significant revisions throughout the introduction, methods, results, and discussion to improve the organization and clarity of our ideas in response to Reviewer 2's recommendations.   
-In addition, the utility of our supplemental material has been greatly improved in response to Reviewer 2's recommendations for more clearly captioning supplemental figures and their connections to our main results. 
+Additionally, we have added a completely new simulation analysis evaluating the impact that spatially-biased sampling may have on our analysis, as prompted by Reviewer 1, presented in an expanded Supplemental Methods.
+We have also made significant revisions throughout the manuscript to improve the organization and clarity of our ideas in response to reviewer recommendations.   
+Finally, we have thoroughly revised the Appendix in response to Reviewer 2's recommendations, which has improved the utility of our supplemental materials and connections to our main results. 
 
 All of our changes are denoted in the revised manuscript with \revise{Mahogany font}. 
 We think the review process has greatly strengthened our work such that it is now suitable for publication.
@@ -89,6 +90,8 @@ Joshua Fowler
 Jacob Moutouama
 
 Tom Miller
+
+
 
 \newpage
 
@@ -105,13 +108,24 @@ On the whole, this paper was a pleasure to read and I think it’s in my top two
 \response{We appreciate Reviewer 1's constructive criticisms, here and in their other line-specific comments. We have made our best effort to diligently revise our paper in response to these criticisms, which we feel has been tangibly improved in the process.}
 
  \comment{First, on a relatively minor note, I thought the authors could spend a bit more space on providing information about specific interacting pairs and how much variation there is among different fungal species interacting with the three grass species that were investigated. The authors alluded to it being basically a 1:1 relationship with 1 grass interacting with 1 fungus, but I was hoping for a little bit more info here about how specific these relationships are over time (acknowledging that the vertical transmission of fungus from generation to generation would support this notion). Still, is it possible that different Epichloe species interrupt existing relationships? Or even that a single grass species might interact with more than one Epichloe species at the population level or in different parts of their range? Does vertical transmission maintain prevalence through time, or is there regional turnover in relative prevalence of different species through time?}
-\response{These are insightful questions that we agree deserve careful consideration. We have added additional description of genotypic diversity within the interaction to provide readers with this context in our methods section. In addition, we return to this topic in expanded discussion material (Lines XXX)}
+\response{These are insightful questions that we agree deserve careful consideration. We have added additional description of genotypic diversity within the interaction to provide readers with this context in our methods section. In addition, we return to this topic in expanded discussion material}
 \linesref{ms-R1C3-begin}{ms-R1C3-end}
+\linesref{ms-R2C14-begin}{ms-R2C14-end}
 
 
 
 \comment{The other main thing that stood out to me was that, out of the 9 herbaria sampled from, four are from Texas, 2 are from Oklahoma, and there is 1 each from Louisiana, Missouri, and Kansas. From Fig. 1 and Fig. A1, it appears that samples in these locations are far over-represented compared to other regions (e.g., Great Lakes Region, Southeast, Rust belt). This seems doubly important because the species that was found to have the largest year-to-year change in interaction prevalence (A. perannans) has substantially lower sample sizes and post-1969 compared to pre-1969 in the northern, cooler part of its range (Fig. A1), whereas the Midwest sample area appears approximately the same throughout. Could the relatively high estimated changes be due to bias associated with geographic distribution of herbarium collections used in the study? To answer this, I have three suggestions: (1) Would it be possible/feasible to add a handful of other herbaria to make the sampling more consistent throughout the study region (as described in the paper: eastern US)? Specifically regions in central and southern Appalachia and in the upper Midwest. (2) If not, would it be possible to employ some sort of sensitivity analysis to determine if the described trends are biased in favor of middle-America (i.e., beyond the INLA spatial autocorrelation already employed)? For example, could the authors assess whether bootstrapping the analysis so that there is relatively even sample size across each species’ range for any given model run affects the overall results? (3) If not, I at least recommend adding a caveat somewhere in the methods that collections were included from across eastern US, but were primarily collected from the four states in which herbaria were visited and that this has the potential to bias your results in specific ways (also see line comment on L504-507).}
-\response{}
+\response{The herbarium visits we completed for this analysis do result in fewer specimens from the northeastern portion of each species ranges, and \emph{A. perennans} is the least commonly collected species among our focal hosts. 
+We are unable to perform any additional sampling. 
+However, we feel our methodology is robust. 
+To demonstrate this, and in response to this comment, we have performed a simulation analysis (\emph{Appendix A - Influence of spatially-biased sampling on model interpretation}) that shows the ability of an equivalent model to recover spatially-varying temporal trends within a region with up to $80$\% of data missing. 
+	
+Beyond this, we also are reassured when examining the Bayesian posterior credible interval of key results, such as the estimated temporal trend (Fig. \ref{ms-fig:svc_time_map_CI}), across the  host distributions.
+For example, we find that for \emph{A. perennans}, the width of this credible interval is consistently small (suggesting that estimated trends vary by only $\mp$ 2 percentage points per year) within areas with many samples (the midwest), while within areas with fewer samples (the northeast) this interval is wider but still relative small (trends are estimated to be $\mp$ 3 percentage points per year), suggesting that the trend in this region is highly likely to be in a positive direction. Certainly we expect more thorough sampling to be valueable. 
+We have added consideration of this and other potential biases to our discussion, along with the methods caveat described by this reviewer.}
+\linesref{ms-R1C11-begin}{ms-R1C11-end} methods
+\linesref{ms-R1C4-dicussion-begin}{ms-R1C4-discussion-end} discussion
+\linesref{ms-R1C4-begin}{ms-R1C4-end} Appendix A - Supporting Methods
 
 
 \comment{Lastly, I have included a handful of line comments below with relatively more minor suggestions to potentially improve the manuscript.\\
@@ -125,12 +139,13 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 
 \comment{Paragraph beginning L335 and Fig. 3: I think it would help if the authors provided some context about what initial estimated percent prevalence was in each region. Do we see regions with low prevalence increasing at faster rates through the study period? Or does prevalence increase at a relatively consistent rate regardless of “starting” conditions? Maybe adding another figure or another set of panels in Fig 3 with linear correlations between starting prevalence and per year change in prevalence could be helpful?
 }
-\response{These are an interesting questions. We have added supplemental figures which present the marginal spatial intercepts, along with predicted prevalence across space in 1895 and in 2020. As suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence. To keep the main text focused on temporal change in prevalence, we placed these figures in the supplemental material, but have added text describing this result.}
-\linesref{arg1}{arg2}
+\response{We agree that these are interesting questions. We have added additional figures which present the predicted prevalence across host distributions in 1895 and in 2020 (Figure 4). % I haven't taken the time to figure out how to get ref to work correctly here. 
+They show clear range expansion by the symbiosis towards the western range edge of \emph{A. hyemalis} and towards the northern range edge of \emph{A. perennans}. As suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence, which shows that for these species the largest increases do occur at locations with low starting prevalence. To keep the main text focused on temporal change in prevalence, we placed a figure showing this result in the supplemental material (Figure ), but have added text describing this to our results.}
+\linesref{ms-R1C7-begin}{ms-R1C7-end}
 
 
 \comment{Fig. 4: Text size very difficult to read currently.}
-\response{}
+\response{We have re-drawn this figure to improve readability. (Now Figure 5)}
 
 
 \comment{L455-457: Minor suggestion, but authors might consider adding the challenges of space/storage constraints to this list of limitations in herbarium specimen replication.}
@@ -139,20 +154,25 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 
 \comment{L480-481: This statement is false in that there is at least one previous study that attempted to do this with plant-mycorrhizal symbioses (Heberling \& Burke, 2019), a paper that the authors even cite a few sentences later. I recommend they dial this claim back.}
 \response{We appreciate Reviewer 1 bringing this to our attention. We would argue that our phrasing is not inaccurate because we have successfully linked changes in symbioses to climate change drivers, whereas previous research including Heberling \& Burke 2019 focus on validating methods for quantifying microbial community composition within historic specimens, but do not connect this to global change drivers. Heberling \& Burke 2019 state, "Our results demonstrate that herbarium specimens have the potential to be utilized to effectively reconstruct historical AMF communities. However, given the scope of the current study, future work is needed to address specific global change hypotheses." However, we do recognize that there is a quickly growing body of research on microbial symbioses within herbarium specimens, especially those using sequencing and bioinformatics techniques. In response to this comment, we have rephrased this statement to clarify that we see novelty particularly in connecting microbial symbiosis to climate change drivers, and to temper our assertion of novelty.}
-\linesref{ms-R1C7-begin}{ms-R1C7-end}
+\linesref{ms-R1C10-begin}{ms-R1C10-end}
 
 
 \comment{L504-507: See note above about concerns related to herbarium selection bias (i.e., only sampled from herbaria in southwest portion of organismal ranges). The biases listed by the authors here are correct, but I would also like to see them acknowledge how their own analysis contains certain biases that were not necessarily captured by the model and sampling structure they employed.}
-\response{}
+\response{In response to this comment and Comment 4, we have added context to our methods describing the uneven sampling of specimens across states, as well as material to our discussion that expands on the potential influence of these spatial biases in interpreting our results.}
+\linesref{ms-R1C11-begin}{ms-R1C11-end}
+
 
 
 
 \comment{Discussion in general: The authors focused the discussion largely on the statistical analysis (which is definitely a huge strength of this paper and holds a lot of novelty in and of itself). However, I also found myself wanting the authors to return to some of the points they introduced earlier in the paper about what this symbiosis means for plant (or even fungal) performance/fitness and then tell me what their findings reflect about how climate change will affect these symbiotes in the future. Not just about the prevalence of the relationship (which they cover thoroughly), but about what this might mean for grass performance at the population or even community scales under ongoing climate change.}
-\response{}
+\response{Thank you for pushing us to connect our work more directly to the biology of our system. This was a comment echoed by Reviewer 2 (Comment 14). We had added substantial material our discussion that presents the key implications for population and range dynamics under climate change.}
+\linesref{ms-R2C14-begin}{ms-R2C14-end}
 
 
 
-\section{Response to Reviewers 2}
+
+
+\section{Response to Reviewer 2}
 \vspace{-2em}
 
 \comment{In this study, Fowler, Moutouama \& Miller used herbarium data to explore the prevalence of Epichloe symbiosis across three plants over two centuries. The authors used spatial and joint-likelihood modelling framework to found out that the prevalence of the symbiosis increase consistently across the three plants across time. Moreover, they precipitation regimes as a key driver explaining the increased prevalence of this symbiosis.While I highly appreciate the quality of the dataset and the methods used, several major and minor concerns need to be addressed before publication. I remain particularly perplex about the structure of the manuscript as a whole. I found that the manuscript was hard to follow at times and that the structure of the sections could be significantly improved. I recommend a substantial revision of the manuscript, with better organization of the discussion (e.g., adding subheadings) to enhance clarity and readability.}
@@ -161,7 +181,7 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 
 \comment{While the research questions were clearly stated and clearly tested and answered by their results (clear and well structured), the hypothesis as well as the importance of the findings remains, in my opinion, “unbaked” at some points. Although the authors legitimately emphasized the importance and robustness of their data and methods throughout the manuscript, by contextualizing their results using recent literature and proposed some future research directions, the broader impact of this study on the field remains insufficiently addressed. A more in-depth discussion about the potential causes (ecological) of the results, and their implications for the ecology of the host plants or plants-endophytes interactions would be highly beneficial.}
 \response{We appreciate Reviewer 2's positive evaluation of our work in regards to its success in answering our central research questions. Their review has helped us to thoroughly revise the structure of our work and improve organization. In addition, their desire to see more in-depth discussion of the ecological implications of our findings was echoed by Reviewer 1, and we have added new discussion material addressing this topic, detailed in response to specific comments.}
-\linesref{arg1}{arg2} TO BE DONE
+\linesref{ms-R2C14-begin}{ms-R2C14-end}
 
 
 \comment{In the abstract, I recommend briefly mentioning the statistical analyses or framework used (e.g., INLA) before presenting the results to enhance readability.}
@@ -173,133 +193,164 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 
 
 
-\comment{Discussion: he Discussion is the most difficult section to follow. Similarly, to the Introduction, I back-and-forth between paragraphs/arguments. I believe that the use of sub-headings (in your rewriting before to remove them) would greatly improve clarity by following the same order as your research questions. For example, you could begin by discussing about the spatial/temporal patterns in prevalence, followed by the relationships with climatic drivers before to conclude with the technical/ecological novelty of your findings.}
-\response{}
+\comment{Discussion: The Discussion is the most difficult section to follow. Similarly, to the Introduction, I back-and-forth between paragraphs/arguments. I believe that the use of sub-headings (in your rewriting before to remove them) would greatly improve clarity by following the same order as your research questions. For example, you could begin by discussing about the spatial/temporal patterns in prevalence, followed by the relationships with climatic drivers before to conclude with the technical/ecological novelty of your findings.}
+\response{In response to this comment, we have added sub-headings to our Discussion and revised our discussion section for clarity and flow between ideas. Many of these changes are detailed in response to further comments from Reviewer 2}
 
 \comment{Supplementary figures: Fig.A3; A4; A5; A6;A7;A8;A9;A10; A11;Table A1. The captions for these figures do not provide enough information to understand their meaning, making the supplementary figures unexploitable as such. To assist readers (who would otherwise need to juggle between the supplementary figures and the main text), please ensure that each figure’s caption includes: the specific model or analysis from which it was produced; the data used (e.g., whether it is based on all host plants or a particular plant, which period of data used, etc.); and defining terms or acronyms of these figures (examples: A and T from figure A6; $\tau$ from A7; conservative vs liberal A8; AGHY vs ELVI A11…..).}
-\response{}
+\response{We appreciate Reviewer 2's attention to our supplemental material. We have revised through all of the figure captions in the supplement to provide this information. These edits are also detailed in our responses to specific comments further down.}
 
 
 \comment{L54: Which physical legacies or ecological processes? Provide example.}
-\response{}
+\response{In response to this comment, we have added additional information about the examples of ecological processes studied previously using herbarium specimens.}
+\linesref{ms-R2C19-begin}{ms-R2C19-end}
 
 
 
 \comment{L64-L74: Please remove example of symbiosis from other systems and focus on your targeted endophytic symbiosis. (Remove corals, insects or lichens.)}
-\response{}
+\response{We strongly feel that these other symbioses provide relevant examples of the potential responses of symbioses to global change. Our central point is that this response is known in a few key symbiota, but not in the endophytic symbiosis that is our focus, and that studies across numerous taxa are valueable to understand \emph{why} the response tips from resilience to disruption of the interaction. These examples motivate our hypotheses and so we have opted to keep them in the text.}
 
 \comment{-L104: In which sense? How this hypothesis would be reflected in your results? Would you expect a distribution shifts? Please specify.}
-\response{}
+\response{We have edited this sentence to include a specific prediction for how this hypothesis would relate to our study system. We additionally have added additional specific predictions two paragraphs further down, where we present our study's questions.}
+\linesref{ms-R2C21-begin}{ms-R2C21-end}
 
 
 \comment{-L131-134: Super nice data!}
-\response{}
+\response{We thank this Reviewer 2 for acknowledging the value of our dataset which represents significant time and effort.}
 
 \comment{-L140: Maybe trivia, so please feel free to ignore if I am wrong, but maybe specify that C3 refers to a metabolic type of plant?}
 \response{Thank you for this suggestion. We have added additional context about C3 photosynthesis.}
 \linesref{ms-R2C23-begin}{ms-R2C23-end}
 
 \comment{-L167-168: What is the spatial resolution of the different units? What could be the distance between counties or between state centroids. And how big or small county can be?}
-\response{}
+\response{In response to this comment, we have added information about the relative size of the bounding boxes generated during the geocoding process and the pairwise distance between points. Because we included coordinates georeferenced to local municipalities, counties, and in a few instances, states, the width of this bounding box varied from less than 1 km. to over 1233 km (median 841 km.).}
+\linesref{ms-R2C24-begin}{ms-R2C24-end}
 
 \comment{-L176: “Partial” would be more adapted than “imperfect”.}
-\response{}
+\response{"Imperfect" transmission is a commonly use term within the study of symbiosis therefore we have opted to retain its use. We have however also added a definition of the term "imperfect transmission" at the point it is first used.}
+\linesref{ms-R2C25-begin}{ms-R2C25-end}
 
 
 \comment{-L180-187: I found that the use of conservative and liberal very confusing. And I am not sure I understood properly what they are. Moreover, I you do not mention these type of status in the results nor discussion. Please reformulate and clarify in the main text and maybe it can be used in the discussion?}
-\response{}
+\response{We are sorry that this terminology has caused confusion. In response to this feedback, we have edited for to provide additional explanation. The central point is that we mark two statuses to evaluate uncertainty in the process of assigning an endophyte identification under the microscope for each specimen. In cases with clear identifications, the two scores are the same. When there is uncertainty in identification, we err on the side of assigning positive for one score and err on the side of assigning negative for the other. We present a comparison of results based on this scoring choice in our supplement, which showed minimal difference, and therfore we only present the results of the "liberal" score for the rest of the central results.}
+\linesref{ms-R2C26-begin}{ms-R2C26-end}
 
 
 
 \comment{-L190: Spatial resolution of the aggregation?}
-\response{}
+\response{Our global slope estimates a trend averaging across the entire study region. We have changed this to "averaged" instead of "aggregated". We have added additional information elsewhere about the spatial resolution of our analysis in response to Reviewer 2's subsequent comments.}
+\linesref{ms-R2C27-begin}{ms-R2C27-end}
 
 \comment{-L215: “borrow information” is more appropriate than “borrow strength”.}
-\response{}
+\response{Thank you for pointing this out. We have made this change.}
+\linesref{ms-R2C28-begin}{ms-R2C28-end}
 
 \comment{-L229: Why 5? Is there a reference?}
-\response{}
+\response{We have added a reference supporting the use of penalized complexity priors, and revised terminology to more closely reflect the parameter values used to implement the model in inlabru.}
+\linesref{ms-R2C29-begin}{ms-R2C29-end}
 
 \comment{-L241-L258: Why this paragraph appears here? I understand that this is for the spatial distribution of the endophytes (within a host) but should it be in the first paragraph? Should it be treated right after the prevalence, and before to mention the spatial models? I feel like this paragraph is coming out of the blue and is making the full material and methods confusing.}
-\response{}
+\response{We appreciate the push to improve the organization of our manuscript so that it can be readily understood. In this case, we see the current placement of the section "Modeling distributions of host species" as appropriate because the preceeding section describes models of endophyte prevalence that do not rely on these models of host species. The predictions from models of host species are used principally for generating pixels with which we test the relationship between climate drivers and trends in endophyte prevalence and for visualizing relationships across study region. However, in response to this comment, we have added additional context describing this role that the host distribution models play.}
+\linesref{ms-R2C30-begin}{ms-R2C30-end}
 
 \comment{-L281: “which” instead of “whether”?}
-\response{}
+\response{This change would alter the meaning of the question posed in this sentence, which we feel is unnecessary. We have opted to keep "whether".}
+
 
 \comment{-L285-288: Spatial resolution?}
-\response{}
+\response{We now provide the spatial resolution of the pixels generated. We have also added added explanation that the choice of pixel number/size is arbitrary, relevant to Reviewer 2 Comment 37.}
+\linesref{ms-R2C32-begin}{ms-R2C32-end}
 
 \comment{-L316: “Confidence” instead of “certainty”}
-\response{}
+\response{We have made this change. Thank you.}
+\linesref{ms-R2C33-begin}{ms-R2C33-end}
 
 \comment{-Figure 2: Very nice figure.}
-\response{}
+\response{We thank reviewer 2 for this supportive comment.}
 
 \comment{-L323: “We found no evidence that collector biaises influenced our results” contradictory to L325 “The identity of individual scorers did contribute to observed patterns in endophyte prevalence.” I am confused. They are quite contradictory no?}
-\response{lines \ref{}}
+\response{Reviewer 2 confuses 'collector', those researchers who collected herbarium specimens, and who we term 'scorer', those members of our lab who performed the microscope work to identify \emph{Epichloë} fungal endophytes. Aside from this confusion, there is no contradiction in our results; we found that collector identify did not influence model predictions, while scorer identity did influence model predictions, as evidenced in Figs. A9-A10. In response to this comment, we have more clearly defined 'scorer' in our manuscript.}
+\linesref{ms-R2C35-begin}{ms-R2C35-end}
+\linesref{ms-R2C35-b-begin}{ms-R2C35-b-end}
+
 
 \comment{L328-333: This section should be in discussion rather than in results no?.}
-\response{lines \ref{}}
+\response{We have moved this interpration of the impact of scorer and collector random effects into our discussion section.}
+\linesref{ms-R2C36-begin}{ms-R2C36-end}
+
 
 \comment{-Figure 4: The model that have been used to produce these relationships should be mentioned in the caption. Moreover, in the caption, “points of 250 randomly sampled pixels across each host distribution”. First: Why not taking more points/all points? And what are the spatial resolution of these pixels?}
-\response{lines \ref{}}
+\response{ Our model uses a continuous spatial process to model variation across space in the estimated trends in endophyte prevalence. This permits us to generate predictions from the model at any location across the study region at high resolution, however doing so does require longer computation time. Models fit to the full set of pixels for each species show climate regressions in a similar direction as shown here and have narrower credible intervals. We could, for example, generate many thousands of points across each distribution, but this would make the credible intervals largely meaningless. We have added material describing why the choice of pixel dimensions is arbitrary as described in response to Reviewer 2 Comment 32. We also note in our results section that these relationship do not differ when using all points (Line \ref{ms-R2C37-begin}). In addition, we have edited the figure caption to include information about the origin of model (Now Figure 5).}
+\linesref{ms-R2C37-begin}{ms-R2C37-end}
+\linesref{ms-R2C32-begin}{ms-R2C32-end}
 
 \comment{- L382-386: This should be in discussion rather than in results.}
-\response{lines \ref{}}
+\response{In response to this comment, we have edited the sentence referenced in this comment to remove interpretation and focus solely on results. We feel the sentence referenced in this comment is appropriately placed in that it presents the magnitude of the climate relationship for \emph{E. virginicus}, similarly to each of the other two host species.}
+\linesref{ms-R2C38-begin}{ms-R2C38-end}
 
 \comment{L387-398: I feel like this part is coming quite late in the results. You have already been presented the results of the models, and relationships, I would suggests to move this earlier in the results section. Starting from model performance before to show results produced from this model.}
-\response{lines \ref{}}
+\response{We disagree that this change would improve the organisation of our manuscript. As currently organized, the introduction presents question that explore 1) trends in Epichloë prevalence, 2) the climate drivers of these trends, and 3) evaluating models to improve global change forecasts. Following this and other comments from Reviewer 2, we have edited to ensure that this organization of topics is repeated in the presentation of methods, in results, and in discussion, and added subheadings to better organize our manuscript.}
 
 \comment{-L400: cryptic? This is a little bit vague, rephrase or change the word?}
-\response{lines \ref{}}
+\response{We have rephrased this for clarity.}
+\linesref{ms-R2C40-begin}{ms-R2C40-end}
 
 \comment{- L402: I would replace “fungal endophytes” by Epichloe syombiosis.}
-\response{lines \ref{}}
+\response{We have made this change.}
+\linesref{ms-R2C41-begin}{ms-R2C41-end}
 
 \comment{- L424: More than the lagged effects (which I think is a good point), it would be interested to discuss the potential effect of Epichloe on the host distribution? I would have liked that you linked your conservative/liberal status of symbiosis on this point and what you would expect in term of potential role for the host plant?}
-\response{lines \ref{}}
+\response{In response to this comment, we have added significant discussion on the potential impacts of \emph{Epichloë} on the host distribution as part of our revised discussion. Our intention with the conservative/liberal scores is to capture uncertainty in the endophyte identification process, which we have clarified in our response to Reviewer 2 Comment 26. Because we found that the central results using either conservative or liberal scores do not differ qualitatively from each other, we do not expect a different interpretation related to host-symbiont range limits, and we feel bringing it up at this point would distract from the principally ecologically-focused section of the discussion.}
+\linesref{ms-R2C42-begin}{ms-R2C42-end}
+
+
 
 \comment{L453-455: This part is hard to follow, please rephrase?}
-\response{lines \ref{}}
+\response{We have edited these sentences for clarity.}
+\linesref{ms-R2C43-begin}{ms-R2C43-end}
 
 \comment{L474: This is a good point that should maybe put in relation with other global changes such as land use changes. This would be nice to emphasize that probably land uses change impacted a lot/or not the natural populations of the three host species and emphasize that could also have impacted the ecological dynamics of your symbiosis at larger scale?}
-\response{lines \ref{}}
+\response{We thank Reviewer 2 for this interesting observation. We have in fact been working on a separate paper that analyzes the influence of land use changes and other anthropogenic disturbances on endophyte symbiosis. In response to this comment, we have added additional material to our discussion that proposes the potential potential for these other global change drivers to impact the dynamics of the symbiosis.}
+\linesref{ms-R2C44-begin}{ms-R2C44-end}
 
 \comment{L498: This is a good point as well. Moreover, the uses of eDNA metabarcoding or other sequencing methods to characterise the identity of your Epichloe composition would be very interesting to disscuss at this point. Would you expect a turnover of species (from Epichloe genera), that could impact the performance and potentially something about the dynamics of the plant-symbiotic dynamic?}
-\response{lines \ref{}}
-
+\response{In response to this comment, we have expanded our discussion of the potential influence that host-symbiont genotype may have on our focal species' range dynamics in our re-organized discussion.}
+\linesref{ms-R2C45-begin}{ms-R2C45-end}
 
 
 \comment{L501: “Second”, I did not see the “First”.}
-\response{lines \ref{}}
+\response{We have fixed this.}
+\linesref{ms-R2C46-begin}{ms-R2C46-end}
+
 
 
 \comment{Supplementary figures:-Page 1; I don’t know if its journal guidelines, but, should there be a title page, with authors information, affiliations and a title being Appendix to “Increasing prevalence of plant-fungal symbiosis across two centuries of environmental change” ?}
-\response{lines \ref{}}
+\response{We do not believe this is a journal requirement, however in response to this comment, we have added the requested information at the start of our supplementary material to connect clearly its content to our manuscript.}
+\linesref{ms-R2C47-begin}{ms-R2C47-end}
 
 \comment{Fig.A3: Which data were used to produce the simulated datasets? Which model is this from?}
-\response{lines \ref{}}
+\response{The "simulated data" here is generated as a posterior predictive test of our model. We predicted new values of endophyte occurence for each row in our observed dataset from model fitted to herbarium data. We have edited this for clarity, instead referring to "predicted" vs "observed" data in the figure caption (Figure A3), and have added a relevant citation within our methods.}
+\linesref{ms-R2C48-begin}{ms-R2C48-end}
 
 \comment{A4 and A5: Which model, which data? (All plants, all years)?}
-\response{lines \ref{}}
+\response{We have added description of the model and data for these supplemental figures (A4 and A5).}
 
 \comment{A6; From which models this is from? How probabilities are calculated? What is A and T?}
-\response{lines \ref{}}
+\response{We have added description of the model that generates these parameter estimates in Fig. A6. We have also provided additional explanation of the parameters A and T, which come from Eqn. 1 describing the endophyte prevalence model.}
 
 \comment{A7; From which models; what is the legend for the value means, what is $\tau$?}
-\response{lines \ref{}}
+\response{We have added description of the model that generates these parameter estimates in Fig. A7. We have also provided additional explanation of the parameter  $\tau$, which come from Eqn. 1 describing the endophyte prevalence model.}
 
 \comment{A8;redefine what is liberal vs conservative; what AGPE, AGHY and ELVI means if the Panel B-C-F is from which model. What are the value? (This is an average per year, across 200 years?)}
-\response{lines \ref{}}
+\response{In response to this comment, we have redefined liberal vs. conservative scores in the figure caption of Fig. A8, along with adding information that describes the model from which these parameter estimes comes from. We have re-plotted the figure with species names in place of the four letter codes noted by Reviewer 2}
 
 \comment{A9;A10; Specify models}
-\response{lines \ref{}}
+\response{We have added description of the models from which these parameter estimates come for Figures A9-A10.}
 
 \comment{A11; Legend need specifications, the data need to be specified as well.}
-\response{lines \ref{}}
+\response{For this figure (now Figure A12), we have re-plotted the figure with species names in place of the four letter codes noted by Reviewer 2. We have additionally edited the figure caption to more clearly describe the different sources of data. )}
 
 \comment{Table A1. Which models, what are the columns names? It is for the full temporal I guess? Need to be specified.}
-\response{lines \ref{}}
+\response{Table A1 presents counts of our data across the different herbaria included in this study and does not refer to models. We have edited the caption of Table A1 for clarity and replaced four letter codes with species names. Based on other comments from Reviewer 2, we have also revised the captions for supplemental figures A16-A18 to similarly clarify the origin of the plotted model estimates.}
 
 % ======================================================= %
 \end{document}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  31 DEC 2024 15:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  23 JAN 2025 15:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -410,8 +410,14 @@ Version 1.0, Aug 13, 1994
 Package: xr 1994/05/28 v5.02 eXternal References (DPC)
 )
 Package xr Info: IMPORTING LABELS FROM endo_herbarium_R1.aux on input line 32.
-\c@cN=\count113
 
+
+LaTeX Warning: Label `ms-R2C38-begin' multiply defined.
+
+
+LaTeX Warning: Label `ms-R2C38-end' multiply defined.
+
+\c@cN=\count113
 (/usr/local/texlive/2018/texmf-dist/tex/generic/ulem/ulem.sty
 \UL@box=\box37
 \UL@hyphenbox=\box38
@@ -521,122 +527,40 @@ LaTeX Warning: No \author given.
 [1
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-[2] [3]
-
-LaTeX Warning: Reference `arg1' on page 4 undefined on input line 129.
-
-
-LaTeX Warning: Reference `arg2' on page 4 undefined on input line 129.
-
-[4] [5]
-
-LaTeX Warning: Reference `arg1' on page 6 undefined on input line 164.
-
-
-LaTeX Warning: Reference `arg2' on page 6 undefined on input line 164.
-
-[6]
+[2]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 179.
+(Font)              <12> on input line 125.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 179.
+(Font)              <8> on input line 125.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 179.
- [7] [8]
-Overfull \hbox (7.1551pt too wide) in paragraph at lines 217--219
+(Font)              <6> on input line 125.
+ [3] [4] [5] [6] [7] [8] [9] [10]
+Overfull \hbox (7.1551pt too wide) in paragraph at lines 243--246
 []|   []   |   []\OT1/cmr/bx/n/12 : []\OT1/cmr/m/it/12 ``-L215: \bor-row in-for
 -ma-tion" is more ap-pro-pri-ate than \bor-row strength".''
  []
 
-[9]
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 239.
-
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 242.
-
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 245.
-
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 248.
-
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 251.
-
-
-LaTeX Warning: Reference `' on page 10 undefined on input line 254.
-
-[10]
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 257.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 260.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 263.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 266.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 269.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 274.
-
-
-LaTeX Warning: Reference `' on page 11 undefined on input line 278.
-
-[11]
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 281.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 284.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 287.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 290.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 293.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 296.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 299.
-
-
-LaTeX Warning: Reference `' on page 12 undefined on input line 302.
-
-[12] (./Reviewer_response_endo_herbarium.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+[11] [12] [13] [14] [15] [16] [17] (./Reviewer_response_endo_herbarium.aux) ) 
 Here is how much of TeX's memory you used:
- 12553 strings out of 492649
- 252405 string characters out of 6129622
- 302392 words of memory out of 5000000
- 16182 multiletter control sequences out of 15000+600000
+ 12620 strings out of 492649
+ 253555 string characters out of 6129622
+ 302530 words of memory out of 5000000
+ 16249 multiletter control sequences out of 15000+600000
  8954 words of font info for 32 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,6n,56p,1942b,193s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
-></usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb>
-</usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></
-usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></us
-r/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on Reviewer_response_endo_herbarium.pdf (12 pages, 100521 bytes)
+</
+usr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></u
+sr/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></us
+r/local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/
+local/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/lo
+cal/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loc
+al/texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on Reviewer_response_endo_herbarium.pdf (17 pages, 122874 bytes)
 .
 PDF statistics:
- 66 PDF objects out of 1000 (max. 8388607)
- 46 compressed objects within 1 object stream
+ 86 PDF objects out of 1000 (max. 8388607)
+ 60 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
