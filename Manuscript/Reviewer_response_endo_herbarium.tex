@@ -54,7 +54,7 @@
 		\\[0.25em]
 	\hangindent=2.3em {\color{Mahogany} Line(s): \ref{#1} - \ref{#2}}
 }
-
+\newcommand{\jacob}[2]{{\color{blue}{#1}}\footnote{\textit{\color{blue}{#2}}}}
 %\IfValueT{#2}{- \ref{#2}}
 
 \usepackage[normalem]{ulem}
@@ -120,7 +120,7 @@ We are unable to perform any additional sampling.
 However, we feel our methodology is robust. 
 To demonstrate this, and in response to this comment, we have performed a simulation analysis (\emph{Appendix A - Influence of spatially-biased sampling on model interpretation}) that shows the ability of an equivalent model to recover spatially-varying temporal trends within a region with up to $80$\% of data missing. 
 	
-Beyond this, we also are reassured when examining the Bayesian posterior credible interval of key results, such as the estimated temporal trend (Fig. \ref{ms-fig:svc_time_map_CI}), across the  host distributions.
+Beyond this, we also are reassured when examining the Bayesian posterior credible interval of key results, such as the estimated temporal trend \jacob{(Fig. \ref{ms-fig:svc_time_map_CI}), across the  host distributions.}{For some reason, the PDF is displaying the plot caption, which makes the sentence awkward.}
 For example, we find that for \emph{A. perennans}, the width of this credible interval is consistently small (suggesting that estimated trends vary by only $\mp$ 2 percentage points per year) within areas with many samples (the midwest), while within areas with fewer samples (the northeast) this interval is wider but still relative small (trends are estimated to be $\mp$ 3 percentage points per year), suggesting that the trend in this region is highly likely to be in a positive direction. Certainly we expect more thorough sampling to be valueable. 
 We have added consideration of this and other potential biases to our discussion, along with the methods caveat described by this reviewer.}
 \linesref{ms-R1C11-begin}{ms-R1C11-end} methods
@@ -140,7 +140,7 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 \comment{Paragraph beginning L335 and Fig. 3: I think it would help if the authors provided some context about what initial estimated percent prevalence was in each region. Do we see regions with low prevalence increasing at faster rates through the study period? Or does prevalence increase at a relatively consistent rate regardless of “starting” conditions? Maybe adding another figure or another set of panels in Fig 3 with linear correlations between starting prevalence and per year change in prevalence could be helpful?
 }
 \response{We agree that these are interesting questions. We have added additional figures which present the predicted prevalence across host distributions in 1895 and in 2020 (Figure 4). % I haven't taken the time to figure out how to get ref to work correctly here. 
-They show clear range expansion by the symbiosis towards the western range edge of \emph{A. hyemalis} and towards the northern range edge of \emph{A. perennans}. As suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence, which shows that for these species the largest increases do occur at locations with low starting prevalence. To keep the main text focused on temporal change in prevalence, we placed a figure showing this result in the supplemental material (Figure ), but have added text describing this to our results.}
+They show clear range expansion by the symbiosis towards the western range edge of \emph{A. hyemalis} and towards the northern range edge of \emph{A. perennans}. As suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence, which shows that for these species, the largest increases do occur at locations with low starting prevalence. To keep the main text focused on temporal change in prevalence, we placed a figure showing this result in the supplemental material \jacob{(Figure)}{You forgot to include the figure number. I believe it should be Figure A11.}, but have added text describing this to our results.}
 \linesref{ms-R1C7-begin}{ms-R1C7-end}
 
 
@@ -153,7 +153,7 @@ They show clear range expansion by the symbiosis towards the western range edge 
 \linesref{ms-R1C9-begin}{ms-R1C9-end}
 
 \comment{L480-481: This statement is false in that there is at least one previous study that attempted to do this with plant-mycorrhizal symbioses (Heberling \& Burke, 2019), a paper that the authors even cite a few sentences later. I recommend they dial this claim back.}
-\response{We appreciate Reviewer 1 bringing this to our attention. We would argue that our phrasing is not inaccurate because we have successfully linked changes in symbioses to climate change drivers, whereas previous research including Heberling \& Burke 2019 focus on validating methods for quantifying microbial community composition within historic specimens, but do not connect this to global change drivers. Heberling \& Burke 2019 state, "Our results demonstrate that herbarium specimens have the potential to be utilized to effectively reconstruct historical AMF communities. However, given the scope of the current study, future work is needed to address specific global change hypotheses." However, we do recognize that there is a quickly growing body of research on microbial symbioses within herbarium specimens, especially those using sequencing and bioinformatics techniques. In response to this comment, we have rephrased this statement to clarify that we see novelty particularly in connecting microbial symbiosis to climate change drivers, and to temper our assertion of novelty.}
+\response{\jacob{We appreciate Reviewer 1 bringing this to our attention. We would argue that our phrasing is not inaccurate because we have successfully linked changes in symbioses to climate change drivers, whereas previous research including Heberling \& Burke 2019 focus on validating methods for quantifying microbial community composition within historic specimens, but do not connect this to global change drivers. Heberling \& Burke 2019 state, "Our results demonstrate that herbarium specimens have the potential to be utilized to effectively reconstruct historical AMF communities. However, given the scope of the current study, future work is needed to address specific global change hypotheses." However, we do recognize that there is a quickly growing body of research on microbial symbioses within herbarium specimens, especially those using sequencing and bioinformatics techniques. In response to this comment, we have rephrased this statement to clarify that we see novelty particularly in connecting microbial symbiosis to climate change drivers, and to temper our assertion of novelty.}{I like your response}}
 \linesref{ms-R1C10-begin}{ms-R1C10-end}
 
 
@@ -185,11 +185,11 @@ They show clear range expansion by the symbiosis towards the western range edge 
 
 
 \comment{In the abstract, I recommend briefly mentioning the statistical analyses or framework used (e.g., INLA) before presenting the results to enhance readability.}
-\response{We have revised the abstract to include information about the statistical analysis.}
+\response{\jacob{We have revised the abstract to include information about the statistical analysis.}{Please see my comment in the abstract}}
 \linesref{ms-R2-C15-begin}{ms-R2-C15-end}
 
 \comment{Introduction: While, there is nothing scientifically wrong, I believe that the Introduction can be significantly shortened by going straight to the point. I suggest removing un-necessary examples (i.e, corals or insects’ symbioses), and reorganizing the content for clarity. I found some back-and-forth between discussions on methodological issues (i.,e L49-L60 ; L112-L118)) and the ecological importance of endophytes for host plants (L40-43; L75-82; and vice-versa). I would recommend to group the paragraphs presenting the research gaps of the ecological importance of endophytes, particularly in the context of climate change together and addressing the methodological novelty of this study in a separate, cohesive paragraph.}
-\response{}
+\response{\jacob{}{You forgot to answer this comment. I think we should push back. Here is my proposition: "We appreciate the suggestion to shorten the  Introduction and improve its clarity. While we understand the value of streamlining the content, we believe that the examples provided, including those related to coral and insect symbioses, serve to contextualize the study within broader ecological frameworks and may help engage readers who are less familiar with the topic."}}
 
 
 
@@ -231,7 +231,7 @@ They show clear range expansion by the symbiosis towards the western range edge 
 
 
 \comment{-L180-187: I found that the use of conservative and liberal very confusing. And I am not sure I understood properly what they are. Moreover, I you do not mention these type of status in the results nor discussion. Please reformulate and clarify in the main text and maybe it can be used in the discussion?}
-\response{We are sorry that this terminology has caused confusion. In response to this feedback, we have edited for to provide additional explanation. The central point is that we mark two statuses to evaluate uncertainty in the process of assigning an endophyte identification under the microscope for each specimen. In cases with clear identifications, the two scores are the same. When there is uncertainty in identification, we err on the side of assigning positive for one score and err on the side of assigning negative for the other. We present a comparison of results based on this scoring choice in our supplement, which showed minimal difference, and therfore we only present the results of the "liberal" score for the rest of the central results.}
+\response{We are sorry that this terminology has caused confusion. In response to this feedback, we have edited for to provide additional explanation. The central point is that we mark two statuses to evaluate uncertainty in the process of assigning an endophyte identification under the microscope for each specimen. In cases with clear identifications, the two scores are the same. When there is uncertainty in identification, we \jacob{err}{I don't understand. Typo ?} on the side of assigning positive for one score and \jacob{err}{Same here } on the side of assigning negative for the other. We present a comparison of results based on this scoring choice in our supplement, which showed minimal difference, and therfore we only present the results of the "liberal" score for the rest of the central results.}
 \linesref{ms-R2C26-begin}{ms-R2C26-end}
 
 
