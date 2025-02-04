@@ -56,6 +56,8 @@
 }
 \newcommand{\jacob}[2]{{\color{blue}{#1}}\footnote{\textit{\color{blue}{#2}}}}
 %\IfValueT{#2}{- \ref{#2}}
+\newcommand{\tom}[2]{{\color{red}{#1}}\footnote{\textit{\color{red}{#2}}}}
+%\IfValueT{#2}{- \ref{#2}}
 
 \usepackage[normalem]{ulem}
 \definecolor{darkred}{rgb}{1,.6,.6}
@@ -73,8 +75,8 @@
 
 
 Thank you for the opportunity to submit a revision of our manuscript to \emph{Global Change Biology}. 
-In response to both reviewers, we have added substantial discussion of the ecological implications for hosts of our finding that symbiosis with \emph{Epichloë} fungal endophytes has increased in prevalence across the last two centuries.
-Additionally, we have added a completely new simulation analysis evaluating the impact that spatially-biased sampling may have on our analysis, as prompted by Reviewer 1, presented in an expanded Supplemental Methods.
+In response to both reviewers, we have added substantial discussion of the ecological implications of our finding that symbiosis with \emph{Epichloë} fungal endophytes has increased in prevalence across the last two centuries.
+Additionally, we have added a new simulation analysis evaluating the impact that spatially-biased sampling may have on our analysis, as prompted by Reviewer 1, which is now presented in an expanded Supplemental Methods.
 We have also made significant revisions throughout the manuscript to improve the organization and clarity of our ideas in response to reviewer recommendations.   
 Finally, we have thoroughly revised the Appendix in response to Reviewer 2's recommendations, which has improved the utility of our supplemental materials and connections to our main results. 
 
@@ -105,33 +107,35 @@ On the whole, this paper was a pleasure to read and I think it’s in my top two
 
 
 \comment{I did have a few key criticisms of the paper or at least points that I think the authors would do well to consider.}
-\response{We appreciate Reviewer 1's constructive criticisms, here and in their other line-specific comments. We have made our best effort to diligently revise our paper in response to these criticisms, which we feel has been tangibly improved in the process.}
+\response{We appreciate Reviewer 1's constructive criticisms, here and in their other line-specific comments. We have made our best effort to diligently revise our paper in response to these criticisms, which we feel has been improved in the process.}
 
  \comment{First, on a relatively minor note, I thought the authors could spend a bit more space on providing information about specific interacting pairs and how much variation there is among different fungal species interacting with the three grass species that were investigated. The authors alluded to it being basically a 1:1 relationship with 1 grass interacting with 1 fungus, but I was hoping for a little bit more info here about how specific these relationships are over time (acknowledging that the vertical transmission of fungus from generation to generation would support this notion). Still, is it possible that different Epichloe species interrupt existing relationships? Or even that a single grass species might interact with more than one Epichloe species at the population level or in different parts of their range? Does vertical transmission maintain prevalence through time, or is there regional turnover in relative prevalence of different species through time?}
-\response{These are insightful questions that we agree deserve careful consideration. We have added additional description of genotypic diversity within the interaction to provide readers with this context in our methods section. In addition, we return to this topic in expanded discussion material}
+\response{These are great questions that we agree deserve careful consideration. Indeed, there can be genetic variation of symbionts within and across host populations, which we now describe in more detail to provide readers with this context in our methods section. In addition, we return to this topic in expanded discussion material, \tom{where we...}{In general I would be more thorough in your responses so that you actually answer or address the reviewers' questions here in the letter, in addition to the line numbers for the revised text. In this example I would acknowledge here that we can track overall prevalence but not genetic variation or change, and this could be an interesting future direction. Anything that could be seen as a weakness, flip it and make it a direction for future research.}
 \linesref{ms-R1C3-begin}{ms-R1C3-end}
 \linesref{ms-R2C14-begin}{ms-R2C14-end}
-
-
+}
 
 \comment{The other main thing that stood out to me was that, out of the 9 herbaria sampled from, four are from Texas, 2 are from Oklahoma, and there is 1 each from Louisiana, Missouri, and Kansas. From Fig. 1 and Fig. A1, it appears that samples in these locations are far over-represented compared to other regions (e.g., Great Lakes Region, Southeast, Rust belt). This seems doubly important because the species that was found to have the largest year-to-year change in interaction prevalence (A. perannans) has substantially lower sample sizes and post-1969 compared to pre-1969 in the northern, cooler part of its range (Fig. A1), whereas the Midwest sample area appears approximately the same throughout. Could the relatively high estimated changes be due to bias associated with geographic distribution of herbarium collections used in the study? To answer this, I have three suggestions: (1) Would it be possible/feasible to add a handful of other herbaria to make the sampling more consistent throughout the study region (as described in the paper: eastern US)? Specifically regions in central and southern Appalachia and in the upper Midwest. (2) If not, would it be possible to employ some sort of sensitivity analysis to determine if the described trends are biased in favor of middle-America (i.e., beyond the INLA spatial autocorrelation already employed)? For example, could the authors assess whether bootstrapping the analysis so that there is relatively even sample size across each species’ range for any given model run affects the overall results? (3) If not, I at least recommend adding a caveat somewhere in the methods that collections were included from across eastern US, but were primarily collected from the four states in which herbaria were visited and that this has the potential to bias your results in specific ways (also see line comment on L504-507).}
-\response{The herbarium visits we completed for this analysis do result in fewer specimens from the northeastern portion of each species ranges, and \emph{A. perennans} is the least commonly collected species among our focal hosts. 
-We are unable to perform any additional sampling. 
-However, we feel our methodology is robust. 
-To demonstrate this, and in response to this comment, we have performed a simulation analysis (\emph{Appendix A - Influence of spatially-biased sampling on model interpretation}) that shows the ability of an equivalent model to recover spatially-varying temporal trends within a region with up to $80$\% of data missing. 
-	
-Beyond this, we also are reassured when examining the Bayesian posterior credible interval of key results, such as the estimated temporal trend \jacob{(Fig. \ref{ms-fig:svc_time_map_CI}), across the  host distributions.}{For some reason, the PDF is displaying the plot caption, which makes the sentence awkward.}
-For example, we find that for \emph{A. perennans}, the width of this credible interval is consistently small (suggesting that estimated trends vary by only $\mp$ 2 percentage points per year) within areas with many samples (the midwest), while within areas with fewer samples (the northeast) this interval is wider but still relative small (trends are estimated to be $\mp$ 3 percentage points per year), suggesting that the trend in this region is highly likely to be in a positive direction. Certainly we expect more thorough sampling to be valueable. 
-We have added consideration of this and other potential biases to our discussion, along with the methods caveat described by this reviewer.}
+\response{Thank you for these insightful comments. 
+While we visited only a handful of herbaria, we were strategic in sampling from collections with broad geographic coverage and were generally pleased with the spatial representation they provided (Fig. 1). 
+That said, we had access to relatively few specimens from the northeastern portion of each species' range, and \emph{A. perennans} is overall less commonly collected than our other two focal host species. 
+Unfortunately, we are unable to perform any additional sampling for this revision. 
+However, we conducted additional analyses, as recommended by the reviewer, to explore this concern. 
+Specifically, we have performed a new simulation analysis (\emph{Appendix A - Influence of spatially-biased sampling on model interpretation}) that shows \tom{the ability of an equivalent model to recover spatially-varying temporal trends within a region with up to $80$\% of data missing.}{I have not read the revision yet but I don't really know what this sentence means.} 
+\\
+\\	
+The Bayesian posterior credible intervals of key results lend confidence to our interpretation, despite the uneven sampling that is inherent to collections-based studies such as ours \jacob{(Fig. \ref{ms-fig:svc_time_map_CI}), across the  host distributions.}{For some reason, the PDF is displaying the plot caption, which makes the sentence awkward.}
+For example, we find that for \emph{A. perennans}, the width of the credible interval for temporal change is consistently small (estimated trends in prevalence vary by only $\mp$ 2 percentage points per year) within highly-sampled areas (the midwest), while within areas with fewer samples (the northeast) this interval is only slightly wider (trends are estimated to be $\mp$ 3 percentage points per year).
+These observations suggest high confidence in the positive trend of increasing endophyte prevalence through time, even as the point estimate for that slope is more uncertain in sparsely sampled regions. 
+We have added consideration of this and other potential biases to our discussion, along with \tom{the methods caveat described by this reviewer}{Be more specific here? I am not sure which caveat you are referring to.}.
 \linesref{ms-R1C11-begin}{ms-R1C11-end} methods
 \linesref{ms-R1C4-dicussion-begin}{ms-R1C4-discussion-end} discussion
 \linesref{ms-R1C4-begin}{ms-R1C4-end} Appendix A - Supporting Methods
-
+}
 
 \comment{Lastly, I have included a handful of line comments below with relatively more minor suggestions to potentially improve the manuscript.\\
 Despite these concerns, I still think this paper is excellent and really enjoyed reading it. I commend the authors for producing great work.}
 \response{We thank Reviewer 1 for their diligent attention to our manuscript and are pleased that they have given us this positive evaluation.}
-
 
 \comment{L115-118: Sentence beginning with “Critically evaluating whether insights…” – Just want to say that this is a great sentence and I wholeheartedly agree with the sentiment.}
 \response{We thank again Reviewer 1 for sharing this positive feedback.}
@@ -139,8 +143,11 @@ Despite these concerns, I still think this paper is excellent and really enjoyed
 
 \comment{Paragraph beginning L335 and Fig. 3: I think it would help if the authors provided some context about what initial estimated percent prevalence was in each region. Do we see regions with low prevalence increasing at faster rates through the study period? Or does prevalence increase at a relatively consistent rate regardless of “starting” conditions? Maybe adding another figure or another set of panels in Fig 3 with linear correlations between starting prevalence and per year change in prevalence could be helpful?
 }
-\response{We agree that these are interesting questions. We have added additional figures which present the predicted prevalence across host distributions in 1895 and in 2020 (Figure 4). % I haven't taken the time to figure out how to get ref to work correctly here. 
-They show clear range expansion by the symbiosis towards the western range edge of \emph{A. hyemalis} and towards the northern range edge of \emph{A. perennans}. As suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence, which shows that for these species, the largest increases do occur at locations with low starting prevalence. To keep the main text focused on temporal change in prevalence, we placed a figure showing this result in the supplemental material \jacob{(Figure)}{You forgot to include the figure number. I believe it should be Figure A11.}, but have added text describing this to our results.}
+\response{We agree that these are interesting questions. In response to this comment we have added two new figures.
+First, the new Figure 4 shows predicted endophyte prevalence across host distributions in 1895 and in 2020. % I haven't taken the time to figure out how to get ref to work correctly here. 
+Interestingly, this figure shows clear expansion of the symbiosis towards the western range edge of \emph{A. hyemalis} and towards the northern range edge of \emph{A. perennans}. 
+Second, as suggested by the reviewer, we also assessed the relationship between initial prevalence and predicted changes in prevalence (new Figure A11).
+We found that for two species, the largest increases do occur at locations with low starting prevalence. To keep the main text focused on temporal change in prevalence, we placed this figure in the supplemental material but have added text describing this to our results.}
 \linesref{ms-R1C7-begin}{ms-R1C7-end}
 
 
@@ -153,7 +160,7 @@ They show clear range expansion by the symbiosis towards the western range edge 
 \linesref{ms-R1C9-begin}{ms-R1C9-end}
 
 \comment{L480-481: This statement is false in that there is at least one previous study that attempted to do this with plant-mycorrhizal symbioses (Heberling \& Burke, 2019), a paper that the authors even cite a few sentences later. I recommend they dial this claim back.}
-\response{\jacob{We appreciate Reviewer 1 bringing this to our attention. We would argue that our phrasing is not inaccurate because we have successfully linked changes in symbioses to climate change drivers, whereas previous research including Heberling \& Burke 2019 focus on validating methods for quantifying microbial community composition within historic specimens, but do not connect this to global change drivers. Heberling \& Burke 2019 state, "Our results demonstrate that herbarium specimens have the potential to be utilized to effectively reconstruct historical AMF communities. However, given the scope of the current study, future work is needed to address specific global change hypotheses." However, we do recognize that there is a quickly growing body of research on microbial symbioses within herbarium specimens, especially those using sequencing and bioinformatics techniques. In response to this comment, we have rephrased this statement to clarify that we see novelty particularly in connecting microbial symbiosis to climate change drivers, and to temper our assertion of novelty.}{I like your response}}
+\response{\jacob{We appreciate Reviewer 1 bringing this to our attention. We would argue that our phrasing is not inaccurate because we have successfully linked changes in symbioses to climate change drivers, whereas previous research including Heberling \& Burke 2019 focus on validating methods for quantifying microbial community composition within historic specimens, but do not connect this to global change drivers. Heberling \& Burke 2019 state, "Our results demonstrate that herbarium specimens have the potential to be utilized to effectively reconstruct historical AMF communities. However, given the scope of the current study, future work is needed to address specific global change hypotheses." However, we do recognize that there is a quickly growing body of research on microbial symbioses within herbarium specimens, especially those using sequencing and bioinformatics techniques. In response to this comment, we have rephrased this statement to clarify that we see novelty particularly in connecting microbial symbiosis to climate change drivers, and to temper our assertion of novelty.}{I like your response}}\tom{}{I agree -- very diplomatic!}
 \linesref{ms-R1C10-begin}{ms-R1C10-end}
 
 
@@ -162,14 +169,9 @@ They show clear range expansion by the symbiosis towards the western range edge 
 \linesref{ms-R1C11-begin}{ms-R1C11-end}
 
 
-
-
 \comment{Discussion in general: The authors focused the discussion largely on the statistical analysis (which is definitely a huge strength of this paper and holds a lot of novelty in and of itself). However, I also found myself wanting the authors to return to some of the points they introduced earlier in the paper about what this symbiosis means for plant (or even fungal) performance/fitness and then tell me what their findings reflect about how climate change will affect these symbiotes in the future. Not just about the prevalence of the relationship (which they cover thoroughly), but about what this might mean for grass performance at the population or even community scales under ongoing climate change.}
-\response{Thank you for pushing us to connect our work more directly to the biology of our system. This was a comment echoed by Reviewer 2 (Comment 14). We had added substantial material our discussion that presents the key implications for population and range dynamics under climate change.}
+\response{Thank you for pushing us to connect our work more directly to the biology of our system and the fitness consequences of symbiosis under global change. This was a comment echoed by Reviewer 2 (Comment 14). In response to both reviewers we have added substantial material to our discussion that presents the key implications of our findings for population and range dynamics under climate change.}
 \linesref{ms-R2C14-begin}{ms-R2C14-end}
-
-
-
 
 
 \section{Response to Reviewer 2}
