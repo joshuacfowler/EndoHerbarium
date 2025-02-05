@@ -87,7 +87,7 @@
 	
 	\bigskip
 	
-	\textit{Keywords}: climate change, plant-microbe symbiosis, herbarium, museum specimen, INLA, spatially-varying coefficients model, \emph{Epichloë}, \emph{Poaceae}.
+	\textit{Keywords}: \jacob{climate change, plant-microbe symbiosis, herbarium, museum specimen, INLA, spatially-varying coefficients model, \emph{Epichloë}, \emph{Poaceae}.}{alphabetic order ? }
 	
 	\bigskip
 	
@@ -108,7 +108,7 @@ Mutualistic microbial symbionts can provide hosts with protection from environme
 Symbionts preserved within natural history specimens offer a unique opportunity to quantify changes in microbial symbiosis across broad temporal and spatial scales. 
 We asked how the prevalence of seed-transmitted fungal symbionts of grasses (\emph{Epichloë} endophytes) have changed over time in response to climate change, and how these changes vary across host species' \revise{distributions}.
 Specifically, we \revise{examined} 2,346 herbarium specimens of three grass host species (\emph{Agrostis hyemalis}, \emph{Agrostis perennans}, \emph{Elymus virginicus}) collected over the past two centuries (1824 -- 2019) for the presence or absence of \emph{Epichloë} symbiosis.
-\revise{Analysis of an approximate Bayesian spatially-varying coefficients model implemented in INLA revealed} that endophytes increased in prevalence over the last two centuries from ca. 25\% to ca. 75\% prevalence, on average, across three host species.
+\revise{Analysis of an \jacob{approximate Bayesian spatially-varying coefficients model implemented in INLA}{This is the first time INLA is mentioned. It seems to be a suggestion from the reviewer. However, I think most readers may not be familiar with it. I appreciate the precision regarding the type of Bayesian statistics (approximate), but I wonder if that might be too technical for the abstract. I would understand if it were included in the methods section.} revealed} that endophytes increased in prevalence over the last two centuries from ca. 25\% to ca. 75\% prevalence, on average, across three host species.
 Changes in seasonal climate drivers were associated with increasing endophyte prevalence. 
 Notably, increasing precipitation during the peak growing season for \emph{Agrostis} species and decreasing precipitation for \emph{E. virginicus} were associated with increasing endophyte prevalence.
 Changes in the variability of precipitation and temperature during off-peak seasons were also important predictors of increasing endophyte prevalence. 
@@ -135,7 +135,7 @@ Such evaluations have been limited because few datasets on species interactions 
 Natural history specimens, which were originally collected to study and preserve taxonomic diversity, present a unique opportunity to explore long-term changes in ecological interactions across broad spatial and temporal scales \citep{meineke2018unrealized}. 
 Natural history collections, built and maintained by the efforts of thousands of scientists, are invaluable time machines, primarily comprised of physical specimens of organisms along with information about the time and place of their collection. 
 These specimens often preserve physical legacies of ecological processes and species' interactions from dynamically changing environments across time and space.
-For example, previous researchers have used plant collections (herbaria) to document shifts in phenology \linelabel{R2C19-begin}\revise{by examining reproductive structures}\citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \revise{through examination of pollen removal} \citep{pauw2011reconstruction, duan2019century}, and herbivory \revise{by documenting leaf damage} \citep{meineke2019herbarium} related to anthropogenic climate change. \linelabel{R2C19-end}
+For example, previous researchers have used plant collections (herbaria) to document shifts in phenology \linelabel{R2C19-begin}\revise{by examining reproductive structures} \citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \revise{through examination of pollen removal} \citep{pauw2011reconstruction, duan2019century}, and herbivory \revise{by documenting leaf damage} \citep{meineke2019herbarium} related to anthropogenic climate change. \linelabel{R2C19-end}
 However, few previous studies have leveraged biological collections to examine climate change-related shifts in a particularly common type of interaction: microbial symbiosis.
 
 Microbial symbionts are common to all macroscopic organisms and can have important effects on their hosts' survival, growth and reproduction \cite{rodriguez2009fungal,mcfall2013animals}.
@@ -541,11 +541,11 @@ Previous studies that have quantified the effects of collector biases typically 
 \linelabel{R2C36-begin}\revise{It is difficult to distinguish whether the impact of scorers was driven by true differences in scorers' biases during the seed scoring process or by unintended spatial or temporal clustering of the specimens examined by each scorer \cite{clayton1993spatial,urdangarin2023evaluating}. 
 By under-weighting endophyte-positive samples that are clustered spatially or by collector or observer, the endophyte prevalence model is appropriately accounting for nuisance variables and providing a conservative inference of endophyte change relative to the raw data. }\linelabel{R2C36-end}
 \linelabel{R1C4-dicussion-begin}\revise{
-Spatial autocorrelation is another phenomenom likely common in data derived from herbarium specimens \cite{willems2022forest}, which our spatially-explicit analysis models among samples.
+Spatial autocorrelation is another \jacob{phenomenom}{phenomenon ?} likely common in data derived from herbarium specimens \cite{willems2022forest}, which our spatially-explicit analysis models among samples.
 Beyond spatial autocorrelation of outcomes, systematic differences in sampling across space can result in spatial bias. 
 One strength of herbaria as vehicles for global change research is the relative ease with which specimens from many distinct geographic locations can be examined. 
 We visited just nine institutions in the central southern United States, and we were able to sample seeds from specimens across an area spanning  over 300,000 sq. km, including specimens from Mexico and Canada.
-The specimens we examined are concentrated in the South-Central United States,with fewer specimens in the rapidly warming northeastern United States.
+The specimens we examined are concentrated in the South-Central United States, with fewer specimens in the rapidly warming northeastern United States.
 We provide a simulation analysis exploring the potential impact of spatially and temporally biased sampling (Appendix A - Supporting Methods). 
 We found that the spatially-varying coefficient model had a strong ability to re-capitulate temporal trends across space in simulated data, and that this result was robust to relatively high levels of spatial bias ($80$\% of data missing from region).
 Simulation analyses that extend this work to consider the myriad ways herbarium data may be biased (i.e. testing different spatial arrangements and scales of spatial bias, or testing different sample sizes) would be extremely valuable \cite{gaul2020data,erickson2021accounting,daru2018widespread,meineke2021bias}.
