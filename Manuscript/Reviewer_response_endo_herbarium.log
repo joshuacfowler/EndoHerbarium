@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.29)  4 FEB 2025 16:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.1.29)  5 FEB 2025 09:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -568,7 +568,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 118--135
  []
 
 [3] [4] [5] [6] [7] [8] [9] [10] [11]
-Overfull \hbox (7.1551pt too wide) in paragraph at lines 245--248
+Overfull \hbox (7.1551pt too wide) in paragraph at lines 244--247
 []|   []   |   []\OT1/cmr/bx/n/12 : []\OT1/cmr/m/it/12 ``-L215: \bor-row in-for
 -ma-tion" is more ap-pro-pri-ate than \bor-row strength".''
  []
@@ -597,7 +597,7 @@ nts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/tm9/AppData/Local/Programs/MiKT
 eX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/tm9/AppData/Local/Progra
 ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/tm9/AppData/Local
 /Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on Reviewer_response_endo_herbarium.pdf (18 pages, 180520 bytes)
+Output written on Reviewer_response_endo_herbarium.pdf (18 pages, 184146 bytes)
 .
 PDF statistics:
  108 PDF objects out of 1000 (max. 8388607)
