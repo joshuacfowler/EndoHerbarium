@@ -17,7 +17,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[usenames,dvipsnames]{xcolor}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 
 
@@ -87,7 +87,7 @@
 	
 	\bigskip
 	
-	\textit{Keywords}: \jacob{climate change, plant-microbe symbiosis, herbarium, museum specimen, INLA, spatially-varying coefficients model, \emph{Epichloë}, \emph{Poaceae}.}{alphabetic order ? }
+	\textit{Keywords}: climate change, \emph{Epichloë}, herbarium, INLA, museum specimen, plant-microbe symbiosis, \emph{Poaceae}, spatially-varying coefficients model
 	
 	\bigskip
 	
@@ -107,11 +107,11 @@ Mutualistic microbial symbionts can provide hosts with protection from environme
 Symbionts preserved within natural history specimens offer a unique opportunity to quantify changes in microbial symbiosis across broad temporal and spatial scales. 
 We asked how the prevalence of seed-transmitted fungal symbionts of grasses (\emph{Epichloë} endophytes) has changed over time in response to climate change, and how these changes vary across host species' \revise{distributions}.
 Specifically, we \revise{examined} 2,346 herbarium specimens of three grass host species (\emph{Agrostis hyemalis}, \emph{Agrostis perennans}, \emph{Elymus virginicus}) collected over the past two centuries (1824 -- 2019) for the presence or absence of \emph{Epichloë} symbiosis.
-\revise{Analysis of an \jacob{approximate Bayesian spatially-varying coefficients model}{This is the first time INLA is mentioned. It seems to be a suggestion from the reviewer. However, I think most readers may not be familiar with it. I appreciate the precision regarding the type of Bayesian statistics (approximate), but I wonder if that might be too technical for the abstract. I would understand if it were included in the methods section.}\tom{}{I agree. I cut ' implemented in INLA'} revealed} that endophytes increased in prevalence over the last two centuries from ca. 25\% to ca. 75\% prevalence, on average, across three host species.
+\revise{Analysis of an approximate Bayesian spatially-varying coefficients model revealed} that endophytes increased in prevalence over the last two centuries from ca. 25\% to ca. 75\% prevalence, on average, across three host species.
 Changes in seasonal climate drivers were associated with increasing endophyte prevalence. 
 Notably, increasing precipitation during the peak growing season for \emph{Agrostis} species and decreasing precipitation for \emph{E. virginicus} were associated with increasing endophyte prevalence.
 Changes in the variability of precipitation and temperature during off-peak seasons were also important predictors of increasing endophyte prevalence. 
-Our analysis performed favorably in an out-of-sample predictive test with \tom{contemporary survey data}{Since you drop numbers for the herbarium samples I would drop some numbers here too.}, a rare extra step in collections-based research.
+Our analysis performed favorably in an out-of-sample predictive test with contemporary survey data \revise{from across 63 populations}, a rare extra step in collections-based research.
 We identified greater local-scale variability in endophyte prevalence in contemporary data compared to model predictions based on historic data, suggesting new directions that could improve predictive accuracy.
 Our results provide novel evidence for a cryptic biological response to climate change that may contribute to the resilience of host-microbe symbiosis through \revise{fitness benefits to symbiotic hosts}. \linelabel{R2-C15-end}
 
@@ -134,15 +134,15 @@ Such evaluations have been limited because few datasets on species interactions 
 Natural history specimens, which were originally collected to study and preserve taxonomic diversity, present a unique opportunity to explore long-term changes in ecological interactions across broad spatial and temporal scales \citep{meineke2018unrealized}. 
 Natural history collections, built and maintained by the efforts of thousands of scientists, are invaluable time machines, primarily comprised of physical specimens of organisms along with information about the time and place of their collection. 
 These specimens often preserve physical legacies of ecological processes and species' interactions from dynamically changing environments across time and space.
-For example, previous researchers have used plant collections (herbaria) to document shifts in phenology \linelabel{R2C19-begin}\tom{\revise{by examining reproductive structures}}{I don't really understand this revision or what prompted it. Phenology studies do not examine reproductive structures, they examine timing. I also don't think the sentence works grammatical with each list element having a 'by' clause.} \citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \revise{through examination of pollen removal} \citep{pauw2011reconstruction, duan2019century}, and herbivory \revise{by documenting leaf damage} \citep{meineke2019herbarium} related to anthropogenic climate change. \linelabel{R2C19-end}
+\linelabel{R2C19-begin}For example, previous researchers have \revise{examined the flowers, pollen grains, and leaves of specimens within plant collections (herbaria) collected across time} to document shifts in \revise{reproductive} phenology \citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \citep{pauw2011reconstruction, duan2019century}, and herbivory \citep{meineke2019herbarium} related to anthropogenic climate change. \linelabel{R2C19-end}
 However, few previous studies have leveraged biological collections to examine climate change-related shifts in a particularly common type of interaction: microbial symbiosis.
 
 Microbial symbionts are common to all macroscopic organisms and can have important effects on their hosts' survival, growth and reproduction \cite{rodriguez2009fungal,mcfall2013animals}.
 Many microbial symbionts act as mutualists, engaging in reciprocally beneficial interactions with their hosts that can ameliorate environmental stress. 
 For example, bacterial symbionts of insects, such as \emph{Wolbachia}, can improve their hosts' thermal tolerance \citep{truitt2019wolbachia, renoz2019evolutionary}, and arbuscular mycorrhizal fungi, documented in 70-90\% of families of land plants \citep{parniske2008arbuscular}, allow their hosts to persist through drought conditions by improving water and nutrient uptake \citep{cheng2021elucidating}.
 On the other hand, changes in the mean and variance of environmental conditions may disrupt microbial  mutualisms by changing the costs and benefits of the interaction for each partner in ways that can cause the interaction to deteriorate \citep{aslan2013mutualism, fowler2024microbial}. 
-Coral bleaching (the loss of symbiotic algae) due to temperature stress \citep{sully2019global} is perhaps the best known example, but this phenomenon is not unique to corals.
-Lichens exposed to elevated temperatures experienced loss of photosynthetic function along with changes in the composition of their algal symbiont community \citep{meyer2022climate}.
+\linelabel{R2C16-begin}Coral bleaching (the loss of symbiotic algae) due to temperature stress \citep{sully2019global} is perhaps the best known example, but this phenomenon is not unique to corals.
+Lichens exposed to elevated temperatures experienced loss of photosynthetic function along with changes in the composition of their algal symbiont community \citep{meyer2022climate}.\linelabel{R2C16-end}
 How commonly and under what conditions microbial mutualisms deteriorate or strengthen under climate change remain unanswered questions \citep{frederickson2017mutualisms}.
 Previous work suggests that these alternative responses may depend on the intimacy and specialization of the interaction as well as the physiological tolerances of the mutualist partners \citep{toby2010mutualisms, warren2014mutualism, rafferty2015phenological}. 
 
@@ -153,7 +153,7 @@ Facultative symbionts may be absent from portions of the host range \cite{afkham
 Identifying broader spatial trends in symbiont prevalence is therefore an important step in developing predictions for where to expect changes in the symbiosis in future climates.
 
 \emph{Epichloë} fungal endophytes are specialized symbionts of cool-season grasses, which have been documented in $\sim 30$\% of cool-season grass species \citep{leuchtmann1992systematics}.
-They are transmitted \tom{predominantly vertically}{Maybe two adverbs is awkward but I think we need to acknowledge the possibility of H transmission.} from maternal plants to offspring through seeds.
+They are \revise{predominantly} transmitted vertically from maternal plants to offspring through seeds.
 Vertical transmission creates a feedback between the fitness of host and symbiont \citep{fine1975vectors, douglas1998host, rudgers2009fungus}. 
 Over time, endophytes that act as mutualists should rise in prevalence within a host population, particularly under environmental conditions that elicit protective benefits \citep{donald2021context}. 
 \emph{Epichloë} are known to improve their hosts' drought tolerance \cite{decunta2021systematic} and protect their hosts against herbivores \cite{crawford2010fungal} and pathogens \cite{xia2018role} likely through the production of a diverse suite of alkaloids and other secondary metabolites.
@@ -173,7 +173,7 @@ Critically evaluating whether insights from historical reconstruction are predic
 In this study, we assessed the long-term responses of \emph{Epichloë} endophyte symbiosis to climate change through the use of herbarium specimens of three North American host grass species (\emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus}).
 We first addressed questions describing spatial and temporal trends in endophyte prevalence: (i) How has endophyte prevalence changed over the past two centuries? and (ii) How spatially variable are temporal trends in endophyte prevalence across eastern North America?
 We then addressed how climate change may be driving trends in endophyte prevalence by asking: (iii) What is the relationship between temporal trends in endophyte prevalence and associated changes in climate drivers?
-\linelabel{R2C21-b-begin}We predicted that overall endophyte prevalence would increase over time in tandem with climate warming, and that localized hotspots of endophyte change would correspond spatially to hotspots of climate change. \linelabel{R2C21-b-end}
+\linelabel{R2C21-b-begin}We predicted that \revise{overall} endophyte prevalence would increase over time in tandem with climate change, and that localized hotspots of endophyte change would correspond spatially to hotspots of climate \revise{warming and drying}. \linelabel{R2C21-b-end}
 Finally, we evaluated \revise{(iv) how our model, built on data from historic specimens, performed in an out-of-sample test }using data on endophyte prevalence from contemporary surveys of host populations. 
 To answer these questions we examined a total of $2,346$ historic specimens collected across eastern North America between 1824 and 2019, and evaluated model performance against contemporary surveys comprising 1,442 individuals from 63 populations surveyed between 2013 and 2020.
 	
@@ -181,7 +181,7 @@ To answer these questions we examined a total of $2,346$ historic specimens coll
         \subsection*{Focal species}
 Our surveys focused on three native North American grasses: \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus} that host \emph{Epichloë} symbionts. 
 \linelabel{R2C23-begin}\revise{These cool-season grass species are commonly represented in natural history collections with broad distributions covering much the eastern United States (Fig. \ref{fig:map}). Cool-season grasses grow during the cooler temperatures of spring and autumn due to their reliance on $C_3$ photosynthesis.}\linelabel{R2C23-end}
-\emph{A. hyemalis} is a small short-lived perennial species that germinates in \tom{winter}{Winter, not spring. It's 'winter bentgrass'.} and typically flowers between March and July (most common collection month: May).
+\emph{A. hyemalis} is a small short-lived perennial species that germinates in \revise{late winter} winter and typically flowers between March and July (most common collection month: May).
 \emph{A. perennans} is of similar stature but is longer lived than \emph{Agrostis hyemalis} and flowers in late summer and early autumn (most common collection month: September). 
 \emph{A. perennans} is more sparsely distributed, tending to be found in shadier and moister habitats, while \emph{A. hyemalis} is commonly found in open and recently disturbed habitats. 
 Both \emph{Agrostis} species are recorded from throughout the Eastern US, but \emph{A. perennans} has a slighty more northern distribution, whereas \emph{A. hyemalis} is found rarely as far north as Canada and is listed as a rare plant in Minnesota.
@@ -193,13 +193,13 @@ It begins flowering as early as March or April but continues throughout the summ
 The fungal symbionts primarily reproduce asexually and are passed from mother to offspring by vertical transmission through seeds. 
 These traits contribute to highly specialized interactions between symbiont and host.
 Some host species have been shown to partner with multiple symbiont species or strains, and in some cases multiple symbiont lineages can co-exist within a host population \cite{mc2014species}.
-However, surveys have typically found limited \emph{Epichloë} genotypic diversity within host populations\cite{treindl2023genetic}. 
+However, surveys have typically found limited \emph{Epichloë} genotypic diversity within host populations \cite{treindl2023genetic}. 
 Across host populations, concentrations of biologically-active alkaloids and the genes associated with their production vary substantially \cite{schardl2012chemotypic}.
 In this analysis, we focus on the presence/absence of \emph{Epichloë} symbionts, and we discuss potential implications of symbiont genotypic diversity in the Discussion.}
 \linelabel{R1C3-end}
 
 		\subsection*{Herbarium surveys}
-We visited nine herbaria between 2019 and 2022 (see \tom{Table}{In table, maybe replace -- with 0.} \ref{table:herbaria} for a summary of specimens included from each collection). 
+We visited nine herbaria between 2019 and 2022 (see Table \ref{table:herbaria} for a summary of specimens included from each collection). 
 With permission from herbarium staff, we acquired seed samples from $1135$ \emph{A. hyemalis} specimens collected between 1824 and 2019, $357$ \emph{A. perennans} specimens collected between 1863 and 2017, and $854$ \emph{E. virginicus} specimens collected between 1839 and 2019 (Fig. \ref{fig:map}, Fig. \ref{fig:temporal}A, Fig. \ref{fig:endo_status_map}).
 %Our sampling plan was designed to minimize damage to these specimens.
 We chose our focal species in part because they are commonly represented in herbarium collections and produce many seeds, meaning that small samples would not diminish the value of the specimens for future studies. 
@@ -217,7 +217,7 @@ The smallest bounding boxes were less than 1 km across for small municipalities 
 
 \linelabel{R1C11-begin}
 \revise{Our visits focused on herbaria with historic strengths in \emph{Poaceae} collections (e.g. Texas A\&M, Missouri Botanic Garden) and other herbaria in the Southern Great Plains region of the United States. 
-While these nine herbaria garnered specimens that span the focal species' ranges, our dataset unevenly samples across the study \tom{region}{Reference Figure 1 here?}. 
+While these nine herbaria garnered specimens that span the focal species' ranges, our dataset unevenly samples across the study region (Fig. \ref{fig:map}). 
 Texas, Oklahoma, Louisiana, and Missouri are the most represented states.
 Uneven sampling was most pronounced for \emph{A. perennans}, which has much of its range in the northeastern US. 
 We explore the potential influence of spatial bias in sampling on our results through a simulation analysis (Appendix A - Supporting Methods).}\linelabel{R1C11-end}
@@ -232,9 +232,7 @@ We therefore designated a specimen as endophyte-symbiotic if \emph{Epichloë} hy
 \linelabel{R2C26-begin}
 To capture uncertainty in the endophyte \revise{identification} process, we recorded both a "liberal" and a "conservative" endophyte score for each plant specimen.  
 \revise{When we confidently identified endophytes within a specimen's seeds, we assigned matching liberal and conservative scores.}
-When we identified potential endophytes with unusual morphology, low uptake of stain, or a small amount of fungal hyphae across the scored seeds, we recorded \revise{ a positive identification} for the liberal score
-and a negative \revise{identification for} the conservative score.
-\tom{\revise{The liberal status assumed a potential endophyte identification was more likely to be endophyte-positive while the conservative status assumed that the potential endophyte identification was less likely to be endophyte-positive}. }{I don't think this sentence is necessary.}
+When we identified potential endophytes with unusual morphology, low uptake of stain, or a small amount of fungal hyphae across the scored seeds, we recorded \revise{ a positive identification} for the liberal score and a negative \revise{identification for} the conservative score.
 $89$\% of scored plants had matching liberal and conservative scores, reflecting high confidence in endophyte status.
 The following analyses used the liberal status, \revise{however} repeating all analyses with the conservative status yielded qualitatively similar results (Fig. \ref{fig:conservative_scores_plot}).\linelabel{R2C26-end}
 
@@ -259,12 +257,12 @@ This approach has been used to model spatial patterns in flowering phenology \ci
 
 We estimated global and spatially-varying trends in endophyte prevalence using a joint-likelihood model. 
 For each host species $h$, endophyte presence/absence of the $i^{th}$ specimen ($P_{h,i}$) was modeled as a Bernoulli response variable with expected probability of endophyte occurrence $\hat{P}_{h,i}$.
-We modeled $\hat{P}_{h,i}$ as a linear function of \tom{intercept $\boldsymbol{A}_h$ and slope $\boldsymbol{T}_{h}$}{Are these matrices? I am concerned that Eq 1 does not make mathematical sense if it's saying scalar = matrix + matrix*scalar + scalar... etc.} defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
+We modeled $\hat{P}_{h,i}$ as a linear function of intercept $A_{h}$ and slope $T_{h}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
 \linelabel{R2C28-begin}The joint-model structure allowed us to ``borrow \revise{information}'' \linelabel{R2C28-end} across species in the estimation of shared variance terms for the spatially-dependent random effect $\delta_{l_i}$, intended to account for residual spatial variation, and $\chi_{c_i}$ and $\omega_{s_i}$, the i.i.d.-random effects indexed for each collector identity ($c_i$) and scorer identity ($s_i$) of the $i^{th}$ specimen.
 
 \begin{equation}
 	\label{eq:trends}
-		logit(\hat{P}_{h,i}) = \boldsymbol{A}_{h} + \boldsymbol{T}_{h}*year_i  + \alpha_{h,l_{i}} + \tau_{h,l_i}*year_i + \delta_{l_i} + \chi_{c_i} + \omega_{s_i} 
+		logit(\hat{P}_{h,i}) = A_{h} + T_{h}*year_i  + \alpha_{h,l_{i}} + \tau_{h,l_i}*year_i + \delta_{l_i} + \chi_{c_i} + \omega_{s_i} 
 \end{equation}
 
 By including random effects for collectors and scorers, we accounted for ``nuisance'' variance that may bias predictions for changes in endophyte prevalence.
@@ -273,8 +271,8 @@ Prolific collectors who contribute thousands of specimens may be more or less li
 Similarly, the process of scoring seeds for hyphae involved \linelabel{R2C35-begin}\revise{multiple researchers (or "scorers")} who, even with standardized training, may vary in their likelihood of positively identifying \emph{Epichloë}. \linelabel{R2C35-end}
 
 We performed model fitting using the inlabru R package \citep{bachl2019inlabru}.
-Global intercept and slope parameters $\boldsymbol{A}$, and $\boldsymbol{T}$, were given vague priors.
-Collector and scorer random effects, $\chi$ and $\omega$ \revise{respectively}, \linelabel{R2C29-begin}\revise{were centered at 0 with precision parameters were assigned penalized complexity (PC) priors with parameter values $U_{PC}$ = 1 and $a_{PC}$ = 0.01 \cite{simpson2017penalising}.}\linelabel{R2C29-end}
+Global intercept and slope parameters, $A$ and $T$, were given vague priors.
+Collector and scorer random effects, $\chi$ and $\omega$ \revise{respectively}, \linelabel{R2C29-begin}\revise{were centered at 0 with precision parameters assigned penalized complexity (PC) priors with parameter values $U_{PC}$ = 1 and $a_{PC}$ = 0.01 \cite{simpson2017penalising}.}\linelabel{R2C29-end}
 Each spatially-structured parameter depended on a covariance matrix according to the proximity of each pair of collection locations \citep{lindgren2011explicit,bakka2018spatial}. 
 The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles encompassing the study area (Fig. \ref{fig:meshplot}).
 We assessed model fit with visual posterior predictive checks (\ref{fig:overlayplot}) and measurements of AUC (Figs. \ref{fig:ROCtraining}-\ref{fig:ROCtest}) \linelabel{R2C48-begin} \revise{\cite{gelman2006data}}\linelabel{R2C48-end}.
@@ -293,7 +291,7 @@ We tested a range of values (from $68$ kilometers to $1714$ kilometers) and mesh
 Therefore, we used additional data sources to model the geographic distribution of each host species, with two goals: (1) generate realistic maps on which we could project the predictions of the INLA model, and (2) use the geographic distributions to test for relationships between climate change drivers and trends in endophyte prevalence. 
 }\linelabel{R2C30-end}
 We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing} (see Supporting Methods). 
-\tom{In short, we used presence-only observations of each host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020.}{Maybe say how many records there were for each species?}
+In short, we used presence-only observations of each host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020 \revise{(713 occurrence records for \emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, 656 occurrence records for \emph{A. perennans} \cite{https://doi.org/10.15468/dl.wtne24}, and 2338 occurrence records for \emph{A. virginicus} \cite{https://doi.org/10.15468/dl.yt76uh}}).
 %To reduce the potential influence of sampling bias and spatial autocorrelation, \tom{we thinned the occurrences to the spatial scale of our selected climatic predictors}{I do not follow.}. 
 %We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
 %\tom{We calculated the mean and standard deviation of seasonal temperature and precipitation across 1990 to 2020. }{FOr what locations? Is this from the whole raster of NA?}
@@ -303,7 +301,7 @@ We fit maximum entropy (MaxEnt) models using the maxent function in the R packag
 We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
 The performance of models was evaluated with AUC \citep{jimenez2012insights}. 
 We found AUC values of 0.862, 0.838, 0.821 respectively  for \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus} indicating good model fit to data.
-\tom{To convert the continuous predicted probabilities into binary presence - absence maps on which we projected INLA predictions, we used the training sensitivity (true positive rate) and specificity threshold (true negative rate) \citep{liu2005selecting}.}{I don't really understand this sentence. How do the training sensitivity and specificity threshold lead to presence/absence maps?} 
+We used the training sensitivity (true positive rate) and specificity (true negative rate) \revise{to set a threshold for transforming the continuous predicted probabilities into binary presence - absence host distribution maps on which we projected INLA predictions of endophyte prevalence} \citep{liu2005selecting}.
 %These binary maps serve as boundaries in presented maps of change in endophyte prevalence, and outline the set of pixels used in our analysis of climate correlates with trends in endophyte prevalence
 
 
@@ -361,7 +359,7 @@ The model appears to under-predict the observed increase in endophyte prevalence
 We found no evidence that collector biases influenced our results. 
 Collector random effects were consistently small (Fig. \ref{fig:collector_fx}), and models fit with and without this random effect provide qualitatively similar results.
 The identity of individual scorers,\linelabel{R2C35-b-begin} \revise{the researchers who identified endophyte status microscopically},\linelabel{R2C35-b-end} did contribute to observed patterns in endophyte prevalence.
-\tom{For example, $3$ of the $25$ scorers were significantly more likely than average to assign positive endophyte status, as indicated by 95\% credible intervals greater than zero (Fig. \ref{fig:scorer_fx}). }{And I count four that have significantly negative CIs.}
+For example, $3$ of the $25$ scorers were significantly more likely than average to assign positive endophyte status, as indicated by 95\% credible intervals greater than zero, \revise{while $4$ of the $25$ had 95\% credible intervals below zero} (Fig. \ref{fig:scorer_fx}). 
 
 
 
@@ -372,7 +370,7 @@ Both \emph{Agrostis} species show areas of strong increase and areas of declinin
 Notably, endophytes are predicted to have increased most strongly towards the western range edge of \emph{A. hyemalis} (Fig. \ref{fig:svc_time_map}A) and across the northeastern US for \emph{A. perennans} (Fig. \ref{fig:svc_time_map}B). \linelabel{R1C7-begin}
 \revise{Broad increases in prevalence on average, along with increases towards range edges that had low historic prevalence result in range expansions of the symbiosis for both \emph{Agrostis} species (Fig. \ref{fig:svc_space_year_map}). 
 Increases in prevalence were strongest in regions with low historic prevalence for the \emph{Agrostis} species (Fig. \ref{fig:initialprev_trend_plot} A-B), but for \emph{E. virginicus} trends did not differ according to historic prevalence (\ref{fig:initialprev_trend_plot} C).} \linelabel{R1C7-end}
-Posterior estimates of uncertainty in spatially varying slopes indicate that these hotspots of change may have experienced increases of up to $5$\% per year while declines in prevalence may be as great as \tom{$4$\% per year}{Should this be -4\%?} for \emph{A. hyemalis} and \emph{A. perennans}.
+Posterior estimates of uncertainty in spatially varying slopes indicate that these hotspots of change may have experienced increases of up to $5$\% per year while declines in prevalence may be as great as $-4$\% per year for \emph{A. hyemalis} and \emph{A. perennans}.
 For \emph{E. virginicus}, uncertainty ranges between $3.5$\% increases and $2.5$\% decreases (Fig. \ref{fig:svc_time_map_CI}).
 \begin{figure}[H]
 	\centering
@@ -418,32 +416,33 @@ For the majority of the study region, the climate has become wetter (an average 
 Within the region, climate changes were spatially variable; certain locations experienced increases in annual precipitation as large as $375$ mm or decreases up to $54$ mm across the last century, while annual temperature changes ranged from warming as great as $1.4$ $^{\circ}$C to cooling by $0.46$ $^{\circ}$C.
 Spatially variable climate trends were predictive of trends in endophyte prevalence.
 For example, strong increases in endophyte prevalence for \emph{A. perennans} were most strongly associated with increasing autumn precipitation and with increasing mean and variability in autumn temperature (greater than 97\% posterior probabilities of positive slopes).
-For this species, a $1$ $^{\circ}$C increase in autumn temperature was associated with a $1.07$ \% increase per year in endophyte prevalence (Fig. \ref{fig:climate_correlation_plot}A) and a $100$ mm increase in precipitation was associated with a $0.8$\% increase per year in endophyte prevalence (Fig. \ref{fig:climate_correlation_plot}B).
+For this species, \revise{each} $1$ $^{\circ}$C increase in autumn temperature was associated with a $1.07$ \% greater increase per year in endophyte prevalence (Fig. \ref{fig:climate_correlation_plot}A) and a $100$ mm increase in precipitation was associated with a $0.8$\% \revise{greater} increase per year in endophyte prevalence (Fig. \ref{fig:climate_correlation_plot}B).
 This result aligns with the species' autumn active growing season, however other seasonal climate drivers were also associated with increasing endophyte prevalence in this host species. 
 In particular, we found cooler and drier springs and cooler summers to be associated with increasing endophyte prevalence (greater than $99$\% posterior probabilities of negative slopes), though these slopes were generally of smaller magnitude than those for autumn climate drivers.
 
 Changes in endophyte prevalence across the ranges of \emph{A. hyemalis} and \emph{E. virginicus} were less strongly driven by changes in climate. 
 Like \emph{A. perennans}, climate during peak growing season (spring for \emph{A. perennans} and summer for \emph{E. virginicus}) emerged most commonly as drivers of changes in endophyte prevalence.
 Increases in mean spring precipitation were the strongest predictor of increasing trends in endophyte prevalence for \emph{A. hyemalis} (Fig. \ref{fig:climate_correlation_plot}B) (greater than $99$\% posterior probability of a positive slope).
-For this species, an increase of $100$ mm in spring precipitation led to an increase of $0.6$\% per year in endophyte prevalence.
+For this species, an increase of $100$ mm in spring precipitation \revise{was associated with } $0.6$\% per year \revise{stronger} increases in endophyte prevalence \revise{relative to regions with no change in precipitation}.
 The next greatest slopes were those associated with variability in spring precipitation (greater than $96$\% posterior probability of a negative slope), as well as in the mean and variability of autumn climate (greater than $98$\% probability of negative and positive slopes, respectively). 
 Changes in endophyte prevalence in \emph{E. virginicus} were not strongly associated with changes in most climate drivers, but regions with reduced variability in autumn precipitation (Fig. \ref{fig:climate_correlation_plot}B) and with cooler and more variable summer temperatures (Fig. \ref{fig:climate_correlation_plot}A,C) experienced the largest increases in endophyte prevalence.
-\linelabel{R2C38-begin}\revise{Our analysis indicated relatively high confidence that these climate drivers influence endophyte prevalence shifts in \emph{E. virginicus}}(greater than $99$\% posterior probability of either negative or positive slopes respectively), \tom{however they translate to less than $0.2$\% change in endophyte prevalence per year for a change of $100$ mm change in precipitation over the century.\linelabel{R2C38-end}}{I am not sure why you are highlighting the slope with respect to mm of precip, since the preceding sentences emphasize temperature and var(precip).}
+\linelabel{R2C38-begin}\revise{Our analysis indicated relatively high confidence that these climate drivers influence endophyte prevalence shifts in \emph{E. virginicus}}(greater than $99$\% posterior probability of either negative or positive slopes respectively), however they translate, \revise{for example}, to less than a $0.4$\% decrease in endophyte prevalence per year for \revise{each $1^oC$ of summer warming} over the century.\linelabel{R2C38-end}
 \linelabel{R2C37-begin}Repeating this analysis using all pixels across each species' distribution were qualitatively similar to these results.\linelabel{R2C37-end}
 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{../Plots/climate_trends_plot_intercept.png}
-	\caption[Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.]{\textbf{Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.} Lines show marginal predicted relationship between spatially-varying trends in endophyte prevalence and changes in mean and variability of climate ((A): mean temperature, (B): cumulative precipitation, (C): standard deviation in temperature, (D): standard deviation in precipitation) \revise{estimated from the \emph{post hoc} climate regression analysis}. Confidence bands represent the 50 and 95\% CI,  colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). Slopes with greater than 95\% probability of being either positive or negative are represented as solid lines while those that have less than 95\% probability are dashed. Points are the \revise{values of pre-computed SVC trends  and climate drivers at} 250 randomly sampled pixels across each host's distribution used in model fitting \revise{for the \emph{post hoc} climate regression analysis}.}
+	\caption[Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.]{\textbf{Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.} Lines show marginal predicted relationship between spatially-varying trends in endophyte prevalence and changes in mean and variability of climate ((A): mean temperature, (B): cumulative precipitation, (C): standard deviation in temperature, (D): standard deviation in precipitation) \revise{estimated from the \emph{post hoc} climate regression analysis}. Confidence bands represent the 50 and 95\% CI,  colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). Slopes with greater than 95\% \revise{posterior} probability of being either positive or negative are represented as solid lines while those that have less than 95\% probability are dashed. Points are the \revise{values of pre-computed SVC trends  and climate drivers at} 250 randomly sampled pixels across each host's distribution used in model fitting \revise{for the \emph{post hoc} climate regression analysis}.}
 	\label{fig:climate_correlation_plot}
 \end{figure}
 
 \subsection*{Evaluation of model performance on an out-of-sample test}
-Tests of \tom{models'}{Which models are you referring to? Is this plural because each species had a different model?} predictive performance as quantified by AUC and by visual posterior predictive checks, indicated good predictive ability. 
+Tests of the endophyte prevalence model's predictive performance as quantified by AUC and by visual posterior predictive checks, indicated good predictive ability. 
 Model performance was similar between historic herbarium specimens used as training data and the out-of-sample test data from contemporary surveys (AUC = 0.79 and 0.77 respectively; Fig. \ref{fig:ROCtest}-\ref{fig:ROCtraining}).  
-The model successfully captured broad regional trends in endophyte prevalence seen in the contemporary survey data, such as decline endophyte prevalence in \emph{A. hyemalis} towards western longitudes (Fig. \ref{fig:contemptestplot}A) and \tom{northern latitudes}{It's actually an increase toward N latitudes, not decline.} (Fig. \ref{fig:contemptestplot}B). 
-\revise{It is noteable that} model predictions for endophyte prevalence exhibited relatively little local geographic variation, whereas the out-of-sample survey data were highly variable with populations spanning 0\% to 100\% endophyte-symbiotic plants (Fig. \ref{fig:contemptestplot}C), \tom{indicating that...}{I would finish this train of thought, even as you leave most of it for the discussion.}.
+The model successfully captured broad regional trends in endophyte prevalence seen in the contemporary survey data, such as decline endophyte prevalence in \emph{A. hyemalis} towards western longitudes (Fig. \ref{fig:contemptestplot}A) and \revise{an increase towards} northern latitudes (Fig. \ref{fig:contemptestplot}B). 
+\revise{It is noteable that} model predictions for endophyte prevalence exhibited relatively little local geographic variation, whereas the out-of-sample survey data were highly variable with populations spanning 0\% to 100\% endophyte-symbiotic plants (Fig. \ref{fig:contemptestplot}C), \revise{indicating population-to-population variation not captured in the endophyte prevalence model.}
+
 
 %We discuss potential model improvements in the Discussion.
 
@@ -451,7 +450,7 @@ The model successfully captured broad regional trends in endophyte prevalence se
 	\centering
 	\includegraphics[width = \linewidth]{../Plots/contemp_test_plot.png}
 	\caption[Predictive performance for contemporary test data.]{\textbf{Predictive performance for contemporary test data.} (A)
-		 The \revise{endophyte prevalence model}, trained on historic herbarium collection data, performed modestly at predicting prevalence in contemporary population surveys. The model captured regional trends across (A) longitude and (B) latitude. Crosses indicate predicted mean prevalence along with the 95\% CI (colored lines: \emph{A. hyemalis}: green, orange, \emph{E. virginicus}: purple) from the herbarium model. Contemporary prevalence is represented by grey points (point size reflects sample size) along with trend lines from generalized linear models (black line and shaded 95\% confidence interval). (C) Comparison of observed vs. predicted endophyte prevalence shows that contemporary test data had more variance between populations than contemporary predictions.}
+		 The \revise{endophyte prevalence model}, trained on historic herbarium collection data, performed modestly at predicting prevalence in contemporary population surveys. The model captured regional trends across (A) longitude and (B) latitude. Crosses indicate predicted mean prevalence along with the 95\% CI (colored lines: \emph{A. hyemalis}: green, orange, \emph{E. virginicus}: purple) from the herbarium model. Contemporary prevalence is represented by grey points (point size reflects sample size) along with trend lines from generalized linear models (black line and shaded 95\% confidence interval). (C) Comparison of \revise{contemporary} observed \revise{population prevalence} vs. predicted endophyte prevalence shows that contemporary test data had more variance between populations than \revise{in model} predictions.}
 	\label{fig:contemptestplot}
 \end{figure}
 
@@ -468,11 +467,11 @@ Taken together, this suggests an overall strengthening of host-symbiont mutualis
 
 \revise{\subsubsection*{Responses of host-microbe symbioses to climate change}}
 Differences across host species underscore that while all of these $C_3$ grasses share similar broad-scale distributions, each engages in unique biotic interactions and has unique responses to environmental drivers.
-We identified hotspots of change for \emph{A. perennans}, \tom{which was the species that experienced the strongest absolute changes in endophyte prevalence (Fig. \ref{fig:svc_time_map}).}{Not sure what this is based on. In Fig 2 both AGrostis species look like they have similar increases.}
-Predicted declines of $0.9$\% per year in the southern portion of its range and predicted increases of up to $2$\% per year in the north suggest a potential poleward range shift of endophyte-symbiotic plants; whether the overall host distribution is shifting in parallel is an exciting next question.
+We identified hotspots of change for \emph{A. perennans}, which was \revise{the species whose endophyte prevalence was most responsive to changes in climate drivers} (Fig. \ref{fig:climate_correlation_plot}).
+Predicted declines of $0.9$\% per year in the southern portion of its range and predicted increases of up to $2$\% per year in the north suggest a potential poleward range shift of endophyte-symbiotic plants (Fig. \ref{fig:svc_time_map}B); whether the overall host distribution is shifting in parallel is an exciting next question.
 
 Based on previous work demonstrating that endophytes can shield their hosts from drought stress (reviewed in \citet{decunta2021systematic}), we generally predicted that drought conditions would be a driver of increasing endophyte prevalence. 
-In contrast to this expectation, increasing prevalence for \emph{A. perennans} was associated with increasing autumn temperature and precipitation (Fig. \ref{fig:climate_correlation_plot}). 
+In contrast to this expectation, increasing prevalence for \emph{A. perennans} was associated with \revise{both} increasing autumn temperature and precipitation (Fig. \ref{fig:climate_correlation_plot}). 
 To our knowledge, the response of the symbiosis in \emph{A. perennans} to drought has not been examined experimentally, but in a greenhouse experiment, endophytes had a positive effect on host reproduction under shaded, low-light conditions \citep{davitt2010costs}. 
 Our results also hint that it may be useful to investigate whether lagged climate effects are important predictors of host fitness in this system \cite{evers2021lagged}.
 Endophyte prevalence of the autumn-flowering \emph{A. perennans} was strongly linked with decreasing spring precipitation, and that of the spring-flowering \emph{A. hyemalis} was associated with decreasing autumn precipitation (Fig. \ref{fig:climate_correlation_plot}B). 
@@ -491,19 +490,19 @@ Genotypic variation in \emph{Epichloë} endophytes, particularly in genes respon
 Genotypic variation of the hosts themselves can also influence interaction outcomes \cite{gundel2011interaction,parker2017genotype}.
 Whether hotspots of change in endophyte prevalence reflect selection for genotype-pairings with particularly strong fitness benefits is an unanswered question.}\linelabel{R2C45-end}
 \linelabel{R2C44-begin}Additionally, \emph{Epichloë} endophytes have been connected to a suite of non-drought related fitness benefits including herbivory \revise{defense} \citep{brem2001epichloe}, salinity resistence \citep{wang2020effects}, and mediation of pathogens \cite{vikuk2019infection} and the soil microbiome \citep{roberts2015rhizosphere}. 
-\revise{Broad changes in the distribution and abundance of natural enemies, along with stresses from anthropogenic changes in landcover and pollution \cite{sage2020global} likely influence the benefits of symbiosis \cite{rudgers2020climate}.
+\revise{Broad changes in the distribution and abundance of natural enemies \cite{cote2004ecological}, along with stresses from anthropogenic changes in landcover and pollution \cite{sage2020global} likely influence the benefits of symbiosis \cite{rudgers2020climate}.
 The historic trends that we observed result from the combination of these fitness benefits playing out across the heterogeneous map of a changing climate and other anthropogenic drivers.\linelabel{R2C44-end}
 	
 Our results indicate that \emph{Epichloë} symbiosis has likely improved host fitness in stressful environments leading to increasing prevalence. 
 \linelabel{R2C42-begin}What is less clear is how this will influence future range shifts.  
 Based on our analysis, it is likely that the symbiosis will facilitate range shifts for hosts by improving population growth at range edges.
-Previous population surveys \citep{sneck2017variation,rudgers2009benefits,semmartin2015broad} attributed environment-dependent gradients in endophyte prevalence to symbiont-derived fitness benefit,s allowing hosts to persist in environments where they otherwise could not \citep{afkhami2014mutualist,kazenel2015mutualistic}.
-However, symbiont-facilitated range shifts require that endophytes be present in the populations to be able to support population growth. 
-The arid western range edge of \emph{A. hyemalis} has had historically low endophyte prevalence (Fig. \ref{fig:svc_space_year_map}), and while prevalence has increased most quickly in the regions with historically low endophyte prevalence (Fig. \ref{fig:initialprev_trend_plot}), the complete absence of endophytes at range edges in this species would make it impossible for prevalence to increase without dispersal of symbiotic seeds \cite{fowler2023geographic}.
+Previous population surveys \citep{sneck2017variation,rudgers2009benefits,semmartin2015broad} attributed environment-dependent gradients in endophyte prevalence to symbiont-derived fitness benefit's allowing hosts to persist in environments where they otherwise could not \citep{afkhami2014mutualist,kazenel2015mutualistic}.
+\linelabel{R1C11-b-begin}However, symbiont-facilitated range shifts require that endophytes be present in the populations to be able to support population growth. 
+The arid western range edge of \emph{A. hyemalis} has had historically low endophyte prevalence (Fig. \ref{fig:svc_space_year_map}), and while prevalence has increased most quickly in the regions with historically low endophyte prevalence (Fig. \ref{fig:initialprev_trend_plot}), the complete absence of endophytes at range edges in this species would make it impossible for prevalence to increase without dispersal of symbiotic seeds \cite{fowler2023geographic}.\linelabel{R1C11-b-end}
 These factors potentially contribute to the ability of the host species to track its environmental niche. 
-Another interesting question is the degree to which symbiotic and non-symbiotic hosts, which occupy overlapping but distinct niches, are likely to experience distribution shifts in tandem or at different rates in future work.\linelabel{R2C42-end}
+Another interesting question is the degree to which symbiotic and non-symbiotic hosts, which occupy overlapping but distinct niches, are likely to experience distribution shifts in tandem or at different rates in future.\linelabel{R2C42-end}
 More extreme climate stresses, which are expected more frequently in the future \cite{seneviratne2021weather}, have the potential to alter the costs and benefits of the interaction. 
-The past indicates a resilient symbiosis, but it will be crucial to understand whether more extreme future climate conditions could tip this interaction to deteriote.}\linelabel{R2C14-end}
+The past indicates a resilient symbiosis, but it will be crucial to understand whether more extreme future climate conditions could tip this interaction to deteriorate.}\linelabel{R2C14-end}
 
 
 
@@ -512,12 +511,12 @@ The past indicates a resilient symbiosis, but it will be crucial to understand w
 \revise{\subsubsection*{Steps towards forecasts of host-microbe symbioses}}
 The combination of a spatially-explicit model and historic herbarium specimens allowed us to identify regions of both increasing and decreasing endophyte prevalence, however we see several next steps toward the goal of predicting host and symbiont niche-shifts in response to future climate change.
 While the model recreated the large-scale spatial trends observed in contemporary population surveys, test data contained more population-to-population variability in prevalence than could be explained by the model. 
-\linelabel{R2C38-begin}\revise{We interpret this to mean that the model captures coarse-scale spatial and temporal trends reasonably well, but is not equipped to capture local-scale nuances that generate population-to-population differences.} \linelabel{R2C38-end}
+\linelabel{R2C39-begin}\revise{We interpret this to mean that the model captures coarse-scale spatial and temporal trends reasonably well, but is not equipped to capture local-scale nuances that generate population-to-population differences.} \linelabel{R2C39-end}
 Validating our model predictions \revise{with this test}, a rare extra step in collections-based studies, allows us to identify ways in which the model's out-of-sample predictive ability could be improved.
 \linelabel{R2C43-begin}Lack of information on local variability \revise{in symbiont prevalence} may simply be a feature of data derived from herbarium specimens. 
 \revise{Natural history collectors sample one or a few specimens from local populations, and these observations are aggregated by the model to derive broad-scale estimates.}\linelabel{R2C43-end}
-This suggests that increasing local replication should be a factor considered in future collection efforts of natural history specimens, balanced with the required time and effort \linelabel{R1C9-begin} \revise{and with limitations on storage space within collections}. \linelabel{R1C9-end} 
-Poor predictive ability at local scales in this grass-endophyte system is not surprising, as previous studies have found that local variation, \tom{even to the scale of hundreds of meters}{Also see new paper in Functional Ecology by Pedro Gundel's group that has very local scale differences (I am a coauthor but did not do much.).} can structure endophyte-host niches \cite{kazenel2015mutualistic}. 
+This suggests that increasing local replication should be a factor considered in future collection efforts of natural history specimens, \revise{balancing} the required time and effort \linelabel{R1C9-begin} \revise{along with limitations on storage space within collections}. \linelabel{R1C9-end} 
+Poor predictive ability at local scales in this grass-endophyte system is not surprising, as previous studies have found that local variation, even to the scale of hundreds of meters can structure endophyte-host niches \cite{kazenel2015mutualistic,gundel2024temporal}. 
 An important step would be integrating data from local and regional scales  through modeling to constrain estimates of local and regional variation.
 
 Predicting future niche-shifts of hosts and symbionts will require considering the coupled dynamics of host-symbiont dispersal in addition to fitness benefits.
@@ -546,9 +545,9 @@ Spatial autocorrelation is another phenomenon likely common in data derived from
 Beyond spatial autocorrelation of outcomes, systematic differences in sampling across space can result in spatial bias. 
 One strength of herbaria as vehicles for global change research is the relative ease with which specimens from many distinct geographic locations can be examined. 
 We visited just nine institutions in the central southern United States, and we were able to sample seeds from specimens across an area spanning  over 300,000 sq. km, including specimens from Mexico and Canada.
-The specimens we examined are concentrated in the south-central United States, with fewer specimens in the rapidly warming northeastern United States.
+Despite this advantage, the specimens we examined are concentrated in the south-central United States, with fewer specimens in the rapidly warming northeastern United States reflecting the regional focus of herbaria.
 We provide a simulation analysis exploring the potential impact of spatially and temporally biased sampling (Appendix A - Supporting Methods). 
-We found that the spatially-varying coefficient model had a strong ability to re-capitulate temporal trends across space in simulated data, and that this result was robust to relatively high levels of spatial bias ($80$\% of data missing from region).
+We found that the spatially-varying coefficient model had a strong ability to re-capitulate temporal trends across space in simulated data, and that this result was robust to relatively high levels of spatial bias ($80$\% of data missing from one spatial region).
 Simulation analyses that extend this work to consider the myriad ways herbarium data may be biased (i.e. testing different spatial arrangements and scales of spatial bias, or testing different sample sizes) would be extremely valuable \cite{gaul2020data,erickson2021accounting,daru2018widespread,meineke2021bias}.
 }\linelabel{R1C4-discussion-end}
 
@@ -577,7 +576,7 @@ The ``time machine'' of natural history collections revealed evidence of mutuali
 	We thank Dr. Jessica Budke for help in drafting our initial destructive sampling plan, and to the many staff members of herbaria who facilitated our research visits, as well as to the hundreds of collectors who contributed to the natural history collections. 
 	Several high school and undergraduate researchers contributed to data collection, including A. Appio-Riley, P. Bilderback, E. Chong, K. Dickens, L. Dufresne, B. Gutierrez, A. Johnson, S. Linder, E. Scales, B. Scherick, K. Schrader, E. Segal , G. Singla, and M. Tucker.
 	This research was supported by funding from National Science Foundation (grants 1754468 and 2208857) and by funding from the Texas Ecolab Program.
-\tom{Two anonymous reviewers greatly improved an earlier version of this manuscript.}{Always thank the reviewers!}
+\revise{Two anonymous reviewers greatly improved an earlier version of this manuscript.}
 
 
 	%%%%%%%%%%%%%%%%%%%%%
@@ -600,7 +599,6 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 	Code for analyses can be found through a publicly available repository (https://github.com/joshuacfowler/EndoHerbarium) that will be permanently archived upon publication.
 }
 \newpage{}
-	\tom{}{I am not sure if it's because I messed with some of the font packages, but some of the citations are a litte messy (some lowercase journal names, some uppercase). Latin names in titles should always be italicized. They will ask you to clean this up sooner or later, so I would do it sooner.}
 	\bibliographystyle{plainnat}
 	\bibliography{endo_herbarium}
 	
@@ -670,7 +668,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = .5\linewidth]{../Plots/overlay_plot.png}
-	\caption[Graphical posterior predictive check of the endophyte prevalence model fit]{\revise{\textbf{Graphical posterior predictive check of \revise{the endophyte prevalence}model fit.}} Consistency between \revise{observed} data and \revise{predicted} values indicate that the fitted model accurately describes the data. Graph shows density curves for the observed data (black) along with 100 \revise{predicted} datasets (red).}
+	\caption[Graphical posterior predictive check of the endophyte prevalence model fit]{\revise{\textbf{Graphical posterior predictive check of \revise{the endophyte prevalence} model fit.}} Consistency between \revise{observed} data and \revise{predicted} values indicate that the fitted model accurately describes the data. Graph shows density curves for the observed data (black) along with 100 \revise{predicted} datasets (red).}
 			\label{fig:overlayplot}
 \end{figure}
 
@@ -694,7 +692,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{../Plots/posterior_plot.png}
-	\caption[Posterior estimates of parameters describing global temporal trends in endophyte prevalence trends.]{\revise{\textbf{Posterior estimates of parameters describing global intercept and temporal trends from the endophyte prevalence model.}} Density curves show the probability density along with mean (colored line) and $95$\% CI (black lines) for the (A) intercept and (B) slope terms, \textbf{A} and \textbf{T} respectively \revise{from Eqn. \ref{eq:trends}}. Colors represent each host species}
+	\caption[Posterior estimates of parameters describing global temporal trends in endophyte prevalence trends.]{\revise{\textbf{Posterior estimates of parameters describing global intercept and temporal trends from the endophyte prevalence model.}} Density curves show the probability density along with mean (colored line) and $95$\% CI (black lines) for the (A) intercept and (B) slope terms, $A$ and $T$ respectively \revise{from Eqn. \ref{eq:trends}}. Colors represent each host species}
 	\label{fig:temporal_posterior}
 \end{figure}
 
@@ -710,7 +708,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{../Plots/conservative_comparison_plot.png}
-	\caption[Comparison of parameter estimates from endophyte prevalence model fit to data with liberal versus conservative endophyte scores]{\revise{\textbf{Comparison of endophyte prevalence model estimates fit to data with liberal versus conservative endophyte scores.} Liberal and conservative scores document uncertainty in the endophyte identification process. Each specimen was given both a liberal and conservative scores. In cases of uncertain identification, the liberal status assumed a potential endophyte identification was more likely to be endophyte-positive while the conservative status assumed that the potential endophyte identification was less likely to be endophyte-positive}. (A) Posterior estimates of global temporal trend \revise{(\textbf{T} from Eqn. \ref{eq:trends}}) for the endophyte prevalence model fit to liberal scores (grey) and to conservative scores (blue). Maps show the spatially varying temporal trend estimates \revise{($\tau$ \revise{from Eqn. \ref{eq:trends}})} from the endophyte prevalence model fit to conservative scores for (B) \emph{A. hyemalis}, (C) \emph{A. perennans}, and (D) \emph{E. virginicus}. Note that the color scale differs between this visualization and Fig. \ref{fig:svc_time_map} \revise{that shows estimates fit using liberal endophyte scores.}}
+	\caption[Comparison of parameter estimates from endophyte prevalence model fit to data with liberal versus conservative endophyte scores]{\revise{\textbf{Comparison of endophyte prevalence model estimates fit to data with liberal versus conservative endophyte scores.} Liberal and conservative scores document uncertainty in the endophyte identification process. Each specimen was given both a liberal and conservative scores. In cases of uncertain identification, the liberal status assumed a potential endophyte identification was more likely to be endophyte-positive while the conservative status assumed that the potential endophyte identification was less likely to be endophyte-positive}. (A) Posterior estimates of global temporal trend \revise{($T$ from Eqn. \ref{eq:trends}}) for the endophyte prevalence model fit to liberal scores (grey) and to conservative scores (blue). Maps show the spatially varying temporal trend estimates \revise{($\tau$ \revise{from Eqn. \ref{eq:trends}})} from the endophyte prevalence model fit to conservative scores for (B) \emph{A. hyemalis}, (C) \emph{A. perennans}, and (D) \emph{E. virginicus}. Note that the color scale differs between this visualization and Fig. \ref{fig:svc_time_map} \revise{that shows estimates fit using liberal endophyte scores.}}
 	\label{fig:conservative_scores_plot}
 \end{figure}
 
@@ -781,9 +779,9 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 			Herbarium Collection        & \emph{A. hyemalis}        & \emph{A. perennans}      &      \emph{E. virginicus}\\ \hline
 			Botanical Research Institute of Texas &   350   &    190&    198    \\
 			Louisiana State University &     72  & 38  &   62       \\
-			Mercer Botanic Garden &   3    & --     &     6\\
+			Mercer Botanic Garden &   3    & 0     &     6\\
 			Missouri Botanic Garden& 210 & 205 & 122\\
-		    Texas A\&M &  100 &-- & 72 \\
+		    Texas A\&M &  100 &0 & 72 \\
 		    University of Kansas & 134 & 34 &  197\\
 		    University of Oklahoma & 85 &34&  95\\
 		    University of Texas  \& Lundell   &  183& 91& 102\\		    				 			     			     
@@ -816,7 +814,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \textbf{Workflow}: We  described the workflow in the method section of the manuscript. \\
 \textbf{Software}:  All statistics were performed using Maxent 3.3.4 and R4.3.1 with packages terra, usdm, spThin and dismo.\\
 \textbf{Code availability}: Available through this link: https://github.com/joshuacfowler/EndoHerbarium \\
-\textbf{Data availability}: Will be available upon acceptance \\
+\textbf{Data availability}: Data was accessed through open-source R packages \emph{rgbif}. \emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, \emph{A. perennans} \cite{https://doi.org/10.15468/dl.wtne24}, \emph{E.  virginicus} \cite{https://doi.org/10.15468/dl.yt76uh} \\
 {\color{blue}{Assessment}}\\
 We used AUC to test model performance.\\
 {\color{blue}{Prediction }}\\
@@ -907,11 +905,11 @@ We analyzed each dataset with a model given by Eqn. \ref{eq:sim_trends} similar 
 
 \begin{equation}
 	\label{eq:sim_trends}
-	logit(\hat{P}_{h,i}) = \boldsymbol{A}_{h} + \boldsymbol{T}_{h}*year_i  + \alpha_{h,l_{i}} + \tau_{h,l_i}*year_i + \delta_{l_i}
+	logit(\hat{P}_{h,i}) = A_{h} + T_{h}*year_i  + \alpha_{h,l_{i}} + \tau_{h,l_i}*year_i + \delta_{l_i}
 \end{equation}
 
 Where symbiont presence/absence of the $i^{th}$ specimen ($P_{h,i}$) was modeled as a Bernoulli response variable with expected probability of symbiont occurrence $\hat{P}_{h,i}$ for each host species $h$.
-We modeled $\hat{P}_{h,i}$ as a linear function of intercept $\boldsymbol{A}_h$ and slope $\boldsymbol{T}_{h}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
+We modeled $\hat{P}_{h,i}$ as a linear function of intercept $A_h$ and slope $T_{h}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
 Similar to the SVC model of our central analysis (Eqn. \ref{eq:trends}), we estimated a shared variance term with the spatially-dependent random effect $\delta_{l_i}$, intended to account for residual spatial variation. 
 However in this analysis we omit i.i.d.-random effects terms associated with collector and scorer identity ($\chi_{c_i}$ and $\omega_{s_i}$ in Eqn. \ref{eq:trends}) for the sake of simplicity.
 
@@ -920,16 +918,16 @@ Our analysis of the full simulated data shows that our model is suitably flexibl
 Beyond this,  the model also qualitatively captures the spatial patterns in temporal trends even with large amounts of data missingness (i.e missing up to $80$\% of the datapoints (Fig. \ref{fig:sim_svc_plot} p-r)). 
 
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 	\centering
-	\includegraphics[width = .7\linewidth]{../Plots/sim_svc_plot.png}
+	\includegraphics[width = .65\linewidth]{../Plots/sim_svc_plot.png}
 	\caption[Mean predicted spatially-varying trend in symbiont prevalence across datasets with different levels of missingness]{\textbf{Mean predicted spatially-varying trend in symbiont prevalence across datasets with different levels of missingness.} Color indicates the estimated mean temporal trend within each pixel across the simulated data. Panels show estimates for models fit to different levels of missing data for species 2 in the northeast region ((a-c) the full dataset, (d-f) missing all datapoints across entire temporal period, (g-i) missing all datapoints only during the recent period, (j-l) missing 80\% of the datapoints  only during the recent period, (m-o)  missing 50\% of the datapoints  only during the recent period, (p-r) missing 80\% of the datapoints across the entire temporal period, (s-u) missing 50\% of the datapoints across the entire temporal period). The mesh boundary that bounds the "full" simulated dataset is plotted in each panel.}
 	\label{fig:sim_svc_plot}
 \end{figure}
 
 
 
-While this analysis is not an exhaustive examination of the influence of sampling bias on our results for several reasons, including not examining how different strengths in temporal trends, different spatial arrangments of missing-ness influence model estimates, or different sample sizes, it demonstrates that the spatially-varying modelling framework implemented in INLA we emply can suitably recover regional trends even with significant spatially-bias within data collection, and further the analysis is likely robust to temporally-structured bias (missing data within recent collection period). 
+While this analysis is not an exhaustive examination of the influence of sampling bias on our results for several reasons (including not examining how different strengths in temporal trends, different spatial arrangments of missing-ness influence model estimates, or different sample sizes influence results), it demonstrates that the spatially-varying modelling framework implemented in INLA we employ can suitably recover regional trends even with significant spatially-bias within data collection, and further the analysis is likely robust to temporally-structured bias (missing data within recent collection period). 
 Future work could more fully explore the scenarios that cause this ability to break down. 
 We expect this simulation reflects what may be a common scenario for research investigating global change using natural history specimens. 
 Collection effort by trained taxonomists and professional collectors peaked in the past, and collections contain relatively fewer modern specimens in many regions. 

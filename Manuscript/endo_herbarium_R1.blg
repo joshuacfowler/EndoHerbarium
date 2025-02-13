@@ -1,84 +1,63 @@
-This is BibTeX, Version 0.99d (TeX Live 2023)
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: endo_herbarium_R1.aux
 The style file: plainnat.bst
 Database file #1: endo_herbarium.bib
-Repeated entry---line 288 of file endo_herbarium.bib
+Repeated entry---line 278 of file endo_herbarium.bib
  : @article{fine1975vectors
  :                         ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 861 of file endo_herbarium.bib
- : @article{afkhami2012fungal
- :                           ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1067 of file endo_herbarium.bib
+Repeated entry---line 1028 of file endo_herbarium.bib
  : @article{brem2001epichloe
  :                          ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1245 of file endo_herbarium.bib
- : @article{aitken2008adaptation
- :                              ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1289 of file endo_herbarium.bib
- : @article{hillerislambers2013will
- :                                 ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1516 of file endo_herbarium.bib
- : @article{kazenel2015mutualistic
- :                                ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1781 of file endo_herbarium.bib
- : @article{schardl2012chemotypic
- :                               ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1833 of file endo_herbarium.bib
+Repeated entry---line 1783 of file endo_herbarium.bib
  : @article{treindl2023genetic
  :                            ,
 I'm skipping whatever remains of this entry
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
-Warning--empty journal in Rprism2015
 Warning--empty journal in seneviratne2021weather
 Warning--empty journal in simpson2017penalising
-You've used 117 entries,
+You've used 122 entries,
             2773 wiz_defined-function locations,
-            1264 strings with 31399 characters,
-and the built_in function-call counts, 67004 in all, are:
-= -- 5754
-> -- 5076
-< -- 30
-+ -- 1701
-- -- 1584
-* -- 6323
-:= -- 10522
-add.period$ -- 358
-call.type$ -- 117
-change.case$ -- 871
-chr.to.int$ -- 117
-cite$ -- 239
-duplicate$ -- 2443
-empty$ -- 4695
-format.name$ -- 1735
-if$ -- 13589
-int.to.chr$ -- 1
+            1283 strings with 29806 characters,
+and the built_in function-call counts, 69218 in all, are:
+= -- 5947
+> -- 5211
+< -- 34
++ -- 1750
+- -- 1626
+* -- 6506
+:= -- 10864
+add.period$ -- 372
+call.type$ -- 122
+change.case$ -- 899
+chr.to.int$ -- 120
+cite$ -- 248
+duplicate$ -- 2532
+empty$ -- 4875
+format.name$ -- 1784
+if$ -- 14044
+int.to.chr$ -- 3
 int.to.str$ -- 1
-missing$ -- 116
-newline$ -- 598
-num.names$ -- 468
-pop$ -- 1563
+missing$ -- 118
+newline$ -- 622
+num.names$ -- 488
+pop$ -- 1621
 preamble$ -- 1
-purify$ -- 755
+purify$ -- 779
 quote$ -- 0
-skip$ -- 1989
+skip$ -- 2063
 stack$ -- 0
-substring$ -- 2854
-swap$ -- 136
+substring$ -- 2938
+swap$ -- 146
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1282
-warning$ -- 5
-while$ -- 550
+type$ -- 1337
+warning$ -- 4
+while$ -- 570
 width$ -- 0
-write$ -- 1528
-(There were 8 error messages)
+write$ -- 1590
+(There were 3 error messages)
