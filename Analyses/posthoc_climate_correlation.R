@@ -883,7 +883,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
   facet_grid(species ~ name,
              labeller = labeller(name =climate_labels),
-             scales = "free")+
+             scales = "free_x")+
   scale_color_manual(values = species_colors)+
   scale_fill_manual(values = species_colors)+
   scale_linetype_manual(values = c("dashed", "solid") )+
@@ -1258,6 +1258,14 @@ elvi_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], specie
 ELVI_climate_trends_plot <- (elvi_tmean_trend + elvi_ppt_trend ) / (elvi_tmean_sd_trend+elvi_ppt_sd_trend)
 
 ggsave(ELVI_climate_trends_plot, filename = "Plots/ELVI_climate_trends_plot.png", width = 12, height = 8)
+
+
+
+
+
+
+###### generating some summaries for the paper ##############
+
 
 
 
