@@ -1,0 +1,185 @@
+% ======================================================= %
+% Document: TEMPLATE FOR RESPONSES TO REVIEWERS
+% Author: Andrea Ballatore
+% Date: Jan 7, 2013
+% Source: https://raw.githubusercontent.com/ucd-spatial/Datasets/master/tex_response_to_reviewers_template/responses_to_reviewers.tex
+% Modified by Eduard Szöcs, 10.03.2015
+% ======================================================= %
+\documentclass[12pt]{article}
+
+% packages
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{color}
+\definecolor{mygray}{gray}{0.6}
+\usepackage[utf8]{inputenc}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[
+	round,	%(defaultage in the main file and \input ) for round parentheses;
+	colon,	% (default) to separate multiple citations with colons;
+	authoryear,% (default) for author-year citations;
+	sort,		% orders multiple citations into the sequence in which they
+]{natbib}
+\usepackage[%disable
+	]{todonotes}
+
+\usepackage{anysize}
+\marginsize{2.5cm}{2.5cm}{1.5cm}{2.5cm}
+
+\usepackage{xr}
+\externaldocument[ms-]{endo_herbarium_R2}
+
+% macros
+% add a counter
+\newcounter{cN}
+\setcounter{cN}{0}
+
+\newcommand{\comment}[1]{
+	\vspace{2em}
+	\refstepcounter{cN} % incrment counter
+	\noindent \hangindent=0em \textbf{\textcolor{Maroon}{\uline{Comment \thecN}:~}}\emph{``#1''}
+	}
+
+\newcommand{\response}[1]{
+	\\[0.25em]
+	\hangindent=2.3em \textbf{\textcolor{NavyBlue}{\uline{Response}:~}}#1
+	}
+
+\newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
+
+
+\newcommand{\linesref}[2]{
+		\\[0.25em]
+	\hangindent=2.3em {\color{Mahogany} Line(s): \ref{#1} - \ref{#2}}
+}
+\newcommand{\jacob}[2]{{\color{blue}{#1}}\footnote{\textit{\color{blue}{#2}}}}
+%\IfValueT{#2}{- \ref{#2}}
+\newcommand{\tom}[2]{{\color{red}{#1}}\footnote{\textit{\color{red}{#2}}}}
+%\IfValueT{#2}{- \ref{#2}}
+
+\usepackage[normalem]{ulem}
+\definecolor{darkred}{rgb}{1,.6,.6}
+\DeclareRobustCommand\problemline{\bgroup\markoverwith{\textcolor{darkred}{\rule[-0.9ex]{4pt}{3pt}}}\ULon}
+\DeclareRobustCommand{\problem}[1]{\problemline{#1}} % soul
+\setcounter{secnumdepth}{-1}
+
+\begin{document}
+% ======================================================= %
+\title{Manuscript GCB-25-0529 --- Response to reviewers}
+
+\maketitle
+% ======================================================= %
+\noindent To the editorial board,
+
+
+Thank you for the opportunity to submit a second revision of our manuscript to \emph{Global Change Biology}. 
+We appreciate that the reviewers acknowledged the positive attributes of our study while providing guidance to clarify our methods and improve our work's connections to the literature. 
+In response to their comments, we have revised throughout our manuscript to address key modeling assumptions and choices, as well as editing our manuscript to highlight connections to the quickly growing field of research that that uses herbarium specimens to study global change. We detail these changes in the point-by-point responses below.
+All of our changes are denoted in the revised manuscript with \revise{Mahogany font}. 
+
+With this revision, we hope you agree that our work is fit for publication in \emph{Global Change Biology}.
+
+
+\vspace{2em}
+Sincerely,
+
+Joshua Fowler
+
+Jacob Moutouama
+
+Tom Miller
+
+
+
+\newpage
+
+% ======================================================= %
+\section{Response to Reviewer 3}
+\vspace{-2em}
+
+
+
+%\comment{}
+%\response{}
+%\linesref{ms-R1C3-begin}{ms-R1C3-end}
+
+\comment{The manuscript presents an intriguing analysis of long-term changes in Epichloë endophyte prevalence in grass species using herbarium specimens. The study's findings, which indicate an increase in endophyte prevalence correlated with climate change, are potentially significant for understanding plant-microbe interactions in the context of environmental change. The use of herbarium specimens to assess these changes over an extended timescale is a novel and valuable approach. However, I have some concerns that require clarification.}
+\response{We thank Reviewer 3 for their constructive criticisms. In our point-by-point responses, we detail how we have incorporated them into our paper.}
+
+
+
+\comment{ Statistics: (1) The approximate Bayesian spatially-varying coefficients model is a sophisticated approach. However, the manuscript would benefit from a more detailed explanation of the model's assumptions, limitations, and sensitivity to prior specifications. }
+	\response{We thank Reviewer 3 for acknowledging the strength of our statistical approach. 
+		In response to this comment, we have edited our methods section to provide context on the general INLA approach and it's assumptions, which have been ennumerated by the teams who developed this method. In addition, we point out key areas where we expect this may influence our results.}
+	\linesref{ms-R3C1-begin}{ms-R3C1-end}
+	
+	
+\comment{(2) The justification for selecting specific prior distributions for the Matérn covariance function should be clarified. A sensitivity analysis exploring the impact of different prior choices on the results is presented in the Appendix, but a more thorough discussion of these results should be included in the main text. }
+	\response{We have added additional clarification about the assumptions that the Matérn covariance function rely upon, and about prior choice within our methods section. In addition, we have added material to our Discussion that highlights the important inferences provided by our sensitivity analysis}
+	\linesref{ms-R3C2a-begin}{ms-R3C2a-end}
+	\linesref{ms-R3C2b-begin}{ms-R3C2b-end}
+
+
+
+\comment{  Climate Data: (1) The analysis correlates changes in endophyte prevalence with changes in climate drivers. However, the choice of climate variables (mean and standard deviation of seasonal temperature and precipitation) needs to be better justified. For example, are these variables the most ecologically relevant for the host species and endophytes? (2) The spatial resolution of climate data may not align with the scale of ecological processes influencing endophyte prevalence. Consider discussing the potential implications of this mismatch.}
+\response{We have edited our methods section to more clearly explain that our goal in this analysis was to explore temperature and precipitation as the key climate factors of global change, that we expected there to be differences across seasons in the magnitude of climate change in these drivers, and that these seasons connect to the biology of our focal species - that they differ in their growing season. In addition, we have added to our discussion to acknowledge the potential importance of local scale ecological processes that may influence our analysis. We agree that the potential mismatch in scales is a limitation to herbarium studies in general, compounded not just by the scale of the climate data, but also by the spatial scale of georeferencing used to connect herbarium specimens to localities. The INLA modeling approach we employ cannot overcome inherent scale-limitations in the data, however treating space in a continuous way does allow us to make predictions at arbitrary spatial scales. Our climate analysis used predicted trends from the model to assess relationships with climate, meaning that the climate data were actually on a finer scale than the endophyte trend predictions. However this is, as Reviewer 3 notes, a broader scale than many potential ecological processes involved.}
+\linesref{ms-R3C3-begin}{ms-R3C3-end}
+
+
+\comment{ Out-of-Sample Validation: The out-of-sample predictive test with contemporary survey data is a strength of the study. However, the manuscript notes that the model exhibited relatively little local geographic variation, whereas the survey data were highly variable. This discrepancy suggests that local-scale factors not captured by the model may be important drivers of endophyte prevalence. A discussion of these potential factors (e.g., soil conditions, microclimate, local adaptation) and how they could be incorporated into future models would be valuable.}
+\response{We agree with Reviewer 3 that there is a wide array of other potential factors that would make valuable future directions, and the existing discussion touched on this already. We have expanded the existing material on this subject.}
+\linesref{ms-R3C5-begin}{ms-R3C5-end}
+
+
+\comment{The contemporary survey period (2013-2020) is at the most recent edge of the time period encompassed by the historical specimens used for model fitting. It would be beneficial to acknowledge and discuss any potential limitations associated with using contemporary data for out-of-sample validation, particularly if climate conditions or other environmental factors have changed significantly during this period.}
+\response{In response to this comment, we have revised our Discussion section to include further discussion of the potential implications of the out-of-sample validation test, particularly highlighting that the data do differ in scale and potentially climate conditions, and how this might inform future modeling efforts. Reviewer 3 points to potential non-stationarity as an explanation for mismatch in model validation. Previous investigations have found that stationarity is often a reasonable assumption to make and that there are not meaningul differences in out-of-sample validation tests that use blocks within and without time series (Bergmeir and Benitez, 2012, \emph{Information Sciences}).}
+\linesref{ms-R3C6-begin}{ms-R3C6-end}
+
+
+\comment{The manuscript interprets increases in Epichloë prevalence as adaptive changes that improve host fitness under increasing environmental stress. While this interpretation is reasonable, it is important to acknowledge that other factors (e.g., changes in land management practices, dispersal limitations) could also contribute to the observed trends.}
+\response{Thank you for urging us to further explore our interpretation of changes in endophyte prevalence. We also recognize that we can not definitively identify these changes in prevalence as adaptive changes in response to climate. In fact, we have recently submitted an additional manuscript that explore the potential role that other anthropogenic global change drivers, including land use and nitrogen deposition, have on changes in endophyte prevalence. While we touched on these ideas already in the existing Discussion, in response to this comment, we have edited our Discussion to more clearly communicate the potential for land management and other factors to contribute to these trends.}
+\linesref{ms-R3C7-begin}{ms-R3C7-end}
+
+
+
+\comment{The manuscript mentions that Epichloë endophytes have been connected to a suite of non-drought related fitness benefits, including herbivory defense, salinity resistance, and mediation of pathogens and the soil microbiome. Consider discussing how these factors might interact with climate change to influence endophyte prevalence.
+}
+\response{This is a great point that different factors may themselves interact with changing climate, and is also connected to Reviewer 3's Comment 7. And so we have edited our discussion material to more clearly communicte that these drivers themselve may interact with changing climate and its potential consequences for endophyte prevalence.}
+\linesref{ms-R3C8-begin}{ms-R3C8-end}
+
+
+
+\section{Response to Reviewer 4}
+\vspace{-2em}
+
+\comment{Fowler et al. examined herbarium specimens of three grass species spanning 200 years to investigate the persistence of Epichloë symbioses. This innovative and well-executed study highlights the underutilized value of herbarium collections and is well-suited for publication in Global Change Biology.}
+\response{We thank Reviewer 4 for their positive evaluation of our study, and we agree that the use of herbarium collections is a particuarly valuable part of this research and for studies of global change in particular.}
+
+
+\comment{The authors have responded thoroughly to previous reviewer comments. My only additional suggestion is to expand the discussion of how herbaria are increasingly being used in contemporary research. While the manuscript includes some general remarks on their importance, it would benefit from a few more references and deeper integration of this theme—particularly in the introduction and conclusion. The authors could note that herbaria have traditionally supported taxonomic studies but are now being used in broader fields, including global change biology, biodiversity monitoring, and disease ecology.}
+\response{In response to this comment, we have added references throughout our introduction that touch on these extended uses of herbarium specimens, and have also edited the Discussion and Conclusion sections to highlight the potential role that herbaria can play in global change research.}
+\linesref{ms-R4C10-begin}{ms-R4C10-end}
+\linesref{ms-R4C10b-begin}{ms-R4C10b-end}
+\linesref{ms-R4C10c-begin}{ms-R4C10c-end}
+
+\comment{Recent research by Jean Ristaino (on Phytophthora), Charles Davis (on plant responses to climate change), and Michael Bradshaw (on the spread of fungal pathogens) provides relevant examples (I noticed a couple references from these authors already). Given that plant diseases represent a form of microbial symbiosis, studies like this one contribute to an already growing body of work demonstrating the potential of herbarium specimens to reveal long-term patterns in host-pathogen dynamics and ecosystem change.}
+\response{Thank you for pointing us towards this body of work. We have added relevant citations throughout the introduction and discussion and also expanded the discussion to acknowledge the potential role that herbarium specimens can play in understanding plant-pathogen dynamics.}
+\linesref{ms-R4C11a-begin}{ms-R4C11a-end}
+\linesref{ms-R4C11b-begin}{ms-R4C11b-end}
+
+
+
+ 
+
+
+
+
+
+
+
+
+% ======================================================= %
+\end{document}
+% ======================================================= %
