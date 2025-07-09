@@ -1174,7 +1174,8 @@ svc_space_map_AGHY.1895 <- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   coord_sf(xlim = space_x, ylim = space_y)+
   gg(svc.space.pred_aghy.1895, aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[1], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
@@ -1185,7 +1186,8 @@ svc_space_map_AGHY.2020 <- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   coord_sf(xlim = space_x, ylim = space_y)+
   gg(svc.space.pred_aghy.2020, aes(fill = mean))+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[1], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
@@ -1196,7 +1198,8 @@ svc_space_map_AGPE.1895<- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   gg(svc.space.pred_agpe.1895, aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[2], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
@@ -1208,7 +1211,8 @@ svc_space_map_AGPE.2020<- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   gg(svc.space.pred_agpe.2020, aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[2], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
@@ -1221,7 +1225,8 @@ svc_space_map_ELVI.1895<- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   gg(svc.space.pred_elvi.1895, aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[3], subtitle = "year: 1895", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
@@ -1232,7 +1237,8 @@ svc_space_map_ELVI.2020<- ggplot()+
   geom_sf(data = states_map, color = "grey", linewidth = .1, fill = "#FAF9F6") +
   gg(svc.space.pred_elvi.2020, aes(fill = mean))+
   coord_sf(xlim = space_x, ylim = space_y)+
-  scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
+  scale_fill_viridis_c(option = "viridis", na.value = "transparent", limits = prevrange)+
+  # scale_fill_viridis_c(option = "turbo", na.value = "transparent", limits = prevrange)+
   labs(title = species_names[3], subtitle = "year: 2020", fill = "% prevalence", y = "Latitude", x = "Longitude")+
   theme_light()+
   theme(plot.title = element_text(face = "italic"))
