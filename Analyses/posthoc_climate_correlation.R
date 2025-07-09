@@ -813,7 +813,7 @@ tmean_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & !grepl("sd", 
         )
   # lims(y = c(0,1))
 
-# tmean_trend
+tmean_trend
 
 
 tmean_sd_trend <- ggplot(filter(prediction_df, grepl("tmean", name) & grepl("sd", name))) +
@@ -975,9 +975,9 @@ aghy_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], spec
 # aghy_tmean_sd_trend
 
 
-aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("summer", name) & !grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[1], species)  & grepl("ppt", name) & !grepl("summer", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -997,7 +997,7 @@ aghy_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species) 
         legend.text = element_text(face = "italic"),
   )
 # lims(y = c(0,1))
-
+ggsave(aghy_ppt_trend, filename = "aghy_ppt_trend.png", width = 9, height = 4)
 # aghy_ppt_trend
 
 aghy_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[1], species)  & grepl("ppt", name) & grepl("sd", moment))) +
@@ -1036,9 +1036,9 @@ AGHY_climate_trends_plot <- (aghy_tmean_trend + aghy_ppt_trend ) / (aghy_tmean_s
 ggsave(AGHY_climate_trends_plot, filename = "Plots/AGHY_climate_trends_plot.png", width = 12, height = 8)
 
 # agpe plots
-agpe_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("tmean", name) & !grepl("sd", moment))) +
+agpe_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("tmean", name) & grepl("autumn", name) & !grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, species == "A. perennans" & grepl("tmean", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, species == "A. perennans" & grepl("tmean", name) & grepl("autumn", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1061,9 +1061,9 @@ agpe_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species
 
 # agpe_tmean_trend
 
-agpe_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("tmean", name) & grepl("sd", moment))) +
+agpe_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("tmean", name) & grepl("autumn", name) & grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long,species == "A. perennans" & grepl("tmean", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long,species == "A. perennans" & grepl("tmean", name) & grepl("autumn", name)  & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1087,9 +1087,9 @@ agpe_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], spec
 agpe_tmean_sd_trend
 
 
-agpe_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+agpe_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("ppt", name) & grepl("autumn", name) & !grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[2], species)  & grepl("ppt", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[2], species)  & grepl("ppt", name) & grepl("autumn", name)  & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1112,9 +1112,9 @@ agpe_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species) 
 
 # agpe_ppt_trend
 
-agpe_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("ppt", name) & grepl("sd", moment))) +
+agpe_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], species)  & grepl("ppt", name) & grepl("autumn", name) & grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, species == "A. perennans" & grepl("ppt", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, species == "A. perennans" & grepl("ppt", name) & grepl("autumn", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1143,14 +1143,14 @@ agpe_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[2], specie
 # agpe_ppt_sd_trend$layers[4:6] <- NULL; agpe_ppt_sd_trend$layers[[3]]$aes_params$alpha  <-0
 
 
-AGPE_climate_trends_plot <- (agpe_tmean_trend + agpe_ppt_trend ) / (agpe_tmean_sd_trend+agpe_ppt_sd_trend)
+AGPE_climate_trends_plot <- (agpe_tmean_trend + agpe_ppt_trend ) #/ (agpe_tmean_sd_trend+agpe_ppt_sd_trend)
 
-ggsave(AGPE_climate_trends_plot, filename = "Plots/AGPE_climate_trends_plot.png", width = 12, height = 8)
+ggsave(AGPE_climate_trends_plot, filename = "AGPE_climate_trends_plot.png", width = 9, height = 4)
 
 # elvi plots
-elvi_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("tmean", name) & !grepl("sd", moment))) +
+elvi_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("tmean", name) & grepl("summer", name) & !grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, species == "E. virginicus" & grepl("tmean", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, species == "E. virginicus" & grepl("tmean", name) & grepl("summer", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1173,9 +1173,9 @@ elvi_tmean_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species
 
 # elvi_tmean_trend
 
-elvi_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("tmean", name) & grepl("sd", moment))) +
+elvi_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("tmean", name) & grepl("summer", name) & grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long,species == "E. virginicus" & grepl("tmean", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long,species == "E. virginicus" & grepl("tmean", name) & grepl("summer", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1199,9 +1199,9 @@ elvi_tmean_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], spec
 # elvi_tmean_sd_trend
 
 
-elvi_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("ppt", name) & !grepl("sd", moment))) +
+elvi_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("ppt", name) & grepl("summer", name) & !grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[3], species)  & grepl("ppt", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, grepl(species_names[3], species)  & grepl("ppt", name) & grepl("summer", name) & !grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1224,9 +1224,9 @@ elvi_ppt_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species) 
 
 # elvi_ppt_trend
 
-elvi_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("ppt", name) & grepl("sd", moment))) +
+elvi_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], species)  & grepl("ppt", name) & grepl("autumn", name) & grepl("sd", moment))) +
   geom_vline(aes(xintercept = 0), color = "grey80")+geom_hline(aes(yintercept = 0), color = "grey80")+
-  geom_point(data = filter(svc.pred_climate_subsample_long, species == "E. virginicus" & grepl("ppt", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
+  geom_point(data = filter(svc.pred_climate_subsample_long, species == "E. virginicus" & grepl("ppt", name) & grepl("autumn", name) & grepl("sd", name) & !grepl("annual", name)), aes(x = value, y = mean, color = species), alpha = 0.2)+
   geom_line(aes(value, mean, linetype = overlap)) +
   geom_ribbon(aes(value, ymin = q0.025, ymax = q0.975, fill = species), alpha = 0.2) +
   geom_ribbon(aes(value, ymin = q0.25, ymax = q0.75, fill = species), alpha = 0.2) +
@@ -1257,7 +1257,7 @@ elvi_ppt_sd_trend <- ggplot(filter(prediction_df, grepl(species_names[3], specie
 
 ELVI_climate_trends_plot <- (elvi_tmean_trend + elvi_ppt_trend ) / (elvi_tmean_sd_trend+elvi_ppt_sd_trend)
 
-ggsave(ELVI_climate_trends_plot, filename = "Plots/ELVI_climate_trends_plot.png", width = 12, height = 8)
+ggsave(ELVI_climate_trends_plot, filename = "Plots/ELVI_climate_trends_plot.png", width = 9, height = 5)
 
 
 
