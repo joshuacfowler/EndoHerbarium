@@ -15,13 +15,17 @@ Repeated entry---line 1783 of file endo_herbarium.bib
  : @article{treindl2023genetic
  :                            ,
 I'm skipping whatever remains of this entry
+Repeated entry---line 2065 of file endo_herbarium.bib
+ : @article{bradshaw2021global
+ :                            ,
+I'm skipping whatever remains of this entry
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
 Warning--empty journal in seneviratne2021weather
 Warning--empty journal in simpson2017penalising
 You've used 122 entries,
             2773 wiz_defined-function locations,
-            1283 strings with 29806 characters,
+            1282 strings with 29781 characters,
 and the built_in function-call counts, 69218 in all, are:
 = -- 5947
 > -- 5211
@@ -60,4 +64,4 @@ warning$ -- 4
 while$ -- 570
 width$ -- 0
 write$ -- 1590
-(There were 3 error messages)
+(There were 4 error messages)

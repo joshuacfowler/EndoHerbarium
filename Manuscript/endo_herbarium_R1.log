@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  12 FEB 2025 19:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  12 JUN 2025 11:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -657,7 +657,7 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 977.
 Here is how much of TeX's memory you used:
  9067 strings out of 492649
  140870 string characters out of 6129622
- 242720 words of memory out of 5000000
+ 242174 words of memory out of 5000000
  12602 multiletter control sequences out of 15000+600000
  18194 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -682,7 +682,7 @@ f-dist/fonts/type1/public/cm-super/sfti1095.pfb></usr/local/texlive/2018/texmf-
 dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/local/texlive/2018/texmf-di
 st/fonts/type1/public/cm-super/sfti1440.pfb></usr/local/texlive/2018/texmf-dist
 /fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on endo_herbarium_R1.pdf (74 pages, 15337334 bytes).
+Output written on endo_herbarium_R1.pdf (74 pages, 15334407 bytes).
 PDF statistics:
  1035 PDF objects out of 1200 (max. 8388607)
  894 compressed objects within 9 object streams
