@@ -3,76 +3,59 @@ Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: endo_herbarium.aux
 The style file: plainnat.bst
 Database file #1: endo_herbarium.bib
-Repeated entry---line 288 of file endo_herbarium.bib
+Repeated entry---line 278 of file endo_herbarium.bib
  : @article{fine1975vectors
  :                         ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 861 of file endo_herbarium.bib
- : @article{afkhami2012fungal
- :                           ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1067 of file endo_herbarium.bib
+Repeated entry---line 1028 of file endo_herbarium.bib
  : @article{brem2001epichloe
  :                          ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 1245 of file endo_herbarium.bib
- : @article{aitken2008adaptation
- :                              ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1289 of file endo_herbarium.bib
- : @article{hillerislambers2013will
- :                                 ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1516 of file endo_herbarium.bib
- : @article{kazenel2015mutualistic
- :                                ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 1781 of file endo_herbarium.bib
- : @article{schardl2012chemotypic
- :                               ,
+Repeated entry---line 2065 of file endo_herbarium.bib
+ : @article{bradshaw2021global
+ :                            ,
 I'm skipping whatever remains of this entry
 Warning--empty year in edwards2024university
 Warning--empty year in edwards2024university
-Warning--empty journal in Rprism2015
 You've used 105 entries,
             2773 wiz_defined-function locations,
-            1204 strings with 28600 characters,
-and the built_in function-call counts, 60384 in all, are:
-= -- 5201
-> -- 4557
-< -- 26
-+ -- 1527
-- -- 1422
-* -- 5713
-:= -- 9471
-add.period$ -- 322
+            1199 strings with 26418 characters,
+and the built_in function-call counts, 60371 in all, are:
+= -- 5204
+> -- 4548
+< -- 27
++ -- 1524
+- -- 1419
+* -- 5711
+:= -- 9469
+add.period$ -- 321
 call.type$ -- 105
-change.case$ -- 783
+change.case$ -- 781
 chr.to.int$ -- 105
-cite$ -- 213
-duplicate$ -- 2197
+cite$ -- 212
+duplicate$ -- 2199
 empty$ -- 4236
-format.name$ -- 1555
-if$ -- 12251
+format.name$ -- 1554
+if$ -- 12248
 int.to.chr$ -- 1
 int.to.str$ -- 1
 missing$ -- 103
-newline$ -- 538
+newline$ -- 537
 num.names$ -- 420
-pop$ -- 1395
+pop$ -- 1385
 preamble$ -- 1
-purify$ -- 678
+purify$ -- 677
 quote$ -- 0
 skip$ -- 1786
 stack$ -- 0
-substring$ -- 2614
-swap$ -- 126
+substring$ -- 2632
+swap$ -- 128
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 1155
-warning$ -- 3
-while$ -- 499
+warning$ -- 2
+while$ -- 500
 width$ -- 0
 write$ -- 1377
-(There were 7 error messages)
+(There were 3 error messages)

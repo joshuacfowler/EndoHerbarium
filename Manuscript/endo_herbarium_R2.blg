@@ -1,0 +1,70 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: endo_herbarium_R2.aux
+The style file: plainnat.bst
+Database file #1: endo_herbarium.bib
+Repeated entry---line 278 of file endo_herbarium.bib
+ : @article{fine1975vectors
+ :                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1028 of file endo_herbarium.bib
+ : @article{brem2001epichloe
+ :                          ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1783 of file endo_herbarium.bib
+ : @article{treindl2023genetic
+ :                            ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 2065 of file endo_herbarium.bib
+ : @article{bradshaw2021global
+ :                            ,
+I'm skipping whatever remains of this entry
+Warning--empty year in edwards2024university
+Warning--empty year in edwards2024university
+Warning--can't use both volume and number fields in james2013introduction
+Warning--empty year in schmidt2025collector
+Warning--empty year in schmidt2025collector
+Warning--empty journal in seneviratne2021weather
+Warning--empty journal in simpson2017penalising
+You've used 137 entries,
+            2773 wiz_defined-function locations,
+            1356 strings with 32789 characters,
+and the built_in function-call counts, 77215 in all, are:
+= -- 6633
+> -- 5777
+< -- 41
++ -- 1942
+- -- 1803
+* -- 7236
+:= -- 12123
+add.period$ -- 417
+call.type$ -- 137
+change.case$ -- 1000
+chr.to.int$ -- 135
+cite$ -- 281
+duplicate$ -- 2840
+empty$ -- 5464
+format.name$ -- 1980
+if$ -- 15666
+int.to.chr$ -- 3
+int.to.str$ -- 1
+missing$ -- 134
+newline$ -- 697
+num.names$ -- 548
+pop$ -- 1809
+preamble$ -- 1
+purify$ -- 866
+quote$ -- 0
+skip$ -- 2302
+stack$ -- 0
+substring$ -- 3287
+swap$ -- 163
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 1497
+warning$ -- 7
+while$ -- 638
+width$ -- 0
+write$ -- 1783
+(There were 4 error messages)
