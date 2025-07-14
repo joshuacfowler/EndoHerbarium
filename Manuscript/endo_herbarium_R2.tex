@@ -88,7 +88,7 @@
 	
 	\bigskip
 	
-	\textit{Keywords}: climate change, \emph{Epichloë}, herbarium, INLA, museum specimen, plant-microbe symbiosis, \emph{Poaceae}, spatially-varying coefficients model
+	\textit{Keywords}: climate change, \emph{Epichloë}, herbarium, INLA, museum specimen, plant-microbe symbiosis, Poaceae, spatially-varying coefficients model
 	
 	\bigskip
 	
@@ -112,8 +112,8 @@ Specifically, we \firstrevise{examined} 2,346 herbarium specimens of three grass
 Changes in seasonal climate drivers were associated with increasing endophyte prevalence. 
 Notably, increasing precipitation during the peak growing season for \emph{Agrostis} species and decreasing precipitation for \emph{E. virginicus} were associated with increasing endophyte prevalence.
 Changes in the variability of precipitation and temperature during off-peak seasons were also important predictors of increasing endophyte prevalence. 
-Our analysis performed favorably in an out-of-sample predictive test with contemporary survey data \firstrevise{from across 63 populations}, a rare extra step in collections-based research.
-We identified greater local-scale variability in endophyte prevalence in contemporary data compared to model predictions based on historic data, suggesting new directions that could improve predictive accuracy.
+Our model performed favorably in an out-of-sample predictive test with contemporary survey data \firstrevise{from across 63 populations}, a rare extra step in collections-based research.
+However, there was greater local-scale variability in endophyte prevalence in contemporary data compared to model predictions, suggesting new directions that could improve predictive accuracy.
 Our results provide novel evidence for a cryptic biological response to climate change that may contribute to the resilience of host-microbe symbiosis through \firstrevise{fitness benefits to symbiotic hosts}. \linelabel{R2-C15-end}
 
 
@@ -132,15 +132,15 @@ Documented responses to environmental change, such as shifts in species' distrib
 Empirically evaluating these biotic changes -- whether interacting species shift in tandem with their partners or not \cite{hillerislambers2013will} -- is crucial to predicting the reorganization of Earth's biodiversity under global change. 
 Such evaluations have been limited because few datasets on species interactions extend over sufficiently long time scales of contemporary climate change \citep{poisot2021global}.
 
-\linelabel{R4C10-begin}Natural history specimens, which were originally collected to study and preserve taxonomic diversity, present a unique opportunity to explore long-term changes in \revise{biodiversity} and ecological interactions across broad spatial and temporal scales\revise{ \citep{meineke2018unrealized, davis2023herbarium}.}
+\linelabel{R4C10-begin}Natural history specimens, which were originally collected to document and preserve taxonomic diversity, present a unique opportunity to explore long-term changes in \revise{biodiversity} and ecological interactions across broad spatial and temporal scales\revise{ \citep{meineke2018unrealized, davis2023herbarium}.}
 Natural history collections, built and maintained by the efforts of thousands of scientists, are invaluable time machines, primarily comprised of physical specimens of organisms along with information about the time and place of their collection. 
 These specimens often preserve physical legacies of ecological processes and species' interactions from dynamically changing environments across time and space \revise{\citep{lendemer2020extended}.}\linelabel{R4C10-end}
 \linelabel{R2C19-begin}
-For example, previous researchers have \firstrevise{examined the flowers, pollen grains, and leaves of specimens within plant collections (herbaria) collected across time} to document shifts in \firstrevise{reproductive} phenology \citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \citep{pauw2011reconstruction, duan2019century}, and herbivory \citep{meineke2019herbarium} related to anthropogenic climate change.\linelabel{R2C19-end}
+For example, previous researchers have \firstrevise{examined the flowers, pollen grains, and leaves of specimens within plant collections (herbaria)} to document shifts in \firstrevise{reproductive} phenology \citep{willis2017old, park2019herbarium,  berg2019examination}, pollination \citep{pauw2011reconstruction, duan2019century}, and herbivory \citep{meineke2019herbarium} related to anthropogenic climate change.\linelabel{R2C19-end}
 However, few previous studies have leveraged biological collections to examine climate change-related shifts in a particularly common type of interaction: microbial symbiosis.
 
 Microbial symbionts are common to all macroscopic organisms and can have important effects on their hosts' survival, growth and reproduction \cite{rodriguez2009fungal,mcfall2013animals}.
-Many microbial symbionts act as mutualists, engaging in reciprocally beneficial interactions with their hosts that can ameliorate environmental stress. 
+Many microbial symbionts act as mutualists, engaging in reciprocally beneficial interactions with their hosts in ways that can ameliorate environmental stress. 
 For example, bacterial symbionts of insects, such as \emph{Wolbachia}, can improve their hosts' thermal tolerance \citep{truitt2019wolbachia, renoz2019evolutionary}, and arbuscular mycorrhizal fungi, documented in 70-90\% of families of land plants \citep{parniske2008arbuscular}, allow their hosts to persist through drought conditions by improving water and nutrient uptake \citep{cheng2021elucidating}.
 On the other hand, changes in the mean and variance of environmental conditions may disrupt microbial  mutualisms by changing the costs and benefits of the interaction for each partner in ways that can cause the interaction to deteriorate \citep{aslan2013mutualism, fowler2024microbial}. 
 \linelabel{R2C16-begin}Coral bleaching (the loss of symbiotic algae) due to temperature stress \citep{sully2019global} is perhaps the best known example, but this phenomenon is not unique to corals.
@@ -148,26 +148,26 @@ Lichens exposed to elevated temperatures experienced loss of photosynthetic func
 How commonly and under what conditions microbial mutualisms deteriorate or strengthen under climate change remain unanswered questions \citep{frederickson2017mutualisms}.
 Previous work suggests that these alternative responses may depend on the intimacy and specialization of the interaction as well as the physiological tolerances of the mutualist partners \citep{toby2010mutualisms, warren2014mutualism, rafferty2015phenological}. 
 
-Understanding of how microbial symbioses are affected by climate change is additionally complicated by spatial heterogeneity in the direction and magnitude of environmental change \cite{ipcc_2021}. 
+Understanding how microbial symbioses are affected by climate change is additionally complicated by spatial heterogeneity in the direction and magnitude of environmental change \cite{ipcc_2021}. 
 Beneficial symbionts are likely able to shield their hosts from environmental stress in locations that experience a small degree of change, but symbionts in locations that experience changes of large magnitude may be pushed beyond their physiological limits \cite{webster2008temperature}.
 Additionally, symbionts are often unevenly distributed across their host's distribution.
-Facultative symbionts may be absent from portions of the host range \cite{afkhami2014mutualist}, and hosts may engage with a diversity of partners (different symbiont species or locally-adapted strains) across their environments \cite{frade2008variation, rolshausen2018quantifying, fowler2023geographic}.
+Facultative symbionts may be absent from portions of the host range \cite{afkhami2014mutualist}, and hosts may engage with a diversity of partners (different symbiont species or locally-adapted strains) across environments \cite{frade2008variation, rolshausen2018quantifying, fowler2023geographic}.
 Identifying broader spatial trends in symbiont prevalence is therefore an important step in developing predictions for where to expect changes in the symbiosis in future climates.
 
-\emph{Epichloë} fungal endophytes are specialized symbionts of cool-season grasses, which have been documented in $\sim 30$\% of cool-season grass species \citep{leuchtmann1992systematics}.
+\emph{Epichloë} fungal endophytes are specialized symbionts of cool-season grasses, documented in $\sim 30$\% of cool-season grass species \citep{leuchtmann1992systematics}.
 They are \firstrevise{predominantly} transmitted vertically from maternal plants to offspring through seeds.
 Vertical transmission creates a feedback between the fitness of host and symbiont \citep{fine1975vectors, douglas1998host, rudgers2009fungus}. 
 Over time, endophytes that act as mutualists should rise in prevalence within a host population, particularly under environmental conditions that elicit protective benefits \citep{donald2021context}. 
 \emph{Epichloë} are known to improve their hosts' drought tolerance \cite{decunta2021systematic} and protect their hosts against herbivores \cite{crawford2010fungal} and pathogens \cite{xia2018role} likely through the production of a diverse suite of alkaloids and other secondary metabolites.
 The fitness feedback induced by vertical transmission leads to the prediction that endophyte prevalence should be high in populations where these fitness benefits are most important. 
 Previous survey studies of contemporary populations have documented large-scale spatial patterns in endophyte prevalence structured by environmental gradients \citep{granath2007variation,bazely2007broad, afkhami2012fungal,sneck2017variation}.
-We predicted that prevalence should track temporal changes in environmental drivers \linelabel{R2C21-begin}\firstrevise{(i.e. drought)} \linelabel{R2C21-end} that elicit strong fitness benefits.
+We predicted that endophyte prevalence should track temporal changes in environmental drivers \linelabel{R2C21-begin}\firstrevise{(i.e. drought)} \linelabel{R2C21-end} that elicit strong fitness benefits.
 %For example, endophyte-mediated drought tolerance should lead endophyte prevalence to increase in regions where precipitation has declined over time.
 
-Early research on \emph{Epichloë} used herbarium specimens to describe the broad taxonomic diversity of host species that harbor these symbionts \citep{white1985endophyte}, establishing that endophyte symbiosis could be identified in plant tissue from as early as 1851.
+Early research on \emph{Epichloë} used herbarium specimens to describe the broad taxonomic diversity of grass host species that harbor these symbionts \citep{white1985endophyte}, establishing that endophyte symbiosis could be identified in plant tissue from as early as 1851.
 However, no subsequent studies, to our knowledge, have used the vast resources of biological collections to quantitatively assess spatio-temporal trends in endophyte prevalence and their environmental correlates. 
-\linelabel{R4C11a-begin}\revise{Previous work has used herbarium specimens to identify the origins and population genomics of  plant diseases such as \emph{Phytophora}, the Irish potato famine pathogen \citep{ristaino2001pcr,ristaino2002tracking,yoshida2013rise}, and have been proposed as vehicles to track other emerging plant pathogens \citep{ristaino2020importance,bradshaw2021global}.}\linelabel{R4C11a-end}
-Grasses are commonly collected and identified based on the presence of their reproductive structures, meaning that preserved specimens typically contain seeds, conveniently preserving the fungi along with their host plants on herbarium sheets. 
+\tom{\linelabel{R4C11a-begin}\revise{Previous work has used herbarium specimens to identify the origins and population genomics of  plant diseases such as \emph{Phytophora}, the Irish potato famine pathogen \citep{ristaino2001pcr,ristaino2002tracking,yoshida2013rise}, and have been proposed as vehicles to track other emerging plant pathogens \citep{ristaino2020importance,bradshaw2021global}.}\linelabel{R4C11a-end}}{IMO this does not fit well here, because at this point in the Intro we are zoomed in on Epichloe. I would move this sentence either to the `Natural history specimens' paragraph or the following one, where you introduce microbial symbioses.}
+Grasses are commonly collected and identified based on the presence of their reproductive structures, meaning that preserved specimens typically contain seeds, conveniently preserving the seed-transmitted fungi along with their host plants on herbarium sheets. 
 This creates the opportunity to leverage the unique spatio-temporal sampling of herbarium collections to examine the response of this symbiosis to historical climate change. 
 %Research using historical collections has clearly demonstrated other ecological signatures of a changing climate. 
 However, the predictive ability derived from historical analyses is rarely tested against contemporary data \citep{lee2024phenological}. 
