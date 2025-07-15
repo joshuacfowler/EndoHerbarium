@@ -183,18 +183,19 @@ To answer these questions we examined a total of $2,346$ historic specimens coll
 \section*{Methods}
         \subsection*{Focal species}
 Our surveys focused on three native North American grasses: \emph{Agrostis hyemalis}, \emph{Agrostis perennans}, and \emph{Elymus virginicus} that host \emph{Epichloë} symbionts. 
-\linelabel{R2C23-begin}\firstrevise{These cool-season grass species are commonly represented in natural history collections with broad distributions covering much the eastern United States (Fig. \ref{fig:map}). Cool-season grasses grow during the cooler temperatures of spring and autumn due to their reliance on $C_3$ photosynthesis.}\linelabel{R2C23-end}
-\emph{A. hyemalis} is a small short-lived perennial species that germinates in \firstrevise{late winter} winter and typically flowers between March and July (most common collection month: May).
+\linelabel{R2C23-begin}\firstrevise{These cool-season grass species have broad distributions covering much the eastern United States (Fig. \ref{fig:map}) and are commonly represented in natural history collections. 
+Cool-season grasses grow during the cooler temperatures of spring and autumn due to their reliance on $C_3$ photosynthesis.}\linelabel{R2C23-end}
+\emph{A. hyemalis} is a small short-lived perennial species that germinates in autumn to \firstrevise{late winter} winter and typically flowers between March and July (most common collection month: May).
 \emph{A. perennans} is of similar stature but is longer lived than \emph{Agrostis hyemalis} and flowers in late summer and early autumn (most common collection month: September). 
 \emph{A. perennans} is more sparsely distributed, tending to be found in shadier and moister habitats, while \emph{A. hyemalis} is commonly found in open and recently disturbed habitats. 
 Both \emph{Agrostis} species are recorded from throughout the Eastern US, but \emph{A. perennans} has a slighty more northern distribution, whereas \emph{A. hyemalis} is found rarely as far north as Canada and is listed as a rare plant in Minnesota.
-\emph{E. virginicus} is a larger and relatively longer-lived  species that is more broadly distributed than the \emph{Agrostis} species. 
+\emph{E. virginicus} is a larger and longer-lived  species that is more broadly distributed than the \emph{Agrostis} species. 
 It begins flowering as early as March or April but continues throughout the summer (most common collection month: July).
 
 \linelabel{R1C3-begin}
-\firstrevise{Both \emph{Agrostis} species host \emph{Epichloë amarillans} \cite{craven2001multigene, leuchtmann2014nomenclatural}, while \emph{Elymus virginicus} typically hosts \emph{Epichloë elymi} \cite{clay2002evolutionary}.
-The fungal symbionts primarily reproduce asexually and are passed from mother to offspring by vertical transmission through seeds. 
-These traits contribute to highly specialized interactions between symbiont and host.
+\firstrevise{Both \emph{Agrostis} species host \emph{Epichloë amarillans} \cite{craven2001multigene, leuchtmann2014nomenclatural}, and \emph{Elymus virginicus} typically hosts \emph{Epichloë elymi} \cite{clay2002evolutionary}.
+The fungal symbionts primarily reproduce asexually and are passed from maternal plant to offspring by vertical transmission through seeds. 
+\tom{These traits contribute to highly specialized interactions between symbiont and host.}{Is this sentence necessary?}
 Some host species have been shown to partner with multiple symbiont species or strains, and in some cases multiple symbiont lineages can co-exist within a host population \cite{mc2014species}.
 However, surveys have typically found limited \emph{Epichloë} genotypic diversity within host populations \cite{treindl2023genetic}. 
 Across host populations, concentrations of biologically-active alkaloids and the genes associated with their production vary substantially \cite{schardl2012chemotypic}.
@@ -216,10 +217,10 @@ For fifteen of the oldest specimens, only information at the state level was ava
 \linelabel{R2C24-begin}\firstrevise{The median pairwise distance between georeferenced coordinate points was 841 km.
 The median longitudinal width of the bounding boxes generated to geocode municipality, county, or state centroids was 44.7 km. 
 Among those specimens geo-referenced at the state level, the largest bounding box, spanning the state of Texas, was 1233 km wide.
-The smallest bounding boxes were less than 1 km across for small municipalities (while this suggests high precision, we note that some specimens were collected in natural habitat nearby to small municipalities not encompassed by this bounding boxes).}\linelabel{R2C24-end}
+The smallest bounding boxes were less than 1 km across for small municipalities (while this suggests high precision, we note that some specimens were collected in natural habitat nearby to small municipalities not encompassed by these bounding boxes).}\linelabel{R2C24-end}
 
 \linelabel{R1C11-begin}
-\firstrevise{Our visits focused on herbaria with historic strengths in \emph{Poaceae} collections (e.g. Texas A\&M, Missouri Botanic Garden) and other herbaria in the Southern Great Plains region of the United States. 
+\firstrevise{Our visits focused on herbaria with historic strengths in grass collections (e.g. Texas A\&M, Missouri Botanic Garden) and other herbaria in the Southern Great Plains region of the United States. 
 While these nine herbaria garnered specimens that span the focal species' ranges, our dataset unevenly samples across the study region (Fig. \ref{fig:map}). 
 Texas, Oklahoma, Louisiana, and Missouri are the most represented states.
 Uneven sampling was most pronounced for \emph{A. perennans}, which has much of its range in the northeastern US. 
@@ -260,8 +261,8 @@ This approach has been used to model spatial patterns in flowering phenology \ci
 
 We estimated global and spatially-varying trends in endophyte prevalence using a joint-likelihood model. 
 For each host species $h$, endophyte presence/absence of the $i^{th}$ specimen ($P_{h,i}$) was modeled as a Bernoulli response variable with expected probability of endophyte occurrence $\hat{P}_{h,i}$.
-We modeled $\hat{P}_{h,i}$ as a linear function of intercept $A_{h}$ and slope $T_{h}$ defining the global trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
-\linelabel{R2C28-begin}The joint-model structure allowed us to ``borrow \firstrevise{information}'' \linelabel{R2C28-end} across species in the estimation of shared variance terms for the spatially-dependent random effect $\delta_{l_i}$, intended to account for residual spatial variation, and $\chi_{c_i}$ and $\omega_{s_i}$, the i.i.d.-random effects indexed for each collector identity ($c_i$) and scorer identity ($s_i$) of the $i^{th}$ specimen.
+We modeled $\hat{P}_{h,i}$ as a linear function of collection year, with intercept $A_{h}$ and slope $T_{h}$ defining the global temporal trend in endophyte prevalence specific to each host species as well as with spatially-varying intercepts $\alpha_{h,l_{i}} $ and slopes $\tau_{h,l_i}$ associated with location ($l_i$, the unique latitude-longitude combination of the $i$th observation).
+\linelabel{R2C28-begin}The joint-model structure allowed us to ``borrow \firstrevise{information}'' \linelabel{R2C28-end} across species in the estimation of shared variance terms for the spatially-dependent random effect $\delta_{l_i}$, intended to account for residual spatial variation, and $\chi_{c_i}$ and $\omega_{s_i}$, the i.i.d.-random effects indexed for each \tom{collector identity ($c_i$) and scorer identity ($s_i$) of the $i^{th}$ specimen.}{In the data collection methods I would add that collector was gathered as part of the sample metadata and scorer was recorded as part of the data collection process. This will help prepare readers for the statistical methods here.}
 
 \begin{equation}
 	\label{eq:trends}
@@ -278,14 +279,14 @@ Global intercept and slope parameters, $A$ and $T$, were given vague priors.
 Collector and scorer random effects, $\chi$ and $\omega$ \firstrevise{respectively}, \linelabel{R2C29-begin}\firstrevise{were centered at 0 with precision parameters assigned penalized complexity (PC) priors with parameter values $U_{PC}$ = 1 and $a_{PC}$ = 0.01 \citep{simpson2017penalising}.}\linelabel{R2C29-end}
 Each spatially-structured parameter depended on a covariance matrix according to the proximity of each pair of collection locations \citep{lindgren2011explicit,bakka2018spatial}. 
 The covariance matrix was approximated using a Mat\'{e}rn covariance function, with each data point assigned a location according to the nodes of a mesh of non-overlapping triangles encompassing the study area (Fig. \ref{fig:meshplot}).
-\linelabel{R3C2a-begin}\revise{Mat\'{e}rn covariance functions are widely used in spatial-statistical modeling because of their mathematical tractability and flexibility. This covariance structure relies on the assumption that the underlying process is stationary and isotropic, such that spatial autocorrelation between data points depends only on their relative positions \citep{bakka2018spatial}.}\linelabel{R3C2a-end}
+\linelabel{R3C2a-begin}\revise{Mat\'{e}rn covariance functions are widely used in spatially explicit statistical modeling because of their mathematical tractability and flexibility. This covariance structure relies on the assumption that the underlying process is stationary and isotropic, such that spatial autocorrelation between data points depends only on their relative positions \citep{bakka2018spatial}.}\linelabel{R3C2a-end}
 
 \linelabel{R3C1-begin}\revise{Implementing spatially-structured parameters in INLA with this SPDE approach is useful particularly because space is treated as a continuous variable, allowing the model to make efficient use of the data and generate predictions across the entire study region. The SPDE approach is flexible enough that it can capture smooth trends across space that are informed by the data rather than by spatial regions chosen \emph{a priori} by researchers. However this flexibility also invites the risk of overfitting, as with other non-linear modeling approaches \citep{ward2014complexity,lapeyrolerie2023limits,ramampiandra2023comparison}. }\linelabel{R3C1-end}
-Priors for the Mat\'{e}rn covariance function, termed ''range" and "variance", define how proximity effects decay with distance.
-\linelabel{R3C2b-begin}\revise{The choice of priors for these types of spatial models is an area of active research \cite{simpson2017penalising,bakka2018spatial}, but another advantage of the INLA approach is that its computational efficiency allows for sensitivity analyses.}\linelabel{R3C2b-end}
+Priors for the Mat\'{e}rn covariance function, termed ``range'' and ``variance'', define how proximity effects decay with distance.
+\linelabel{R3C2b-begin}\revise{The choice of priors for these types of spatial models is an area of active research \cite{simpson2017penalising,bakka2018spatial}, but another advantage of the INLA approach is that its computational efficiency allows for prior sensitivity analyses.}\linelabel{R3C2b-end}
 Results presented in the main text reflect a prior range of $342$ kilometers (i.e. a $50$\% probability of estimating a range less than $342$ kilometers). 
 We tested a range of values (from $68$ kilometers to $1714$ kilometers) and meshes (presented in the Supporting Methods), finding that while the magnitude and uncertainty of effects varied, model results were qualitatively similar, i.e. the same direction of effects across space.
-We assessed model fit with visual posterior predictive checks (\ref{fig:overlayplot}) and measurements of AUC (Figs. \ref{fig:ROCtraining}-\ref{fig:ROCtest}) \linelabel{R2C48-begin} \firstrevise{\cite{gelman2006data}}\linelabel{R2C48-end}.
+We assessed model fit with visual posterior predictive checks (Fig. \ref{fig:overlayplot}) and measurements of AUC (Figs. \ref{fig:ROCtraining}-\ref{fig:ROCtest}) \linelabel{R2C48-begin} \firstrevise{\cite{gelman2006data}}\linelabel{R2C48-end}.
 \firstrevise{Through results and discussion that follow, we refer to the model described in this section as the ``endophyte prevalence model''}.
 
 
@@ -298,12 +299,12 @@ We assessed model fit with visual posterior predictive checks (\ref{fig:overlayp
 Therefore, we used additional data sources to model the geographic distribution of each host species, with two goals: (1) generate realistic maps on which we could project the predictions of the INLA model, and (2) use the geographic distributions to test for relationships between climate change drivers and trends in endophyte prevalence. 
 }\linelabel{R2C30-end}
 We followed the ODMAP (overview, data, model, assessment, prediction) protocol \citep{crossley2022opposing} (see Supporting Methods). 
-In short, we used presence-only observations of each host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020 \firstrevise{(713 occurrence records for \emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, 656 occurrence records for \emph{A. perennans} \cite{https://doi.org/10.15468/dl.wtne24}, and 2338 occurrence records for \emph{A. virginicus} \cite{https://doi.org/10.15468/dl.yt76uh}}).
+In short, we used presence-only observations of each host species from Global Biodiversity Information Facility (GBIF) between 1990 to 2020 \firstrevise{(713 occurrence records for \emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, 656 occurrence records for \emph{A. perennans} \cite{https://doi.org/10.15468/dl.wtne24}, and 2338 occurrence records for \emph{E. virginicus} \cite{https://doi.org/10.15468/dl.yt76uh}}).
 %To reduce the potential influence of sampling bias and spatial autocorrelation, \tom{we thinned the occurrences to the spatial scale of our selected climatic predictors}{I do not follow.}. 
 %We selected climate variables that aligned with our analysis of climatic influences on trends in endophyte prevalence described above.
 %\tom{We calculated the mean and standard deviation of seasonal temperature and precipitation across 1990 to 2020. }{FOr what locations? Is this from the whole raster of NA?}
 %\tom{Among this suite of variables, we chose to include, which were uncorrelated (Variance Inflation Factor $>$ 0.7) and allowed us to predict the occurrence probability of each host species in space and time.}{Do not follow and sounds circular.}
-We fit maximum entropy (MaxEnt) models using the maxent function in the R package dismo \citep{hijmans2017package} using following seasonal climate predictors (1990-2020 climate normals): mean and standard deviation of spring, summer, and autumn temperature, and mean and standard deviation of spring, summer, and autumn cumulative precipitation.
+We fit maximum entropy (MaxEnt) models using the maxent function in the R package dismo \citep{hijmans2017package} using the following seasonal climate predictors (1990-2020 climate normals): mean and standard deviation of \tom{spring, summer, and autumn}{Did we choose the dates by which these seasons are defined? Worth reporting?} temperature, and mean and standard deviation of spring, summer, and autumn cumulative precipitation.
 %\josh{MaxEnt is preferred because it has been shown to generate response curves with less unpredictable behavior when applied to new climates \citep{hijmans2006ability}.}{possibly could remove this sentence?}
 We generated 10,000 pseudo-absences as background points, and split the occurrence data into 75\% for model training and 25\% for model testing.
 The performance of models was evaluated with AUC \citep{jimenez2012insights}. 
@@ -315,21 +316,21 @@ We used the training sensitivity (true positive rate) and specificity (true nega
 \subsection*{Assessing the role of climate drivers}
 We assessed how the magnitude of climate change may have driven changes in endophyte prevalence by assessing correlations between changes in climate and changes in endophyte prevalence predicted from our spatial model at evenly spaced pixels across the study area.
 
-We first downloaded monthly temperature and precipitation rasters from the PRISM climate group \citep{daly2013prism} covering the time period between 1895 and 2020 using the 'prism' R package \citep{Rprism2015}. 
+We first downloaded monthly temperature and precipitation rasters from the PRISM climate group \citep{daly2013prism} covering the time period between 1895 and 2020 using the \tom{'prism'}{Other package names are not 'quoted'.} R package \citep{Rprism2015}. 
 Prism provides reconstructions of historic climate variables across the United States by spatially interpolating weather station data \citep{diLuzio2008constructing}. 
-\linelabel{R3C3-begin}\revise{Because the magnitude of observed climate change differs across seasons, and because different growing seasons is a key feature of the biology of our focal host species, } we calculated 30-year climate normals for seasonal mean temperature and cumulative precipitation for the recent (1990 to 2020) and historic (1895 to 1925) periods.
+\linelabel{R3C3-begin}\revise{Because the magnitude of observed climate change differs across seasons, and because different growing seasons is a key feature of the biology of our focal host species,} we calculated 30-year climate normals for seasonal mean temperature and cumulative precipitation for the recent (1990 to 2020) and historic (1895 to 1925) periods.
 We used three four-month seasons within the year (Spring: January, February, March, April; Summer: May; June, July, August; Autumn: September, October, November, December). 
-This division of seasons allowed us to quantify differences in \revise{the primary climate change drivers, temperature and preciptiation} associated with the two ``cool'' seasons, when we expected our focal species to be most active (\emph{A. hyemalis} flowering phenology: spring; \emph{E. virginicus}: spring and summer; \emph{A. perennans}: autumn). \linelabel{R3C3-end}
+This division of seasons allowed us to quantify differences in \revise{the primary climate change drivers, temperature and precipitation,} associated with the two ``cool'' seasons, when we expected our focal species to be most active (\emph{A. hyemalis} flowering phenology: spring; \emph{E. virginicus}: spring and summer; \emph{A. perennans}: autumn). \linelabel{R3C3-end}
 In addition to mean climate conditions, environmental variability itself can influence population dynamics \cite{tuljapurkar_population_1982} and changes in variability are a key prediction of climate change models \cite{stocker2013technical, ipcc_2021}. 
 Therefore, we calculated the standard deviation for each annual and seasonal climate driver across each 30-year period.
 We then took the difference between recent and historic periods for the mean and standard deviation for each climate driver (Figs. \ref{fig:AGHY_climate_covariates}-\ref{fig:ELVI_climate_covariates}).
 All together, we assessed twelve potential climate drivers: the mean and standard deviation of spring, summer, and autumn temperature, as well as the mean and standard deviation of spring, summer, and autumn cumulative precipitation (the same climate covariates used in the MaxEnt models).
 
 
-\linelabel{R2C32-begin}\firstrevise{We then evaluated whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change)
+\linelabel{R2C32-begin}\firstrevise{We then evaluated whether areas that have experienced the greatest changes in endophyte prevalence (hotspots of endophyte change) are associated with high degrees of change in climate (hotspots of climate change).
 To do so, we modeled the fitted, spatially-varying slopes of endophyte change through time ($\tau_{[h]l}$) as a linear function of environmental covariates, with a Gaussian error distribution for a set of pixels across each host distribution.
 The continuous SPDE approach taken from our endophyte prevalence model allows us to generate predictions of temporal trends in prevalence at arbitrarily many pixels across each host distribution.
-Balancing computation time with resolution, we generated predicted trends for 546, 645, and 753 pixels across each host distribution for \emph{A. perennans}, \emph{A. hyemalis}, and \emph{E. virginicus} respectively ( pixel dimensions: \emph{A. perennans} =  65 km x 36 km; \emph{A. hyemalis} = 61km x 45 km; \emph{E. virginicus} = 62 km x 40 km ).}\linelabel{R2C32-end}
+Balancing computation time with resolution, we generated predicted trends for 546, 645, and 753 pixels across each host distribution for \emph{A. perennans}, \emph{A. hyemalis}, and \emph{E. virginicus} respectively (pixel dimensions: \emph{A. perennans} =  65 km x 36 km; \emph{A. hyemalis} = 61km x 45 km; \emph{E. virginicus} = 62 km x 40 km ).}\linelabel{R2C32-end}
 Fitting regressions to many pixels across the study region risks artificially inflating confidence in our results due to large sample sizes, and so we performed this analysis using only a random subsample of 250 pixels across the study region; other sizes of subsample yielded similar results.
 Data from each host species were analyzed separately. 
 \firstrevise{Throughout the results and discussion that follow, we refer to this analysis as the ``\emph{post hoc} climate regression analysis''.}
