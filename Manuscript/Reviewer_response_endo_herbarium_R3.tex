@@ -1,0 +1,169 @@
+% ======================================================= %
+% Document: TEMPLATE FOR RESPONSES TO REVIEWERS
+% Author: Andrea Ballatore
+% Date: Jan 7, 2013
+% Source: https://raw.githubusercontent.com/ucd-spatial/Datasets/master/tex_response_to_reviewers_template/responses_to_reviewers.tex
+% Modified by Eduard Szöcs, 10.03.2015
+% ======================================================= %
+\documentclass[12pt]{article}
+
+% packages
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{color}
+\definecolor{mygray}{gray}{0.6}
+\usepackage[utf8]{inputenc}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[
+	round,	%(defaultage in the main file and \input ) for round parentheses;
+	colon,	% (default) to separate multiple citations with colons;
+	authoryear,% (default) for author-year citations;
+	sort,		% orders multiple citations into the sequence in which they
+]{natbib}
+\usepackage[%disable
+	]{todonotes}
+
+\usepackage{anysize}
+\marginsize{2.5cm}{2.5cm}{1.5cm}{2.5cm}
+
+\usepackage{xr}
+\externaldocument[ms-]{endo_herbarium_R3}
+
+% macros
+% add a counter
+\newcounter{cN}
+\setcounter{cN}{0}
+
+\newcommand{\comment}[1]{
+	\vspace{2em}
+	\refstepcounter{cN} % incrment counter
+	\noindent \hangindent=0em \textbf{\textcolor{Maroon}{\uline{Comment \thecN}:~}}\emph{``#1''}
+	}
+
+\newcommand{\response}[1]{
+	\\[0.25em]
+	\hangindent=2.3em \textbf{\textcolor{NavyBlue}{\uline{Response}:~}}#1
+	}
+
+\newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
+
+
+\newcommand{\linesref}[2]{
+		\\[0.25em]
+	\hangindent=2.3em {\color{Mahogany} Line(s): \ref{#1} - \ref{#2}}
+}
+\newcommand{\jacob}[2]{{\color{blue}{#1}}\footnote{\textit{\color{blue}{#2}}}}
+%\IfValueT{#2}{- \ref{#2}}
+\newcommand{\tom}[2]{{\color{red}{#1}}\footnote{\textit{\color{red}{#2}}}}
+%\IfValueT{#2}{- \ref{#2}}
+
+\usepackage[normalem]{ulem}
+\definecolor{darkred}{rgb}{1,.6,.6}
+\DeclareRobustCommand\problemline{\bgroup\markoverwith{\textcolor{darkred}{\rule[-0.9ex]{4pt}{3pt}}}\ULon}
+\DeclareRobustCommand{\problem}[1]{\problemline{#1}} % soul
+\setcounter{secnumdepth}{-1}
+
+\begin{document}
+% ======================================================= %
+\title{Manuscript GCB-25-0529.R1 --- Response to reviewers}
+
+\maketitle
+% ======================================================= %
+\noindent To the editorial board,
+
+
+Following the positive feedback from reviewers on our last submission, we have revised our manuscript to clarify the description of the biology of \emph{Epichloë} symbiosis, including description of the biochemical mechanisms underlying the interactions and the taxonomic diversity. 
+We have also added additional discussion of the potential for horizontal and imperfect transmission to influence host responses to climate change.
+
+We appreciate the opportunity improve our work with these revisions, and we believe that our manuscript is now suitable for publication in \emph{Global Change Biology}.
+We detail these changes in the point-by-point responses below.
+All of our changes are denoted in the revised manuscript with \revise{Mahogany font} and referenced below with line numbers. 
+
+
+
+
+\vspace{2em}
+Sincerely,
+
+Joshua Fowler
+
+Jacob Moutouama
+
+Tom Miller
+
+
+
+\newpage
+
+% ======================================================= %
+\section{Response to Reviewer 3}
+\vspace{-2em}
+
+
+
+%\comment{}
+%\response{}
+%\linesref{ms-R1C3-begin}{ms-R1C3-end}
+
+
+\comment{The authors did an excellent job; all my concerns have been addressed.}
+\response{We are glad to have addressed the concerns of Reviewer 3 through our previous revision, whose Review helped us to more clearly present the underlying assumptions in our modeling approach.}
+
+
+
+\section{Response to Reviewer 5}
+\vspace{-2em}
+
+\setcounter{cN}{0}
+
+\comment{I appreciate the opportunity to review your paper, which I think is a very important contribution linking a little known but important and emblematic symbiotic system to global climate change. I find your paper very interesting and very well written and organized. I have only minor suggestions.}
+\response{We appreciate this positive evaluation of our work, and we are glad that Reviewer 5 sees its potential importance to the broader audience of global climate change researchers.}
+
+\comment{I seem to have been invited in as an additional reviewer. I'm no expert on the statistics or modeling, so I assume I'm invited to comment on the biology and wet-lab techniques. I think the technique is fine for the analysis, and innovative in that it utilizes a rich archival resource.}
+\response{Reviewer 5's suggestions to improve our communication of the biology of our study system were especially valuable, and we appreciate that they acknowledge the unique and innovative data presented.}
+
+
+\comment{You chose to analyze seeds, which I think is the best choice. You take a cautious approach with both conservative and liberal judgments made for each sample (which concurred in 89\% of cases), and recognize that imperfect transmission can lead to mixtures of infected and uninfected seeds in the same sample. Your lab technique reflects good understanding of the biology of the system, as does most of the relevant text. So, I just have some subtle points to raise that, if taken into account would (I think) improve the manuscript a bit.}
+\response{We are glad that Reviewer 5 agrees with our choice to analyze seed tissue from the historic herbarium specimens. We are also glad that they recognize our efforts to quantify potential uncertainty in our results through analysis of both ``conservative'' and ``liberal'' scores.}
+
+
+
+\comment{Results are discussed with a very host-centric perspective. In particular, I didn't find consideration of the effect of stress on transmissibility. A relevant paper on the subject is: Gundel PE, Garibaldi LA, Martínez-Ghersa MA, Ghersa CM (2011) Neotyphodium endophyte transmission to Lolium multiflorum seeds depends on the host plant fitness. Environmental and Experimental Botany 71: 359-366. doi https://doi.org/10.1016/j.envexpbot.2011.02.002 (Note to the editor, "Neotyphodium" is a now disfavored name for asexual species of Epichloë.) It might be interesting to look into whether the data on proportions of positive seeds in positive samples suggest stress-induced reductions in vertical transmission, though that would probably be something for future research. But I think that the potential for such an effect should receive some discussion here.}
+\response{We agree that evaluating potential effects of stress on imperfect transmission would be very interesting! We feel, based on previous work from our lab group and others (Sneck et al., {Microbial Ecology}, 2017; Cavazos et al., \emph{New Phytologist}, 2018; Gagic et al., \emph{Frontiers in Plant Science}, 2018), that doing so properly would require evaluating larger numbers of seeds per individual to quantify with greater precision the rate of imperfect transmission. Therefore, we have opted to incorporate this material within the discussion, suggesting future targeted sampling that could be done to get these data from historic specimens.}
+\linesref{ms-R5C5-begin}{ms-R5C5-end}
+
+
+\comment{I also didn't see mention of the potential for horizontal transmission. Some \emph{Epichloë} species on some host "choke" the hosts, meaning that they produce their fruiting structures (stromata) and consequently can spread via airborne ascospores. The three associations investigated here (two \emph{Agrostis} spp. probably with \emph{Epichloe amarillans} and \emph{Elymus virginicus} probably with \emph{Epichloe elymi}) all exhibit this capability even though seed transmission does appear to be the more common route for them.}
+\response{Reviewer 5 is correct that there is a possibility of horizontal transmission in general for \emph{Epichloë}, and indeed for these host species. In response to this comment, we have mentioned the potential for horizontal transmission in our description of the study system, and where relevant within the the discussion section.}
+\linesref{ms-R5C3-begin}{ms-R5C3-end}
+\linesref{ms-R5C5-discussion-begin}{ms-R5C5-discussion-end} 
+
+
+\comment{Lines 534–536 seems to imply that transmission is impossible outside of seed transmission, which isn't the case. I haven't checked the rationale for that conclusion in the Fowler et al. 2023 paper cited there, but the phrasing here seems to me to be a bit misleading. Maybe "impossible" is an overly strong word.}
+\response{Lines 534-536 discuss the potential that an isolated, range-edge population starting with no symbionts will experience an increase in symbiosis. Our wording does indeed suggest that this could happen primarily through the introduction of symbiotic seeds via dispersal into the population, without mentioning the other possiblity pointed out by Reviewer 5 -- that the symbiont could disperse without its host as a horizontally-transmitted propagule. We have edited the wording of this sentence to acknowledge this possibility, and to highlight the point we intended to make, which is that dispersal of symbionts must occur before such an isolated population might experience a signal of increasing endophyte prevalence.}
+\linesref{ms-R5C7-begin}{ms-R5C7-end}
+
+\comment{Lines 94–95: This is a dubious statement. Considering that the grass subfamily Pooideae is the most speciose of the subfamilies in an extremely speciose plant family, I don't think adequate sampling has ever been done to determine the proportion of species that have these endophytes. Perhaps you mean 30\% of surveyed species at that time? Unfortunately, 1992 is a long time ago, and there has been a lot of surveying done since then, together with improved techniques, but I don't have a recent reference that springs to mind to update the count. Perhaps this sentence can simply be modified to the effect that in 1992 Leuchtmann estimated that ca. 30 \% of surveyed species had Epichloe?}
+\response{In response to this comment, we have edited the wording of this sentence to acknowledge that these numbers are an estimate based on a subset of surveyed species, and updated with additional references to more recent surveys (Card et al., \emph{FEMS microbiology ecology}, 2014; Iannone et al., \emph{Mycological Progress}, 2011), that find estimates similar to that by Leuchtmann. We agree a more comprehensive compilation of these surveys would be valuable.}
+\linesref{ms-R5C7-end-dubious}{ms-R5C7-end-dubious}
+
+\comment{Finally, line 102 mentions "other secondary metabolites", which I take to be a grab bag for unknown anti-herbivore factors. Yet, there is one Epichloe protein known (MCF = "makes caterpillars floppy"), and possibly others, that have anti-herbivore effects. Proteins aren't "secondary metabolites". Maybe a better word here would be "factors"?}
+\response{We thank Reviewer 5 for pointing us towards this literature. The biochemical nature of \emph{Epichloë} symbioses is not our particular area of expertise, so we appreciate this feedback. In response to this comment, we have edited this sentence and others in our discussion section, to acknowledge the potentially diverse biologically active factores involved, and have added references to research uncovering the role of these chemicals.}
+\linesref{ms-R5-C9a-begin}{ms-R5-C9a-end}
+\linesref{ms-R5C8-discussion-begin}{ms-R5C8-discussion-end}
+
+
+
+
+
+
+
+
+
+
+
+% ======================================================= %
+\end{document}
+% ======================================================= %

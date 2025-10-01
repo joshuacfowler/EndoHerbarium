@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  12 JUN 2025 11:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  1 OCT 2025 16:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Reviewer_response_endo_herbarium.tex
-(./Reviewer_response_endo_herbarium.tex
+**Reviewer_response_endo_herbarium_R3.tex
+(./Reviewer_response_endo_herbarium_R3.tex
 LaTeX2e <2018-04-01> patch level 2
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (/usr/local/texlive/2018/texmf-dist/tex/latex/base/article.cls
@@ -409,7 +409,7 @@ Version 1.0, Aug 13, 1994
 ) (/usr/local/texlive/2018/texmf-dist/tex/latex/tools/xr.sty
 Package: xr 1994/05/28 v5.02 eXternal References (DPC)
 )
-Package xr Info: IMPORTING LABELS FROM endo_herbarium_R1.aux on input line 32.
+Package xr Info: IMPORTING LABELS FROM endo_herbarium_R3.aux on input line 32.
 \c@cN=\count113
 
 (/usr/local/texlive/2018/texmf-dist/tex/generic/ulem/ulem.sty
@@ -424,8 +424,8 @@ Package xr Info: IMPORTING LABELS FROM endo_herbarium_R1.aux on input line 32.
 Package: ulem 2012/05/18
 \ULdepth=\dimen159
 )
-(./Reviewer_response_endo_herbarium.aux)
-\openout1 = `Reviewer_response_endo_herbarium.aux'.
+(./Reviewer_response_endo_herbarium_R3.aux)
+\openout1 = `Reviewer_response_endo_herbarium_R3.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 68.
 LaTeX Font Info:    ... okay on input line 68.
@@ -521,50 +521,25 @@ LaTeX Warning: No \author given.
 [1
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-[2]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 137.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 137.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 137.
-
-Underfull \hbox (badness 10000) in paragraph at lines 118--138
-
- []
-
-[3] [4] [5] [6] [7] [8] [9] [10] [11]
-Overfull \hbox (7.1551pt too wide) in paragraph at lines 249--252
-[]|   []   |   []\OT1/cmr/bx/n/12 : []\OT1/cmr/m/it/12 ``-L215: \bor-row in-for
--ma-tion" is more ap-pro-pri-ate than \bor-row strength".''
- []
-
-[12] [13] [14] [15]
-Underfull \hbox (badness 10000) in paragraph at lines 310--314
-
- []
-
-[16] [17] [18] [19] [20] (./Reviewer_response_endo_herbarium.aux) ) 
+[2] [3] [4] [5] (./Reviewer_response_endo_herbarium_R3.aux) ) 
 Here is how much of TeX's memory you used:
- 12628 strings out of 492649
- 253657 string characters out of 6129622
- 306690 words of memory out of 5000000
- 16257 multiletter control sequences out of 15000+600000
- 8954 words of font info for 32 fonts, out of 8000000 for 9000
+ 12655 strings out of 492649
+ 254197 string characters out of 6129622
+ 302409 words of memory out of 5000000
+ 16290 multiletter control sequences out of 15000+600000
+ 6516 words of font info for 24 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,6n,56p,1942b,193s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/
-texlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/t
-exlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/te
-xlive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texl
-ive/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texliv
-e/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
-/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on Reviewer_response_endo_herbarium.pdf (20 pages, 130691 bytes)
-.
+ 62i,6n,56p,927b,193s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texliv
+e/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive
+/2018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2
+018/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/201
+8/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on Reviewer_response_endo_herbarium_R3.pdf (5 pages, 74994 bytes
+).
 PDF statistics:
- 96 PDF objects out of 1000 (max. 8388607)
- 67 compressed objects within 1 object stream
+ 39 PDF objects out of 1000 (max. 8388607)
+ 27 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
