@@ -26,45 +26,45 @@ Warning--empty year in schmidt2025collector
 Warning--empty year in schmidt2025collector
 Warning--empty journal in seneviratne2021weather
 Warning--empty journal in simpson2017penalising
-You've used 144 entries,
+You've used 145 entries,
             2773 wiz_defined-function locations,
-            1389 strings with 34546 characters,
-and the built_in function-call counts, 80820 in all, are:
-= -- 6947
-> -- 6023
+            1395 strings with 34878 characters,
+and the built_in function-call counts, 81476 in all, are:
+= -- 7002
+> -- 6080
 < -- 42
-+ -- 2026
-- -- 1878
-* -- 7582
-:= -- 12682
-add.period$ -- 438
-call.type$ -- 144
-change.case$ -- 1046
-chr.to.int$ -- 140
-cite$ -- 295
-duplicate$ -- 2986
-empty$ -- 5737
-format.name$ -- 2064
-if$ -- 16401
++ -- 2045
+- -- 1896
+* -- 7648
+:= -- 12786
+add.period$ -- 441
+call.type$ -- 145
+change.case$ -- 1055
+chr.to.int$ -- 141
+cite$ -- 297
+duplicate$ -- 3007
+empty$ -- 5778
+format.name$ -- 2083
+if$ -- 16532
 int.to.chr$ -- 5
 int.to.str$ -- 1
-missing$ -- 141
-newline$ -- 732
-num.names$ -- 576
-pop$ -- 1887
+missing$ -- 142
+newline$ -- 737
+num.names$ -- 580
+pop$ -- 1903
 preamble$ -- 1
-purify$ -- 905
+purify$ -- 913
 quote$ -- 0
-skip$ -- 2409
+skip$ -- 2427
 stack$ -- 0
-substring$ -- 3429
-swap$ -- 173
+substring$ -- 3456
+swap$ -- 174
 text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 1574
+type$ -- 1585
 warning$ -- 7
-while$ -- 671
+while$ -- 676
 width$ -- 0
-write$ -- 1874
+write$ -- 1887
 (There were 4 error messages)
