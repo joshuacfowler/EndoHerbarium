@@ -16,10 +16,21 @@ Cleaned survey data can be found at the following Dryad data repository: [https:
 
 ## Repository Folder Description:
 This repository is set up with three folders:
+
 ### Analyses 
 holds scripts to cobble data and run analyses
 File Name  | Description
 ------------- | -------------
+
+ecolab_validation_data_prep.R|compiles contemporary endophyte survey data used as test data
+endo_herbarium_mesh_and_prior_sensitivity_analysis.R|performs sensitivity analyses for model choices included SPDE mesh and priors
+endo_herbarium_multispecies_spatiotemporal_analysis_with_conservative_scores.R|replicates central analysis of spatially-varying temporal trends with 'Conservative' endophyte scores
+endo_herbarium_multispecies_spatiotemporal_analysis|**Central analysis** of spatially-varying temporal trends in endophyte prevalence; performs model fitting in INLA and generates figures
+endo_herbarium_records_merge.R|script to combine herbarium endophyte survey data with various specimen locality databases, along with use of ggmap package to generate locality coordinates
+posthoc_climate_correlation.R|downloads climate data from PRISM, calculates observed change in climate drivers, and tests for relationships between modeled trends in endophyte prevalence and change in climate drivers
+sample_size_sensitivity_analysis.R|analysis to test ability of model to capture trends in data with spatially-biased missing data. performs this task by generating simulated data, and then fitting models with know proportion of data missing in one quadrant
+
+
 2022-07-13_README_for_year_random_effects_in_MPM.txt | notes about meeting between Josh and Tom clarifying how we are lining up the year random effects of the vital rate models within the population model. summary is that surv/growth occur in year t->t1, and reproduction occurs in year t1, but this reproduction informs new recruits in the following year.
 LTREB_endodemog_2021_Plant_locations_and_maps | script to compile maps of surviving plants in the plots during census based on XY coordinates
 
@@ -28,7 +39,7 @@ holds drafts and figures of manuscript. Final manuscript files are appended with
 
 File Name  | Description
 ------------- | -------------
-.bib | bib file containing references
+endo_herbarium.bib | bib file containing references
 endo_herbarium_GCB.tex | tex file for compiling final submission to journal.
 Other misc. files | Various aux and log files for latex, based around formatting template from \emph{The American Naturalist}.
 
