@@ -78,6 +78,8 @@ year_plot.png|global trend in endophyte prevalence for each hosts species
 
 
 
+### Misc. 
+Other files including some used for Jacob's SDM analysis to generate host range maps.
 
 
 
