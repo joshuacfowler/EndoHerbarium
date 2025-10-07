@@ -45,6 +45,50 @@ holds figures for manuscript.
 
 File Name  | Description
 ------------- | -------------
+AGHY_climate_change_plot.png|observed change in mean and sd of seasonal temp and preciptation across distribution of \emph{A. hyemalis}
+AGPE_climate_change_plot.png|observed change in mean and sd of seasonal temp and preciptation across distribution of \emph{A. perennans}
+ELVI_climate_change_plot.png|observed change in mean and sd of seasonal temp and preciptation across distribution of \emph{E. virginicus}
+ROC_test_plot.png|AUC performance of model on contemporary test data
+ROC_training_plot.png|AUC performance of model on historic training data
+climate_trends_plot_intercept.png|relationships between change in prevalence and change in seasonal climate drivers (Fig. 5)
+collections_map.png|maps of historic herbarium specimen locations (Fig. 1)
+collector_posterior.png|posterior estimates of collector random effects
+comparison_svc_plot.png|result of sensitivity analysis of different spde priors
+conservative_comparison_plot.png|result of sensitivity analysis of use of "Conservative" vs. "Liberal" scores
+contemp_surveys_map.png|map of contemporary test data
+contemporary_test_plot.png|map of predictions across contemporary test data (Fig. 6)
+endo_status_map.png|map of herbarium specimens colored by endophyte status
+finer_mesh_comparison_svc_plot.png|result of sensitivity analysis of finer mesh
+initialprev_trend_plot.png|relationship between starting endophyte prevalence and rate of change in endophyte prevalence
+mesh_plot.png|mesh used during model fitting
+overlay_plot.png|graphical posterior predictive check
+posterior_plot.png|graph of intercept and slope parameter posterior distributions
+prior_comparison_year_plot.png|prior sensitivity analysis
+sample_size_fulldata_plot.png|plot of simulated data as part of sensitivity analysis of spatially biased sampling
+sample_size_species2data_plot.png|plot of simulated data for "Species 2" across time periods as part of sensitivity analysis of spatially biased sampling
+scorer_posterior.png|posterior_estimates of scorer random effects
+sim_svc_CI_plot.png|uncertainty width in posterior estimates as part of sensitivity analysis of spatially biased sampling
+sim_svc_plot.png|posterior estimates as part of sensitivity analysis of spatially biased sampling
+standard_mesh_comparison_svc_plot.png|result of sensitivity analysis of finer mesh
+svc_space_map_year.png|map of predicted endophyte prevalence for each host species across two time points (Fig. 4)
+svc_time_map.png|map of predicted trend in endophyte prevalence across each host distribution (Fig. 3)
+svc_time_map_CI.png|map of posterior credible interval width of trends in endophyte prevalence
+year_plot.png|global trend in endophyte prevalence for each hosts species
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
