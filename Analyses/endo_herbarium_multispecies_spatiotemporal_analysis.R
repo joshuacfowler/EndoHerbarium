@@ -535,7 +535,7 @@ posterior_samples3 <- bind_cols(data3, post.pred3)
 
 posterior_samples <- bind_rows(posterior_samples1, posterior_samples2, posterior_samples3) %>% 
   arrange(row_number) %>% 
-  select(...55:...154) %>% st_drop_geometry %>% as.matrix()
+  select(...64:...163) %>% st_drop_geometry %>% as.matrix()
 
 # simulating datasets from the posterior samples
 n_post_draws <- 100
@@ -546,6 +546,7 @@ y_sim[i,] <- rbinom(n = length(endo_herb$Endo_status_liberal), size = 1, prob = 
 }
 
 saveRDS(y_sim, file = "y_sim.rds")
+y_sim <- readRDS("y_sim.rds")
 y_sim_df <- t(y_sim)
 colnames(y_sim_df) <- paste("iter", 1:n_post_draws)
 y_sim_df <- as_tibble(y_sim_df, .name_repair = "minimal") %>% 
@@ -673,7 +674,7 @@ year_trend <- ggplot(year.pred) +
   lims(y = c(0,1))
 
 # year_trend
-
+# ggsave(year_trend, filename = "Plots/year_trend.png", width = 11, height = 3.5)
 
 # Making a histogram of the data
 year_hist <- ggplot()+
@@ -699,7 +700,7 @@ year_hist <- ggplot()+
 
 
 year_plot <- year_hist/year_trend +
- plot_layout(ncol = 1, heights = c(1, 2))+ plot_annotation(tag_levels = "A") &   theme(plot.tag.position = c(-0, .96))
+ plot_layout(ncol = 1, heights = c(1, 2))+ plot_annotation(tag_levels = "a",   tag_prefix = '(',tag_suffix = ')') &   theme(plot.tag.position = c(-0, .96))
 
 year_plot
 ggsave(year_plot, filename = "Plots/year_plot.png", width = 7, height = 5)
@@ -731,9 +732,9 @@ year_posterior <- year_aghy + year_agpe + year_elvi + plot_layout(ncol = 1, axis
 
 
 
-int_posterior_wrap <- int_posterior + plot_annotation(tag_levels = list(c("A", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
+int_posterior_wrap <- int_posterior + plot_annotation(tag_levels = list(c("(a)", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
 
-year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("B", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
+year_posterior_wrap <- year_posterior + plot_annotation(tag_levels = list(c("(b)", "", ""))) & theme(plot.tag = element_text(size = rel(2)))
 
 posterior_plot <- wrap_elements(int_posterior_wrap)|wrap_elements(year_posterior_wrap)
 # posterior_plot
@@ -1032,7 +1033,8 @@ svc_time_map_ELVI <- ggplot()+
 
 
 
-svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+svc_time_map <- svc_time_map_AGHY + svc_time_map_AGPE + svc_time_map_ELVI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix=")")
+# svc_time_map
 ggsave(svc_time_map, filename = "Plots/svc_time_map.png", width = 15, height = 5)
 
 
@@ -1079,7 +1081,7 @@ svc_time_map_ELVI.CI <- ggplot()+
 
 
 
-svc_time_map.CI <- svc_time_map_AGHY.CI + svc_time_map_AGPE.CI + svc_time_map_ELVI.CI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+svc_time_map.CI <- svc_time_map_AGHY.CI + svc_time_map_AGPE.CI + svc_time_map_ELVI.CI + plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 ggsave(svc_time_map.CI, filename = "Plots/svc_time_map_CI.png", width = 15, height = 5)
 
 
@@ -1246,14 +1248,14 @@ svc_space_map_ELVI.2020
 
 
 svc_space_map <- (svc_space_map_AGHY.1895 + svc_space_map_AGPE.1895 + svc_space_map_ELVI.1895) / (svc_space_map_AGHY.2020 + svc_space_map_AGPE.2020 + svc_space_map_ELVI.2020)+
-  plot_layout(nrow = 2, guides = 'collect') + plot_annotation(tag_levels = "A")
+  plot_layout(nrow = 2, guides = 'collect') + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 ggsave(svc_space_map, filename = "Plots/svc_space_map_year.png", width = 12, height = 8)
 
 
 # evaluating whether or not change in prevalence is associated with starting prevalence
-vrt_aghy@data <- data.frame("trend.mean" = svc.pred_aghy$mean, "prev.mean" = svc.space.pred_aghy$mean)
-vrt_agpe@data <- data.frame("trend.mean" = svc.pred_agpe$mean, "prev.mean" = svc.space.pred_agpe$mean)
-vrt_elvi@data <- data.frame("trend.mean" = svc.pred_elvi$mean, "prev.mean" = svc.space.pred_elvi$mean)
+vrt_aghy@data <- data.frame("trend.mean" = svc.pred_aghy$mean, "prev.mean" = svc.space.pred_aghy.1895$mean)
+vrt_agpe@data <- data.frame("trend.mean" = svc.pred_agpe$mean, "prev.mean" = svc.space.pred_agpe.1895$mean)
+vrt_elvi@data <- data.frame("trend.mean" = svc.pred_elvi$mean, "prev.mean" = svc.space.pred_elvi.1895$mean)
 
 initialprev.trend_aghy <- ggplot(data = vrt_aghy@data)+
   geom_smooth(aes(x = prev.mean, y = trend.mean), color = "black", method = 'lm')+
@@ -1281,7 +1283,7 @@ initialprev.trend_elvi
 
 
 initialprev.trend_plot <- initialprev.trend_aghy+initialprev.trend_agpe+initialprev.trend_elvi+
-  plot_layout(nrow = 1, axis_titles = "collect", guides = 'collect') + plot_annotation( tag_levels = "A")
+  plot_layout(nrow = 1, axis_titles = "collect", guides = 'collect') + plot_annotation( tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 ggsave(initialprev.trend_plot, filename = "Plots/initialprev_trend_plot.png", width = 8, height = 4)
 
 ################################################################################################################################
@@ -1369,7 +1371,7 @@ contemp_obspred <- ggplot(contemp.pred)+
 
 
 contemp_test_plot <- contemp_lon + contemp_lat+contemp_obspred +
-  plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "A")
+  plot_layout(nrow = 1, guides = "collect") + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 # contemp_test_plot
 ggsave(contemp_test_plot, filename = "Plots/contemp_test_plot.png", width = 12, height = 5)
 ###
