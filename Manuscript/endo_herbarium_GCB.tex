@@ -254,14 +254,6 @@ $89$\% of scored plants had matching liberal and conservative scores, reflecting
 The following analyses used the liberal status, \firstrevise{however} repeating all analyses with the conservative status yielded qualitatively similar results (Fig. \ref{fig:conservative_scores_plot}).\linelabel{R2C26-end}
 
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/collections_map.png}
-	\caption[Collection locations of herbarium specimens sampled for \emph{Epichloë} endophytes]{\textbf{Collection locations of herbarium specimens sampled for \emph{Epichloë} endophytes.} Specimens span eastern North America from nine herbaria, and are colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). \firstrevise{Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
-	\label{fig:map}
-\end{figure}
-
-
 \subsection*{Modeling spatial and temporal changes in endophyte prevalence}
 We assessed spatial and temporal changes in endophyte prevalence across each host distribution, quantifying the ``global'' temporal trends \linelabel{R2C27-begin}\firstrevise{averaged}\linelabel{R2C27-end} across space, and then examining spatial heterogeneity in the direction and magnitude of endophyte change (hotspots and coldspots) across the spatial extent of each host's distribution.
 To account for the spatial non-independence of geo-referenced occurrences, we used an approximate Bayesian method, Integrated Nested Laplace Approximation (INLA), to construct spatio-temporal models of endophyte prevalence.
@@ -371,14 +363,6 @@ Across more than 2300 herbarium specimens dating back to 1824, we found that pre
 On average, endophytes of \emph{A. perennans} and \emph{E. virginicus} increased from $\sim 40$ \% to  $70$\% prevalence across the study region, and \emph{A. hyemalis} increased from $\sim 25$\% to over $50$\% prevalence.
 \linelabel{R2C33-begin}Our model indicates high \firstrevise{confidence}\linelabel{R2C33-end} that overall temporal trends are positive across species (99\% probability of a positive overall year slope in \emph{A. hyemalis}, 92\% probability of a positive overall year slope in \emph{A. perennans}, and 91\% probability of a positive overall year slope in \emph{E. virginicus}) (Fig. \ref{fig:temporal_posterior}). 
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/year_plot.png}
-	\caption[Temporal trends in endophyte prevalence.]{\textbf{Temporal trends in endophyte prevalence.} (A) Histograms show the frequency of scored specimens through time for each host species. (B)\firstrevise{ Lines show mean endophyte prevalence predicted by the endophyte prevalence model} over the study period along with the 50\%  and 95\% CI bands incorporating parameter uncertainty and variation associated with collector and scorer random effects. Colored points are binned means of the observed endophyte presence/absence data (black dashes). Colors represent each host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple) and point size represents the number of specimens.}
-	\label{fig:temporal}
-\end{figure}
-
-
 The model appears to under-predict the observed increase in endophyte prevalence relative to the data, particularly for \emph{A. hyemalis} (Fig. \ref{fig:temporal}B), but the model is accounting for random effects and spatial non-independence that are not readily seen in the figure. 
 We found no evidence that collector biases influenced our results. 
 Collector random effects were consistently small (Fig. \ref{fig:collector_fx}), and models fit with and without this random effect provide qualitatively similar results.
@@ -395,21 +379,6 @@ In some regions, posterior mean estimates of spatially varying temporal trends i
 Notably, endophytes are predicted to have increased most strongly towards the western range edge of \emph{A. hyemalis} (Fig. \ref{fig:svc_time_map}A) and across the northeastern US for \emph{A. perennans} (Fig. \ref{fig:svc_time_map}B). \linelabel{R1C7-begin}
 \firstrevise{Broad increases in prevalence on average, along with increases towards range edges that had low historic prevalence result in range expansions of the symbiosis for both \emph{Agrostis} species (Fig. \ref{fig:svc_space_year_map}). 
 Increases in prevalence were strongest in regions with low historic prevalence for the \emph{Agrostis} species (Fig. \ref{fig:initialprev_trend_plot} A-B), but for \emph{E. virginicus} trends did not differ according to historic prevalence (\ref{fig:initialprev_trend_plot} C).} \linelabel{R1C7-end}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/svc_time_map.png}
-	\caption[Predicted posterior mean of spatially-varying slopes representing change in endophyte prevalence for each host species.]{Predicted posterior mean of spatially-varying slopes representing change in endophyte prevalence for each host species ((A)\emph{A. hyemalis}; (B)\emph{A. perennans}; (C)\emph{E. virginicus}). \firstrevise{Spatially-varying trends are estimated from the endophyte prevalence model.} Color indicates the relative change in predicted endophyte prevalence. \firstrevise{Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
-	\label{fig:svc_time_map}
-\end{figure}
-
-
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/svc_space_map_year.png}
-	\caption[Predicted endophyte prevalence for each host species in 1895 and 2020.]{\firstrevise{Predicted endophyte prevalence for each host species in 1895 and 2020. \firstrevise{Predictions of prevalence come from the endophyte prevalence model.} Color indicates the posterior mean endophyte prevalence for (A, D) \emph{A. hyemalis}, (B, E) \emph{A. perennans}, and (C, F) \emph{E. virginicus}. Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
-	\label{fig:svc_space_year_map}
-\end{figure}
 
 
 
@@ -453,12 +422,6 @@ Changes in endophyte prevalence in \emph{E. virginicus} were not strongly associ
 \linelabel{R2C37-begin}Repeating this analysis using all pixels across each species' distribution were qualitatively similar to these results.\linelabel{R2C37-end}
 
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/climate_trends_plot_intercept.png}
-	\caption[Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.]{\textbf{Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.} Lines show marginal predicted relationship between spatially-varying trends in endophyte prevalence and changes in mean and variability of climate ((A): mean temperature, (B): cumulative precipitation, (C): standard deviation in temperature, (D): standard deviation in precipitation) \firstrevise{estimated from the \emph{post hoc} climate regression analysis}. Confidence bands represent the 50 and 95\% CI,  colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). Slopes with greater than 95\% \firstrevise{posterior} probability of being either positive or negative are represented as solid lines while those that have less than 95\% probability are dashed. Points are the \firstrevise{values of pre-computed SVC trends  and climate drivers at} 250 randomly sampled pixels across each host's distribution used in model fitting \firstrevise{for the \emph{post hoc} climate regression analysis}.}
-	\label{fig:climate_correlation_plot}
-\end{figure}
 
 \subsection*{Evaluation of model performance on an out-of-sample test}
 Tests of the endophyte prevalence model's predictive performance, as quantified by AUC and by visual posterior predictive checks, indicated good predictive ability. 
@@ -469,13 +432,6 @@ The model successfully captured broad regional trends in endophyte prevalence se
 
 %We discuss potential model improvements in the Discussion.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{../Plots/contemp_test_plot.png}
-	\caption[Predictive performance for contemporary test data.]{\textbf{Predictive performance for contemporary test data.} (A)
-		 The \firstrevise{endophyte prevalence model}, trained on historic herbarium collection data, performed modestly at predicting prevalence in contemporary population surveys. The model captured regional trends across (A) longitude and (B) latitude. Crosses indicate predicted mean prevalence along with the 95\% CI (colored lines: \emph{A. hyemalis}: green, orange, \emph{E. virginicus}: purple) from the herbarium model. Contemporary prevalence is represented by grey points (point size reflects sample size) along with trend lines from generalized linear models (black line and shaded 95\% confidence interval). (C) Comparison of \firstrevise{contemporary} observed \firstrevise{population prevalence} vs. predicted endophyte prevalence shows that contemporary test data had more variance between populations than \firstrevise{in model} predictions.}
-	\label{fig:contemptestplot}
-\end{figure}
 
 
 
@@ -643,15 +599,70 @@ J.M. contributed to data analysis and manuscript revisions.
 T.E.X.M. contributed to research conception, data collection, data analysis, and manuscript revisions.
 
 	
-	\section*{Data and Code Availability}
-	\sloppy{
-	Data from this publication can be found through a publicly available repository (https://doi.org/10.5061/dryad.rn8pk0pn0).
-	Code for analyses can be found through a publicly available repository (https://github.com/joshuacfowler/EndoHerbarium) that will be permanently archived upon publication.
-}
+	%\section*{Data and Code Availability}
+	%\sloppy{
+	%Data from this publication can be found through a publicly available repository (https://doi.org/10.5061/dryad.rn8pk0pn0).
+	%Code for analyses can be found through a publicly available repository (https://github.com/joshuacfowler/EndoHerbarium) that is %permanently archived on Zenodo: DOI: 10.5281/zenodo.17298101. Code includes methods for downloading publically available %datasets, including temperature and precipitation data from the PRISM climate group (https://prism.oregonstate.edu) and GBIF %occurrence records for \emph{Epichloë} host species (\emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, \emph{A. %perennans} \cite{https://doi.org/10.15468/dl.wtne24}, \emph{E.  virginicus} \cite{https://doi.org/10.15468/dl.yt76uh}).
+%}
 \newpage{}
 	\bibliographystyle{plainnat}
 	\bibliography{endo_herbarium}
 	
+	
+\newpage{}
+\section*{Figure Captions}
+
+\begin{figure}[h]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/collections_map.png}
+	\caption[Collection locations of herbarium specimens sampled for \emph{Epichloë} endophytes]{\textbf{Collection locations of herbarium specimens sampled for \emph{Epichloë} endophytes.} Specimens span eastern North America from nine herbaria, and are colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). \firstrevise{Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
+	\label{fig:map}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/year_plot.png}
+	\caption[Temporal trends in endophyte prevalence.]{\textbf{Temporal trends in endophyte prevalence.} (A) Histograms show the frequency of scored specimens through time for each host species. (B)\firstrevise{ Lines show mean endophyte prevalence predicted by the endophyte prevalence model} over the study period along with the 50\%  and 95\% CI bands incorporating parameter uncertainty and variation associated with collector and scorer random effects. Colored points are binned means of the observed endophyte presence/absence data (black dashes). Colors represent each host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple) and point size represents the number of specimens.}
+	\label{fig:temporal}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/svc_time_map.png}
+	\caption[Predicted posterior mean of spatially-varying slopes representing change in endophyte prevalence for each host species.]{Predicted posterior mean of spatially-varying slopes representing change in endophyte prevalence for each host species ((A)\emph{A. hyemalis}; (B)\emph{A. perennans}; (C)\emph{E. virginicus}). \firstrevise{Spatially-varying trends are estimated from the endophyte prevalence model.} Color indicates the relative change in predicted endophyte prevalence. \firstrevise{Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
+	\label{fig:svc_time_map}
+\end{figure}
+
+
+
+\begin{figure}[H]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/svc_space_map_year.png}
+	\caption[Predicted endophyte prevalence for each host species in 1895 and 2020.]{\firstrevise{Predicted endophyte prevalence for each host species in 1895 and 2020. \firstrevise{Predictions of prevalence come from the endophyte prevalence model.} Color indicates the posterior mean endophyte prevalence for (A, D) \emph{A. hyemalis}, (B, E) \emph{A. perennans}, and (C, F) \emph{E. virginicus}. Map lines delineate study areas and do not necessarily depict accepted national boundaries.}}
+	\label{fig:svc_space_year_map}
+\end{figure}
+
+
+
+\begin{figure}[H]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/climate_trends_plot_intercept.png}
+	\caption[Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.]{\textbf{Relationships between predicted trends in endophyte prevalence and changes in seasonal climate drivers.} Lines show marginal predicted relationship between spatially-varying trends in endophyte prevalence and changes in mean and variability of climate ((A): mean temperature, (B): cumulative precipitation, (C): standard deviation in temperature, (D): standard deviation in precipitation) \firstrevise{estimated from the \emph{post hoc} climate regression analysis}. Confidence bands represent the 50 and 95\% CI,  colored by host species (\emph{A. hyemalis}: green, \emph{A. perennans}: orange, \emph{E. virginicus}: purple). Slopes with greater than 95\% \firstrevise{posterior} probability of being either positive or negative are represented as solid lines while those that have less than 95\% probability are dashed. Points are the \firstrevise{values of pre-computed SVC trends  and climate drivers at} 250 randomly sampled pixels across each host's distribution used in model fitting \firstrevise{for the \emph{post hoc} climate regression analysis}.}
+	\label{fig:climate_correlation_plot}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	%\includegraphics[width = \linewidth]{../Plots/contemp_test_plot.png}
+	\caption[Predictive performance for contemporary test data.]{\textbf{Predictive performance for contemporary test data.} (A)
+		The \firstrevise{endophyte prevalence model}, trained on historic herbarium collection data, performed modestly at predicting prevalence in contemporary population surveys. The model captured regional trends across (A) longitude and (B) latitude. Crosses indicate predicted mean prevalence along with the 95\% CI (colored lines: \emph{A. hyemalis}: green, orange, \emph{E. virginicus}: purple) from the herbarium model. Contemporary prevalence is represented by grey points (point size reflects sample size) along with trend lines from generalized linear models (black line and shaded 95\% confidence interval). (C) Comparison of \firstrevise{contemporary} observed \firstrevise{population prevalence} vs. predicted endophyte prevalence shows that contemporary test data had more variance between populations than \firstrevise{in model} predictions.}
+	\label{fig:contemptestplot}
+\end{figure}
+
+
+
 \newpage{}
 
 
@@ -863,7 +874,7 @@ T.E.X.M. contributed to research conception, data collection, data analysis, and
 \textbf{Algorithms}: Maximum entropy (maxent)\\
 \textbf{Workflow}: We  described the workflow in the methods section of the manuscript. \\
 \textbf{Software}:  All statistics were performed using Maxent 3.3.4 and R4.3.1 with packages terra, usdm, spThin and dismo.\\
-\textbf{Code availability}: Available through this link: https://github.com/joshuacfowler/EndoHerbarium \\
+\textbf{Code availability}: Available through this link: https://github.com/joshuacfowler/EndoHerbarium and archived on Zenodo (DOI: 10.5281/zenodo.17298101)\\
 \textbf{Data availability}: Data was accessed through open-source R packages \emph{rgbif}. \emph{A. hyemalis} \cite{https://doi.org/10.15468/dl.ryqqcv}, \emph{A. perennans} \cite{https://doi.org/10.15468/dl.wtne24}, \emph{E.  virginicus} \cite{https://doi.org/10.15468/dl.yt76uh} \\
 {\color{blue}{Assessment}}\\
 We used AUC to test model performance.\\
