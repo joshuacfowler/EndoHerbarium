@@ -369,7 +369,7 @@ AGHY_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & spe
 AGHY_ppt_change_plot
 
 
-AGHY_climate_change_plot <- AGHY_tmean_change_plot/AGHY_ppt_change_plot + plot_annotation(tag_levels = "A")
+AGHY_climate_change_plot <- AGHY_tmean_change_plot/AGHY_ppt_change_plot + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 
 ggsave(AGHY_climate_change_plot, filename = "Plots/AGHY_climate_change_plot.png", width = 8, height = 10)
 
@@ -392,7 +392,7 @@ AGPE_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & spe
 # AGPE_ppt_change_plot
 
 
-AGPE_climate_change_plot <- AGPE_tmean_change_plot/AGPE_ppt_change_plot + plot_annotation( tag_levels = "A")
+AGPE_climate_change_plot <- AGPE_tmean_change_plot/AGPE_ppt_change_plot + plot_annotation( tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 
 ggsave(AGPE_climate_change_plot, filename = "Plots/AGPE_climate_change_plot.png", width = 8, height = 10)
 
@@ -415,7 +415,7 @@ ELVI_ppt_change_plot <- ggplot(filter(prism_diff_pred_df, climate == "ppt" & spe
 # ELVI_ppt_change_plot
 
 
-ELVI_climate_change_plot <- ELVI_tmean_change_plot/ELVI_ppt_change_plot + plot_annotation( tag_levels = "A")
+ELVI_climate_change_plot <- ELVI_tmean_change_plot/ELVI_ppt_change_plot + plot_annotation( tag_levels = "a", tag_prefix = "(", tag_suffix = ")")
 
 ggsave(ELVI_climate_change_plot, filename = "Plots/ELVI_climate_change_plot.png", width = 8, height = 10)
 
@@ -912,7 +912,7 @@ ppt_sd_trend <- ggplot(filter(prediction_df, grepl("ppt", name) & grepl("sd", na
 # ppt_sd_trend$layers[4:6] <- NULL; ppt_sd_trend$layers[[3]]$aes_params$alpha  <-0
 
   
-climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "A") +  theme(plot.tag = element_text(face = 'bold'))
+climate_trends_plot <- (tmean_trend + ppt_trend) /( tmean_sd_trend + ppt_sd_trend) + plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") +  theme(plot.tag = element_text(face = 'bold'))
 
 ggsave(climate_trends_plot, filename = "Plots/climate_trends_plot_intercept.png", width = 14, height = 10)
 
